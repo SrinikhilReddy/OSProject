@@ -14,7 +14,8 @@ char *command;
 
 int main(int argc, char *argv[], char *envp[]) { 
 //Have to modify to implement script execution, when file name is passed as an argument
- 	while(1){
+	if(argv!= NULL){ 	
+	while(1){
 		puts("sbush> ");
 		in = malloc(sizeof(char)*1000); 	
 		readInput();
@@ -25,8 +26,10 @@ int main(int argc, char *argv[], char *envp[]) {
 		parseInput();
 		execCommand();
 	}
+	
 	free(in);
- 	return 0;
+ 	}
+	return 0;
 }
 
 void execCommand(){
@@ -63,6 +66,11 @@ void parseInput(){
 
 void chdir_1(char **args){
 	puts("S");
+		// Input validation for args need to be done
 		// Error cases to be handled	
-	chdir(args[0]);
+	
+	int i = chdir(args[0]);
+	if(i==0){
+		puts("Success");
+	}
 }
