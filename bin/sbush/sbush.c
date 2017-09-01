@@ -13,6 +13,7 @@ char **args; //=malloc(sizeof(char)*1000*1000);
 char *command;
 
 int main(int argc, char *argv[], char *envp[]) { 
+//Have to modify to implement script execution, when file name is passed as an argument
  	while(1){
 		puts("sbush> ");
 		in = malloc(sizeof(char)*1000); 	
@@ -22,18 +23,21 @@ int main(int argc, char *argv[], char *envp[]) {
 			break;	
 		}
 		parseInput();
+		execCommand();
 	}
 	free(in);
  	return 0;
 }
 
 void execCommand(){
-	for(int i=0;i<(sizeof(commands)/sizeof(char));i++){	
+	puts(command);
+//	for(int i=0;i<(sizeof(commands)/sizeof(char));i++){	
 //Need better if checks
-		if( (strcmp(command,commands[i]) == 0) && (strcmp(command,"cd") == 0)){
+		if( /*(strcmp(command,commands[i]) == 0) &&*/ (strcmp(command,"cd") == 0)){
+			//Need to check if this is really required 
 			chdir_1(args);	
 		}
-	}
+//	}
 }
 void readInput(){
 	char c;
@@ -58,6 +62,7 @@ void parseInput(){
 }
 
 void chdir_1(char **args){
-	// Error cases to be handled	
+	puts("S");
+		// Error cases to be handled	
 	chdir(args[0]);
 }
