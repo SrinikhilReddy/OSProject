@@ -22,18 +22,34 @@ char* strtok(char *string, const char *d){
 	}
 	static int index_s;
 	int index_d=0;
-	while(s[index]!='\0')
+	int i=index_s;
+	while(s[index_s]!='\0')
 	{	index_d=0;
-		while(d[j]!='\0')
+		while(d[index_d]!='\0')
 		{
 			if(s[index_s]==d[index_d])
 			{
-				
+				s[index_s]='\0';
 			}
 			index_s++;	
+			if(s[i]!='\0')
+			{
+				return &s[i];
+			}
+			else
+			{
+				i=index_s;
+				index_s--;
+				break;
+			}	
+			index_d++;
 		}
-		
+		index_s++;
 	}
-	
+	s[index_s]='\0';
+	if(s[i]=='\0')
+		return NULL;
+	else
+		return &s[i];
 	
 }
