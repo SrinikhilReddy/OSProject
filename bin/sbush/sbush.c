@@ -14,21 +14,45 @@ char *command;
 
 int main(int argc, char *argv[], char *envp[]) { 
 //Have to modify to implement script execution, when file name is passed as an argument
-	if(argv!= NULL){ 	
-	while(1){
-		puts("sbush> ");
-		in = malloc(sizeof(char)*1000); 	
-		readInput();
-		if(strcmp(in,"exit") == 0){
-			puts("Exiting.....");
-			break;	
+	if(argv[1]== NULL){ 	
+		while(1){
+			puts("sbush> ");
+			in = malloc(sizeof(char)*1000); 	
+			readInput();
+			if(strcmp(in,"exit") == 0){
+				puts("Exiting.....");
+				break;	
+			}
+			parseInput();
+			execCommand();
 		}
-		parseInput();
-		execCommand();
+	}else{
+		puts(argv[1]);
+		FILE *fp;
+		//in = malloc(sizeof(char)*1000);
+		fp = fopen(argv[1],"r");
+		int c = 0,i=0;
+		//c = getc(fp);
+		while(c!=EOF){
+		        puts("sss");
+			in = malloc(sizeof(char)*1000);
+			c = getc(fp++);	
+			while(c!='\n'){
+				in[i++]=(char) c;
+				puts(in);
+				c = getc(fp++);
+				puts(in);	
+			}
+				
+			puts(in);
+			i=0;
+			free(in);
+		//c=getc(++fp);
+		}
 	}
 	
 	free(in);
- 	}
+ 	
 	return 0;
 }
 
@@ -37,7 +61,7 @@ void execCommand(){
 //	for(int i=0;i<(sizeof(commands)/sizeof(char));i++){	
 //Need better if checks
 		if( /*(strcmp(command,commands[i]) == 0) &&*/ (strcmp(command,"cd") == 0)){
-			//Need to check if this is really required 
+				//Need to check if this is really required 
 			chdir_1(args);	
 		}
 //	}
@@ -65,12 +89,13 @@ void parseInput(){
 }
 
 void chdir_1(char **args){
-	puts("S");
+//	puts("S");
 		// Input validation for args need to be done
 		// Error cases to be handled	
 	
-	int i = chdir(args[0]);
+	chdir(args[0]);	
+/*	int i = chdir(args[0]);
 	if(i==0){
 		puts("Success");
-	}
+	}*/
 }
