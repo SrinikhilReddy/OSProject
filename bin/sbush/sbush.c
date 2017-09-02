@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <sys/wait.h>
 void readInput();
 void parseInput();
 void execCommand();
@@ -46,25 +46,35 @@ int main(int argc, char *argv[], char *envp[]) {
 			i=0;
 		}
 	}
-	free(in);
-	free(args);
-	free(command); 	
+//	free(in);
+//	free(args);
+//	free(command); 	
 	return 0;
 }
 
 void execCommand(){
-//	puts(command);
-//	for(int i=0;i<(sizeof(commands)/sizeof(char));i++){	
-//Need better if checks
-		if( /*(strcmp(command,commands[i]) == 0) &&*/ (strcmp(command,"cd") == 0)){
-			/*	if(args==NULL){	
-					puts("NULL");
-					args[0]="";
-				}	*/
-			//Need to check if this is really required 
-				chdir_1(args);	
-		}
-//	}
+	int pid;
+	if(strcmp(command,"cd") == 0){
+			chdir_1(args);	
+	}
+	else{
+		if ((pid = fork ()) == 0) {
+//			puts(";;;;");
+	//		puts(command);
+	//		puts(args[0]);
+	//		args[1] = '\0';
+			if(execvp(command, args) == -1){
+				puts("error");
+			}
+	    	}
+		else if (pid > 0) {		
+			wait (0);
+	    	}
+		else {
+			
+			perror ("Failed to fork\n");
+	    	}
+	}
 }
 void readInput(){
 	char c;
@@ -78,31 +88,23 @@ void readInput(){
 void parseInput(){
 	char *temp = strtok(in," ");
 	command = temp;
-	int i=0;
+//	arg[0] = temp;
+	int i=1;
 	args =  malloc(sizeof(char)*1000*1000);
-
+	args[0] = temp;
 	temp = strtok(NULL," ");
-	while(temp!= NULL){
-		
+	while(temp!= NULL){		
 		args[i] = temp;
 		temp = strtok(NULL," ");
-//		puts(args[i]);
-		}
+	}
 }
 
 void chdir_1(char **args){
-	//	puts(args[0]);
-		// Input validation for args need to be done
-		// Error cases to be handled	
-	if(args[0] == NULL){
+	if(args[1] == NULL){
 		puts("No argument passed");
 		return;
 	}
-//	int i = chdir(args[0]);
-	if(chdir(args[0])!=0){
+	if(chdir(args[1])!=0){
 		puts("Invalid CD usage. Check path and argument passed");
-	}
-	else{
-	puts("success");
 	}
 }
