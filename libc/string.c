@@ -53,3 +53,14 @@ char* strtok(char *string, const char *d){
 		return &s[i];
 	
 }
+
+void strcpy(char *string2, char *string1){
+
+	while(*string1)
+	{
+		*string2=*string1;
+		*string1++;
+		*string2++;
+	}
+	*string2='\0';
+}
