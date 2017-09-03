@@ -15,7 +15,9 @@ void clearArguments();
 void setStringTokens(char* string, char delimiter, char* strs[]);
 void initargs();
 void setvar(char *args[]);
+void forkandExec();
 
+int argsNo;
 char input[1025];
 char com[1025];
 char arg[1000][1000];
@@ -28,17 +30,17 @@ int main(int argc, char *argv[], char *envp[]) {
 	initargs();
 	if(argv[1]== NULL){ 	
 		while(1){
-			puts(prompt);
-			puts(">");
+			fputs(prompt,stdout);
+			fputs(">",stdout);
 			readInput();
 			if(input[0] == '\0'){
 				continue;
 			}
-			if(strcmp(in,"exit") == 0){
+			if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
 				return 0;	
 			}
 			parseInput();
-			execCommand();
+//			execCommand();
 
 			clearInput();
 			clearCommand();
@@ -59,7 +61,7 @@ int main(int argc, char *argv[], char *envp[]) {
 				c = fgetc(fp);
 			}	
 			parseInput();
-			execCommand();			
+			//execCommand();			
 			i=0;
 
 			clearInput();
@@ -71,7 +73,6 @@ int main(int argc, char *argv[], char *envp[]) {
 }
 
 void execCommand(){
-	int pid;
 	if(strcmp(command,"cd") == 0){
 		chdir_1(args);	
 	}
@@ -79,18 +80,22 @@ void execCommand(){
 		setvar(args);
 	}
 	else{
-		if ((pid = fork ()) == 0) {
-			if(execvp(command, args) == -1){
-				puts("error");
-			}
+		forkandExec(command);
+	}
+}
+void forkandExec(char* cmd){
+	int pid;
+	if ((pid = fork ()) == 0) {
+		if(execvp(cmd, args) == -1){
+			puts("error");
 		}
-		else if (pid > 0) {		
-			wait (0);
-		}
-		else {
+	}
+	else if (pid > 0) {
+		wait (0);
+	}
+	else {
 
-			perror ("Failed to fork\n");
-		}
+		perror ("Failed to fork\n");
 	}
 }
 void readInput(){
@@ -103,8 +108,39 @@ void readInput(){
 }
 
 void parseInput(){
-	setStringTokens(in,' ',args);
-	command = args[0];
+	setStringTokens(in,'|',args);
+	if(args[1] == NULL){ //Not a pipe command
+		clearArguments();
+		setStringTokens(in,' ',args);
+		command = args[0];
+		execCommand();
+		return;
+	}
+	else{   //Pipe Command
+		char parg1[10][1000],parg2[10][1000];
+		char *pargs1[10],*pargs2[10];	
+		for(int i=0;i<10;i++){
+	                 pargs1[i] = &parg1[i][0];
+			 pargs2[i] = &parg2[i][0];
+	        }
+		setStringTokens(args[0],' ',pargs1);
+		setStringTokens(args[1],' ',pargs2);
+		int fd[2];
+		pid_t pid;
+		pipe(fd);
+		if((pid=fork()) == 0){
+			dup2(fd[0],0);
+			execvp(pargs2[0],pargs2);
+		}
+		else if(pid > 0){
+			dup2(fd[1],1);
+			execvp(pargs1[0],pargs1);
+			wait(0);	
+		}
+		else{
+			puts("Error in creating process");
+		}
+	}	
 }
 
 void chdir_1(char **args){
@@ -116,6 +152,7 @@ void chdir_1(char **args){
 		puts("Invalid CD usage. Check path and argument passed");
 	}
 }
+
 
 void initargs(){
 	for(int i=0;i<1000;i++){
@@ -143,7 +180,7 @@ void clearArguments(){
 	}
 }
 void setvar(char *args[]){
-	char pul[2][1000];//={"aaaaaaaaA","aaaaaaaaA"};
+	char pul[3][1000];//={"aaaaaaaaA","aaaaaaaaA"};
 	char *a[3];
 	a[0]=&pul[0][0];
 	a[1]=&pul[1][0];
@@ -158,9 +195,10 @@ void setStringTokens(char* str, char delimiter, char* strs[]){
 	int i=0,j=0,k=0;
 	while(str[k]!='\n'){
 		if(str[k] == delimiter || str[k] == '\0'){
-			 strs[i][j]='\0';
+			strs[i][j]='\0';
 			if(str[k]=='\0'){	
 				strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+				argsNo = i+1;
 				return;	
 			}
 			i++;
