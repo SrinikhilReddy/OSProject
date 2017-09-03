@@ -12,18 +12,24 @@ void chdir_1(char **args);
 void clearInput();
 void clearCommand();
 void clearArguments();
+void setStringTokens(char* string, char delimiter, char* strs[]);
+void initargs();
+void setvar(char *args[]);
 
 char input[1025];
 char com[1025];
-char *arguments[1000];
+char arg[1000][1000];
+char prompt[1000] = "sbush";
 char *in = &input[0] ; //= malloc(sizeof(char)*1000);
-char **args = &arguments[0]; //=malloc(sizeof(char)*1000*1000);
+char *args[1000] ; //=malloc(sizeof(char)*1000*1000);
 char *command = &com[0];
 
 int main(int argc, char *argv[], char *envp[]) { 
+	initargs();
 	if(argv[1]== NULL){ 	
 		while(1){
-			puts("sbush> ");
+			puts(prompt);
+			puts(">");
 			readInput();
 			if(input[0] == '\0'){
 				continue;
@@ -69,6 +75,9 @@ void execCommand(){
 	if(strcmp(command,"cd") == 0){
 		chdir_1(args);	
 	}
+	else if(strcmp(command,"export") == 0){
+		setvar(args);
+	}
 	else{
 		if ((pid = fork ()) == 0) {
 			if(execvp(command, args) == -1){
@@ -94,15 +103,8 @@ void readInput(){
 }
 
 void parseInput(){
-	char *temp = strtok(in," ");
-	command = temp;
-	int i=1;
-	args[0] = temp;
-	temp = strtok(NULL," ");
-	while(temp!= NULL){		
-		args[i++] = temp;
-		temp = strtok(NULL," ");
-	}
+	setStringTokens(in,' ',args);
+	command = args[0];
 }
 
 void chdir_1(char **args){
@@ -115,6 +117,11 @@ void chdir_1(char **args){
 	}
 }
 
+void initargs(){
+	for(int i=0;i<1000;i++){
+		args[i] = &arg[i][0];
+	}
+}
 void clearInput(){
 	for(int i=0;i<sizeof(input)/sizeof(char);i++){
 		input[i] = '\0';
@@ -129,6 +136,39 @@ void clearCommand(){
 
 void clearArguments(){
 	for(int i=0;i<1000;i++){
-		arguments[i] = NULL;		
+		args[i] = &arg[i][0];
+		for(int j=0;j<1000;j++){
+			arg[i][j] = '\0' ;		
+		}
 	}
+}
+void setvar(char *args[]){
+	char pul[2][1000];//={"aaaaaaaaA","aaaaaaaaA"};
+	char *a[3];
+	a[0]=&pul[0][0];
+	a[1]=&pul[1][0];
+	a[2]=&pul[2][0];
+	setStringTokens(args[1],'=',a);
+	if(strcmp("PS1",a[0])==0){
+		strcpy(prompt,a[1]);
+	}
+}
+
+void setStringTokens(char* str, char delimiter, char* strs[]){
+	int i=0,j=0,k=0;
+	while(str[k]!='\n'){
+		if(str[k] == delimiter || str[k] == '\0'){
+			 strs[i][j]='\0';
+			if(str[k]=='\0'){	
+				strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
+				return;	
+			}
+			i++;
+			j=0;
+		}
+		else{
+			strs[i][j++]=str[k];
+		}
+		++k;
+	}	
 }
