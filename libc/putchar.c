@@ -2,6 +2,8 @@
 
 int putchar(int c)
 {
-  // write character to stdout
-  return c;
+	// write character to stdout
+	
+	
+  	return c;
 }
