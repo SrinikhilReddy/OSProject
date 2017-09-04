@@ -1,12 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-int main()
-{
-	
-}
-
-char* c getenv_()
+char*  getenv_()
 {
 	return getenv("PATH");
 }
