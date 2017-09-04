@@ -23,8 +23,8 @@ __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rdi; syscalls;" \
 do{ \
 long __res; \
 __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rdi; movq %3, %%rsi; syscall;" \
-                  : "=a" (__res) \
-                  : "r" (__NR_##name),"r" ((long)(arg1)),"r" ((long)(arg2)) \
+                  : "=r" (__res) \
+                  : "g" (__NR_##name),"g" ((long)(arg1)),"g" ((long)(arg2)) \
 		  : "rax","rdi","rsi"); \
  return (type) (__res); \
 }while(0)
