@@ -1,7 +1,7 @@
 #include "../include/syscall.h"
 #include "../include/CONSTANTS.h"
 
-int getchar()
+int gets(char *string)
 {
-	fgetchar(stdin);
+	fgets(string,stdin);
 }
