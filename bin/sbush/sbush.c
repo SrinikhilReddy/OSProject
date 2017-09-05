@@ -8,7 +8,6 @@
 #include "../../libc/execvp.c"
 #include "../../libc/exit.c"
 #include "../../libc/getchar.c"
-#include "../../libc/file.c"
 #include "../../libc/open.c"
 #include "../../libc/pipe.c"
 #include "../../libc/puts.c"

@@ -11,5 +11,6 @@ char fgetchar(FILE *f)
 int readcall(FILE* f)
 {
 	_syscall3(int, read, int, f->fd, char, &c, int, 1);
+
 }
 
