@@ -7,6 +7,3 @@ int putchar(int c)
 	_syscall3(int,write,int,1,char,&c,int,size);
   	return c;
 }
-int main(){
-	putchar('c');
-}
