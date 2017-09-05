@@ -5,11 +5,7 @@ static const int EOF = -1;
 
 typedef struct file
 {
-        int char_count;
-        int access_mode;
-        int fdesc;
-        char *base;
-        char *next;
+        int fd;
 }FILE;  
 
 enum flag

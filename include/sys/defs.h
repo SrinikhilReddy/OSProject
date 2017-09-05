@@ -3,6 +3,10 @@
 
 #define NULL ((void*)0)
 
+#define stdin 0
+#define stdout 1
+#define O_RDONLY 00
+
 typedef unsigned long  uint64_t;
 typedef          long   int64_t;
 typedef unsigned int   uint32_t;

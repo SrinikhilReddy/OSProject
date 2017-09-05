@@ -1,25 +1,16 @@
-#include <CONSTANTS.h>
+#include <sys/defs.h>
 #include <stdio.h>
-
-FILE *fopen(char *name, char *mode)
+#include "open.c"
+FILE* fopen(char *name, char *mode)
 {
-	if((*mode!='a')&&(*mode!='r')&&(*mode!='w'))
-		return NULL;
-	FILE *f;
-
-	int d;	
-	if(*mode=='r')
-	{
-		open(name, O_RDONLY);
-		f->access_mode=READ;
-	}
-	else
-	{
-		//throw error
-	}
-	f->char_count=0;
-	f->fdesc=d;
-	f->base=NULL;
-		
-	return f;
+    FILE fp = {1};
+    FILE* f;
+    int flag;
+    if(*mode == 'r'){
+    	flag = O_RDONLY;
+    }
+    fp.fd = open(name,flag);
+    f = &fp;
+    return f;	
 }
+

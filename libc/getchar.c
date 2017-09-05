@@ -1,5 +1,5 @@
 #include "../include/syscall.h"
-#include "../include/CONSTANTS.h"
+#include "../include/sys/defs.h"
 
 int getchar()
 {

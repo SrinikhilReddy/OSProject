@@ -230,7 +230,7 @@ void setvar(char *args[]){
 		strcpy(prompt,a[1]);
 	}
 	if(strcmp("PATH",a[0])==0){
-               setenv("PATH", a[1], 1);
+             //  setenv("PATH", a[1], 1);
        }
 }
 
