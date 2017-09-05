@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../libc/string.c"
 #include <unistd.h>
-#include <sys/wait.h>
 
 
 void readInput();
@@ -18,18 +16,19 @@ void setvar(char *args[]);
 void forkandExec(char* cmd,char* ag[]);
 int getInputArgCounts();
 
-int isBackground = 0;
+int isBackground;
 int argsNo;
 char input[1025];
 char com[1025];
 char arg[1000][1000];
-char prompt[1000] = "sbush";
+char prompt[1000];
 char *in = &input[0] ; //= malloc(sizeof(char)*1000);
 char *args[1000] ; //=malloc(sizeof(char)*1000*1000);
 char *command = &com[0];
 
 int main(int argc, char *argv[], char *envp[]) { 
 	initargs();
+	strcpy(prompt,"sbush");
 	if(argv[1]== NULL){ 	
 		while(1){
 			fputs(prompt,stdout);
