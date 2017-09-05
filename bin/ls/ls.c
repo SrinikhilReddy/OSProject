@@ -2,12 +2,12 @@
 #include "../include/stdio.h"
 #include "../include/stdlib.h"
 
-void ls()
+int main(int argc, char* argv[], char* envp[])
 {
-	char *curr=getenv("PWD");
+	char *curr=(char*) getenv("PWD");
 	DIR *dir=opendir((const char*)curr);
 	struct dirent *r ;
-	while(r=readdir(dir))
+	while((r=readdir(dir)))
 	{
 		puts(r->d_name);	
 	}
