@@ -1,4 +1,4 @@
-#include "../include/syscall.h"
+#include <syscall.h>
 
 int chdir(const char *path)
 {

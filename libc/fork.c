@@ -1,6 +1,7 @@
-#include "../include/syscall.h"
+#include <syscall.h>
+#include <sys/defs.h>
 
-int fork()
+pid_t fork()
 {
-	_syscall(int, fork);
+	_syscall(pid_t, fork);
 }

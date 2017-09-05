@@ -1,6 +1,6 @@
 #include "../include/syscall.h"
 
-/*int fgets(char *string,int n,FILE *f)
+int fgets(char *string,int n,FILE *f)
 {
 	int n;
 	char *s=string;
@@ -10,4 +10,4 @@
 	}
 	*s='\n';
 	return string;	
-}*/
+}

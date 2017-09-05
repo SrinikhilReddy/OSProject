@@ -1,14 +1,7 @@
-#include "../include/syscall.h"
-#include "putchar.c"
-#include "../include/CONSTANTS.h"
+#include <syscall.h>
+#include <CONSTANTS.h>
 int puts(const char *s)
 {
   for( ; *s; ++s) if (putchar(*s) != *s) return EOF;
   return (putchar('\n') == '\n') ? 0 : EOF;
-}
-
-int main()
-{
-	char *s="abcdef";
-	puts(s);
 }

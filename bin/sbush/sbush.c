@@ -12,10 +12,7 @@
 #include "../../libc/open.c"
 #include "../../libc/pipe.c"
 #include "../../libc/puts.c"
-
-
-
-
+#include "../../libc/fgetchar.c"
 
 void readInput();
 void parseInput();
@@ -70,10 +67,10 @@ int main(int argc, char *argv[], char *envp[]) {
 		}
 		int c,i=0;
 		while(c!=EOF){
-			c = fgetc(fp);	
+			c = fgetchar(fp);	
 			while(c!='\n' && c!=EOF){
 				in[i++]=(char) c;
-				c = fgetc(fp);
+				c = fgetchar(fp);
 			}	
 			parseInput();
 			//execCommand();			
@@ -114,7 +111,7 @@ void forkandExec(char* cmd,char* ag[]){
 	}
 	else {
 
-		perror ("Failed to fork\n");
+		puts("Failed to fork\n");
 	}
 }
 void readInput(){

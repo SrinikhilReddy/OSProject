@@ -1,23 +1,5 @@
-#include "open.c"
-#include "../include/CONSTANTS.h"
-#define PERMS 0666
-#define NULL 0
-
-typedef struct file
-{
-	int char_count;
-	int access_mode;
-	int fdesc;
-	char *base;
-	char *next;
-}FILE; 	
-
-enum flag
-{
-	READ=1,
-	WRITE=2
-};
-
+#include <CONSTANTS.h>
+#include <stdio.h>
 
 FILE *fopen(char *name, char *mode)
 {

@@ -1,7 +1,13 @@
 #include "../include/syscall.h"
-
-/*int fgetchar(FILE *f)
+size_t readcall(FILE* f);
+char c;
+char fgetchar(FILE *f)
 {
-	char c;
-	_syscall3(int, read, int, *f, char, &c, int, 1);
-}*/
+	readcall(f);
+	return c;
+}
+size_t readcall(FILE* f)
+{
+	_syscall3(size_t, read, FILE*, f, char, &c, int, 1);
+}
+

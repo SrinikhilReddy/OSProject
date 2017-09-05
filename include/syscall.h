@@ -1,4 +1,7 @@
+#ifndef _SYSCALL_H
+#define _SYSCALL_H
 #include "syscall_const.h"
+
 #define _sys_return(type,res) \
 do{ 				\
 	return (type)(res); \
@@ -43,3 +46,4 @@ __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rdi; movq %3, %%rsi; movq %4, %
 		  : "rax","rdi","rsi","rdx"); \
  return (type) (__res); \
 }while(0)
+#endif
