@@ -20,7 +20,7 @@ void strcpy(char *string2, char *string1){
 	*string2='\0';
 }
 
-int strlen(char *string)
+int strlen(const char *string)
 {
 	int length=0;
 	while(*string)

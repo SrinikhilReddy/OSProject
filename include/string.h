@@ -4,5 +4,5 @@
 #include "stdio.h"
 int strcmp(char* s, char* t);
 void strcpy(char* s, char* t);
-int strlen(char* s);
+int strlen(const char* s);
 #endif

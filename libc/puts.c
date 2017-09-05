@@ -1,8 +1,9 @@
 #include <syscall.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
 int puts(const char *s)
 {
-  for( ; *s; ++s) if (putchar(*s) != *s) return EOF;
-  return (putchar('\n') == '\n') ? 0 : EOF;
+	int len=strlen(s);
+	_syscall3(int,write,int,stdout,char*,s,int,len);
 }
