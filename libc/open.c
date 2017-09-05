@@ -1,8 +1,8 @@
 #include <syscall.h>
-#include <sys/defs.h>
+#include "../include/sys/defs.h"
 #include <stdio.h>
 int open(const char *path,int flags);
-FILE* fopen(char *name, char *mode)
+FILE *fopen(char *name, char *mode)
 {
     FILE fp = {1};
     FILE* f;
