@@ -1,5 +1,6 @@
 #include "../include/syscall.h"
-
+#include "putchar.c"
+#include "../include/CONSTANTS.h"
 int puts(const char *s)
 {
   for( ; *s; ++s) if (putchar(*s) != *s) return EOF;

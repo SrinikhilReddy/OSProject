@@ -3,5 +3,7 @@
 
 int getchar()
 {
-	fgetchar(stdin);
+	char c;
+	_syscall3(int, read, int, stdin, char, &c, int, 1);
+//	fgetchar(stdin);
 }

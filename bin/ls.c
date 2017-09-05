@@ -1,16 +1,18 @@
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "../include/dirent.h"
+#include "../include/stdio.h"
+#include "../include/stdlib.h"
 
-int main(int argc, char *argv[])
+void ls()
 {
 	char *curr=getenv("PWD");
 	DIR *dir=opendir((const char*)curr);
-	struct dirent *r;
+	struct dirent *r ;
 	while(r=readdir(dir))
 	{
 		puts(r->d_name);	
 	}
 	return 0;
 }
-
+int main(){
+	ls();
+}

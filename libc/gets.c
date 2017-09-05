@@ -1,7 +1,15 @@
 #include "../include/syscall.h"
 #include "../include/CONSTANTS.h"
-
-int gets(char *string)
+#include "getchar.c"
+char* gets(char *string)
 {
-	fgets(string,stdin);
+	int n;
+       char *s=string;
+       while(((n=getchar())!='\n')&&(n!=EOF))
+           {
+                   *s++=n;
+          }
+          *s='\n';
+          return string;
+	//	fgets(string,stdin);
 }

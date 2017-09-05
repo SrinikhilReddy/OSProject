@@ -1,5 +1,5 @@
 #include "../include/syscall.h"
 
-int clone()
+/*int clone()
 {
-}
+}*/

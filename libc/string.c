@@ -1,4 +1,3 @@
-#include<stdio.h>
 
 int strcmp_(char *s,char *t){
 	while(*s==*t)
@@ -11,7 +10,7 @@ int strcmp_(char *s,char *t){
 	return *s-*t;
 }
 
-void strcpy_(char *string2, char *string1){
+int strcpy_(char *string2, char *string1){
 
 	while(*string1)
 	{
