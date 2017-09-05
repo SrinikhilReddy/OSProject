@@ -12,5 +12,4 @@ char* gets(char *string)
           }
           *s='\n';
           return string;
-	//	fgets(string,stdin);
 }

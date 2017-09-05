@@ -1,9 +1,13 @@
 #include "../include/syscall.h"
 #include "../include/sys/defs.h"
-
+int readCall();
+int c;
 int getchar()
 {
-	char c;
-	_syscall3(int, read, int, stdin, char, &c, int, 1);
-//	fgetchar(stdin);
+    readCall();
+    return (int)c;
+}	
+int readCall(){
+
+	_syscall3(int, read, int, stdin,int*,&c, int, 1);
 }

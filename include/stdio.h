@@ -15,6 +15,7 @@ enum flag
 };
 
 
+int fputchar(int c,FILE* fp);
 int putchar(int c);
 int puts(const char *s);
 int printf(const char *format, ...);
@@ -22,7 +23,7 @@ int printf(const char *format, ...);
 char *gets(char *s);
 char fgetchar(FILE *f);
 int getchar();
-
+char* fgets(char* s, int n,FILE *f);
 FILE* fopen(char *name, char *mode);
 int open(const char *path,int flags);
 int dup2(int fd1, int fd2);
