@@ -9,4 +9,5 @@ void exit(int status);
 void *malloc(size_t size);
 void free(void *ptr);
 
+int execvp(const char *file, char *const argv[]);
 #endif

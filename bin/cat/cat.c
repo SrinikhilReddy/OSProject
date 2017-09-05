@@ -2,7 +2,7 @@
 #include "../../libc/open.c"
 #include "../../libc/fgets.c"
 #include "../../libc/puts.c"
-int main(int argc, char *argv[])
+int cat(int argc, char *argv[])
 {
 	FILE *fp;
 	char line[255];	

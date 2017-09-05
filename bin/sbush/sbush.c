@@ -1,18 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "../../libc/string.c"
-#include "../../libc/chdir.c"
-#include "../../libc/fork.c"
-#include "../../libc/dup2.c"
-#include "../../libc/execvp.c"
-#include "../../libc/exit.c"
-#include "../../libc/getchar.c"
-#include "../../libc/open.c"
-#include "../../libc/pipe.c"
-#include "../../libc/puts.c"
-#include "../../libc/fgetchar.c"
-
+#include <string.h>
 void readInput();
 void parseInput();
 void execCommand();
@@ -106,7 +95,7 @@ void forkandExec(char* cmd,char* ag[]){
 		if(isBackground == 1){
 			return;
 		}
-		wait(0);
+	//	wait(0);
 	}
 	else {
 
