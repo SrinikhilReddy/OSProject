@@ -11,5 +11,5 @@ int main(int argc, char* argv[], char* envp[])
 	{
 		puts(r->d_name);	
 	}
-	return;
+	return 0;
 }
