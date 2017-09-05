@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "../../libc/string.c"
+#include "../../libc/chdir.c"
+#include "../../libc/fork.c"
+#include "../../libc/dup2.c"
+#include "../../libc/execvp.c"
+#include "../../libc/exit.c"
+#include "../../libc/getchar.c"
+#include "../../libc/file.c"
+#include "../../libc/open.c"
+#include "../../libc/pipe.c"
+#include "../../libc/puts.c"
+
+
+
 
 
 void readInput();
@@ -22,8 +36,8 @@ char input[1025];
 char com[1025];
 char arg[1000][1000];
 char prompt[1000];
-char *in = &input[0] ; //= malloc(sizeof(char)*1000);
-char *args[1000] ; //=malloc(sizeof(char)*1000*1000);
+char *in = &input[0] ;
+char *args[1000] ; 
 char *command = &com[0];
 
 int main(int argc, char *argv[], char *envp[]) { 
@@ -31,8 +45,8 @@ int main(int argc, char *argv[], char *envp[]) {
 	strcpy(prompt,"sbush");
 	if(argv[1]== NULL){ 	
 		while(1){
-			fputs(prompt,stdout);
-			fputs(">",stdout);
+			puts(prompt);
+			puts(">");
 			readInput();
 			if(input[0] == '\0'){
 				continue;
