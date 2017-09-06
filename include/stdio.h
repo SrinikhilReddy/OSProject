@@ -1,8 +1,14 @@
 #ifndef _STDIO_H
 #define _STDIO_H
+#include <sys/defs.h>
 
 static const int EOF = -1;
-
+struct dirent_n {
+           long           d_ino;
+           off_t          d_off;
+           unsigned short d_reclen;
+           char           d_name[];
+};  
 typedef struct file
 {
         int fd;

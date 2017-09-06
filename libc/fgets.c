@@ -5,10 +5,11 @@ char* fgets(char* string,int n,FILE *f)
 {
 	
 	char *s=string;
-	while(((n=fgetchar(f))!='\n')&&(n!=EOF))
-	{
-		*s++=n;			
-	}
+//	putchar(65 + f->fd);
+	do{
+	n = getchar(f);
+	   *s++ = n;  
+	}while((n!='\n')&&(n!=EOF));
 	*s='\n';
 	return string;
 }

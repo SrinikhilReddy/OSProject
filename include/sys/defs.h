@@ -6,7 +6,7 @@
 #define stdin 0
 #define stdout 1
 #define O_RDONLY 00
-
+#define O_DIRECTORY 00200000
 typedef unsigned long  uint64_t;
 typedef          long   int64_t;
 typedef unsigned int   uint32_t;

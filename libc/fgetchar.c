@@ -6,10 +6,12 @@ char c;
 char fgetchar(FILE *f)
 {
 	readcall(f);
+	putchar(c);
 	return c;
 }
 int readcall(FILE* f)
 {
-	_syscall3(int, read, int, f->fd, char, &c, int, 1);
+	//putchar(f->fd);
+	_syscall3(int, read, int, f->fd, char*, &c, int, 1);
 }
 

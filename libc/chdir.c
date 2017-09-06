@@ -2,5 +2,5 @@
 
 int chdir(const char *path)
 {
-	_syscall1(int,chdir, char, path);
+	_syscall1(int,chdir, char*, path);
 }
