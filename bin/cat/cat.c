@@ -17,6 +17,11 @@ int main(int argc, char* argv[], char* envp[])
 	 */	
 	int i=0;
 	i = readstring(fp->fd,buf+i,4096);
+	while(i>0)
+	{
+		lseek(fp->fd,buf+i,SEEK_SET);		
+		i=readstring(fp->fd,buf+i,4096);
+	}
 	puts(buf);
 	close(fp->fd);
 }
