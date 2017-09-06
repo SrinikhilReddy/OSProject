@@ -24,10 +24,19 @@ char prompt[1000];
 char *in = &input[0] ;
 char *args[1000] ; 
 char *command = &com[0];
+char *env[1000];
+int env_length=0;
 
 int main(int argc, char *argv[], char *envp[]) { 
 	initargs();
 	strcpy(prompt,"sbush");
+	int i=0;
+	while(*envp[i]!=NULL)
+	{
+		strcpy(env[i],envp[i]);
+		i++;
+	}
+	env_length=i;
 	if(argc==1){ 	
 		while(1){
 			puts(prompt);
@@ -218,6 +227,7 @@ void setvar(char *args[]){
 		strcpy(prompt,a[1]);
 	}
 	if(strcmp("PATH",a[0])==0){
+		strcpy(env[env_length],a[1]);
 		//  setenv("PATH", a[1], 1);
 	}
 }
