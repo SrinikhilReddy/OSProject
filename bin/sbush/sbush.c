@@ -143,19 +143,39 @@ void parseInput(){
 		if(pipe(fd) == 0)
 		{
 			if((pid1=fork()) == 0){
-				close(fd[1]);
-				dup2(fd[0],0);
-				execvp(pargs2[0],pargs2);
+				//				close(fd[1]);
+				if(dup2(fd[0],0)> -1){
+					puts("sssss");
+					close(fd[1]);
+					execvp(pargs2[0],pargs2);
+				}else{
+					puts("Error creating dup2 for child\n");
+					exit(0);
+				//	return;
+				}
 				close(0);
+				exit(1);
+					//			close(0);
 			}
 			else if(pid1 > 0){
 				if( (pid2=fork()) == 0){
-					close(fd[0]);
-					dup2(fd[1],1);
-					execvp(pargs1[0],pargs1);
+					//					close(fd[0]);
+					if(dup2(fd[1],1)> -1){
+						puts("Success\n");
+						close(fd[0]);
+						execvp(pargs1[0],pargs1);
+					}else{
+						puts("Error Creating dup2 for parent\n");
+						exit(0);
+						//return;
+					}
 					close(1);
+					exit(1);
+					//					close(1);
 				}
 				else if(pid2 > 0){
+					puts("parent");
+				//	wait(0);
 					close(fd[0]);
 					close(fd[1]);
 					wait(0);
@@ -227,7 +247,7 @@ void setvar(char *args[]){
 		strcpy(prompt,a[1]);
 	}
 	if(strcmp("PATH",a[0])==0){
-		strcpy(env[env_length],a[1]);
+		strcpy(env[env_length++],a[1]);
 		//  setenv("PATH", a[1], 1);
 	}
 }
