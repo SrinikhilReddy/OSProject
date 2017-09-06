@@ -10,11 +10,9 @@ FILE *fopen(char *name, char *mode)
     if(*mode == 'r'){
         flag = O_RDONLY;
     }   
-    int i  = open(name,flag);
-    fp.fd = i;
+    fp.fd = open(name,flag);
+    putchar(fp.fd);
     f = &fp;
-    puts("============");
-    putchar(i+65);
     return f;   
 }
 int open(const char *path,int flags)

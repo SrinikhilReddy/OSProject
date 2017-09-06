@@ -9,5 +9,6 @@ pid_t forkcall()
 pid_t fork()
 {
 	pid_t l  = forkcall();
+	putchar((int)l);
 	return l;
 }

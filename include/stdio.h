@@ -32,5 +32,6 @@ int getchar();
 char* fgets(char* s, int n,FILE *f);
 FILE* fopen(char *name, char *mode);
 int open(const char *path,int flags);
+int close(int fd);
 int dup2(int fd1, int fd2);
 #endif

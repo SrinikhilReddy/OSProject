@@ -140,7 +140,7 @@ void parseInput(){
 				close(0);
 			}
 			else if(pid1 > 0){
-				if((pid2=fork()) == 0){
+				if( (pid2=fork()) == 0){
 					close(fd[0]);
 					dup2(fd[1],1);
 					execvp(pargs1[0],pargs1);

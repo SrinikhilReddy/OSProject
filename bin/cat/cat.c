@@ -7,18 +7,17 @@ int readstring(int fd,char* buf,int size){
 }
 int main(int argc, char* argv[], char* envp[])
 {
-	FILE *fp;
+	FILE *fp ;
 	fp=fopen(argv[1],"r");
-/*	while(fgets(line,255,fp)!=NULL)
-	{   
+	/*	while(fgets(line,255,fp)!=NULL)
+		{   
 		puts(line);
-	}   
-	return 0;
-*/	
-	int i;
-	do{
-		i = readstring(fp->fd,buf,4096);
-		puts(buf);
-	}while(i>0);
+		}   
+		return 0;
+	 */	
+	int i=0;
+	i = readstring(fp->fd,buf+i,4096);
+	puts(buf);
+	close(fp->fd);
 }
 
