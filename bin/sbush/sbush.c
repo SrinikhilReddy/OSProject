@@ -1,7 +1,9 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 void readInput();
 void parseInput();
 void execCommand();
@@ -23,26 +25,15 @@ char arg[1000][1000];
 char prompt[1000];
 char *in = &input[0] ;
 char *args[1000] ; 
-char path[50];
 char *command = &com[0];
-char env_var[1000][1000];
-int env_length=0;
 
 int main(int argc, char *argv[], char *envp[]) { 
 	initargs();
 	strcpy(prompt,"sbush");
-	strcpy(path,".");
-	int i=0;
-	while(envp[i]!=NULL)
-	{
-		strcpy(&env_var[i][0],envp[i]);
-		i++;
-	}
-	env_length=i;
 	if(argc==1){ 	
 		while(1){
-			puts(prompt);
-			puts(">");
+			fputs(prompt,stdout);
+			fputs(">",stdout);
 			readInput();
 			if(input[0] == '\0'){
 				continue;
@@ -65,14 +56,15 @@ int main(int argc, char *argv[], char *envp[]) {
 			puts("File not found, Exiting!");
 			return 0;
 		}
-		int c,i=0,fd=fp->fd;
+		int c,i=0;
 		while(c!=EOF){
-			c = fgetchar(fd);	
+			c = fgetc(fp);	
 			while(c!='\n' && c!=EOF){
 				in[i++]=(char) c;	
 				//lseek(fd,1,SEEK_CUR);		
-				c = fgetchar(fd);
-			}	
+				c = fgetc(fp);
+			}
+			if(i>0){	
 			parseInput();
 			//execCommand();			
 			i=0;
@@ -80,6 +72,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			clearInput();
 			clearCommand();
 			clearArguments();
+			}
 		}
 	}
 	return 0;
@@ -98,15 +91,8 @@ void execCommand(){
 }
 void forkandExec(char* cmd,char* ag[]){
 	pid_t pid;
-	char cmd_w_path[50];
-	strcpy(&cmd_w_path[0],path);
-        if(path[(strlen(path))-1] != '/') {
-		strcat(&cmd_w_path[0],"/");
-	}
-	strcat(&cmd_w_path[0],cmd);
-	strcpy(ag[0],cmd);
 	if ( (pid = fork()) == 0) {
-		if(execvp(cmd_w_path, ag) == -1){
+		if(execvp(cmd, ag) == -1){
 			puts("error");
 		}
 	}
@@ -258,21 +244,26 @@ void setvar(char *args[]){
 		strcpy(prompt,a[1]);
 	}
 	if(strcmp("PATH",a[0])==0){
-		strcpy(&env_var[env_length][0],a[1]);
-		strcpy(path,a[1]);
-		//  setenv("PATH", a[1], 1);
+		 setenv("PATH", a[1], 1);
 	}
 }
 void setStringTokens(char* str, char delimiter, char* strs[]){
 	int i=0,j=0,k=0;
 	while(str[k]!='\n'){
-		if(str[k] == delimiter || str[k] == '\0'){
+		if( k == 0 && str[k] == ' '){
+			k++;
+			continue;
+		}
+		else if(str[k] == delimiter || str[k] == '\0'){
 			strs[i][j]='\0';
 			if(strcmp(strs[i],"&") == 0){
 				isBackground = 1;
 				strs[i] = NULL; 
 			}
-			if(str[k]=='\0'){	
+			if(str[k]=='\0'){
+				if(j==0){
+					strs[i] = NULL;
+				}
 				strs[i+1] = NULL; //Because execvp expects a NULL pointed args[] as the end
 				return;	
 			}

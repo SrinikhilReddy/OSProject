@@ -3,9 +3,9 @@
 
 int readcall(int fd);
 char c[1];
-char fgetchar(int fd)
+char fgetc(FILE* f)
 {
-	readcall(fd);
+	readcall(f->fd);
 	//putchar(*`c);
 	return *c;
 }

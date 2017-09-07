@@ -21,13 +21,14 @@ enum flag
 };
 
 
-int fputchar(int c,FILE* fp);
+int fputs(const char *s,int fd );
+int fputchar(int c,int fp);
 int putchar(int c);
 int puts(const char *s);
 int printf(const char *format, ...);
 off_t lseek(int fd, off_t offset, int p);
 char *gets(char *s);
-char fgetchar(int fd);
+char fgetc(FILE* fp);
 int getchar();
 char* fgets(char* s, int n,FILE *f);
 FILE* fopen(char *name, char *mode);
