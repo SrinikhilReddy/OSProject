@@ -5,6 +5,9 @@
 
 #define stdin 0
 #define stdout 1
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
 #define O_RDONLY 00
 #define O_DIRECTORY 00200000
 typedef unsigned long  uint64_t;

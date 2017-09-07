@@ -1,17 +1,17 @@
 #include <syscall.h>
 #include <stdio.h>
 
-int readcall(FILE* f);
-char* c;
-char fgetchar(FILE *f)
+int readcall(int fd);
+char c[1];
+char fgetchar(int fd)
 {
-	readcall(f);
-	putchar(*c);
+	readcall(fd);
+	//putchar(*`c);
 	return *c;
 }
-int readcall(FILE* f)
+int readcall(int fd)
 {
 	//putchar(f->fd);
-	_syscall3(int, read, int, f->fd, char*, c, int, 1);
+	_syscall3(int, read, int, fd, char*, c, int, 1);
 }
 

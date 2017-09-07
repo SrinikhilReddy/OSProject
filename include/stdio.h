@@ -25,9 +25,9 @@ int fputchar(int c,FILE* fp);
 int putchar(int c);
 int puts(const char *s);
 int printf(const char *format, ...);
-
+off_t lseek(int fd, off_t offset, int p);
 char *gets(char *s);
-char fgetchar(FILE *f);
+char fgetchar(int fd);
 int getchar();
 char* fgets(char* s, int n,FILE *f);
 FILE* fopen(char *name, char *mode);

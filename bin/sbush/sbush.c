@@ -31,7 +31,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	initargs();
 	strcpy(prompt,"sbush");
 	int i=0;
-	while(*envp[i]!=NULL)
+	while(envp[i]!=NULL)
 	{
 		strcpy(env[i],envp[i]);
 		i++;
@@ -62,12 +62,13 @@ int main(int argc, char *argv[], char *envp[]) {
 			puts("File not found, Exiting!");
 			return 0;
 		}
-		int c,i=0;
+		int c,i=0,fd=fp->fd;
 		while(c!=EOF){
-			c = fgetchar(fp);	
+			c = fgetchar(fd);	
 			while(c!='\n' && c!=EOF){
-				in[i++]=(char) c;
-				c = fgetchar(fp);
+				in[i++]=(char) c;	
+				//lseek(fd,1,SEEK_CUR);		
+				c = fgetchar(fd);
 			}	
 			parseInput();
 			//execCommand();			
@@ -145,7 +146,7 @@ void parseInput(){
 			if((pid1=fork()) == 0){
 				//				close(fd[1]);
 				if(dup2(fd[0],0)> -1){
-					puts("sssss");
+		//			puts("sssss");
 					close(fd[1]);
 					execvp(pargs2[0],pargs2);
 				}else{
@@ -161,7 +162,7 @@ void parseInput(){
 				if( (pid2=fork()) == 0){
 					//					close(fd[0]);
 					if(dup2(fd[1],1)> -1){
-						puts("Success\n");
+					//	puts("Success\n");
 						close(fd[0]);
 						execvp(pargs1[0],pargs1);
 					}else{
@@ -174,7 +175,7 @@ void parseInput(){
 					//					close(1);
 				}
 				else if(pid2 > 0){
-					puts("parent");
+//					puts("parent");
 				//	wait(0);
 					close(fd[0]);
 					close(fd[1]);

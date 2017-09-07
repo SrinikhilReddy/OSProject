@@ -1,6 +1,6 @@
 #include<syscall.h>
-
-int lseek(int fd, long offset, int p)
+#include<sys/defs.h>
+off_t lseek(int fd, off_t offset, int p)
 {
-	_syscall3(int, lseek, int, fd, long, offset, int, p);
+	_syscall3(off_t,lseek,int,fd,off_t,offset,int,p);
 }
