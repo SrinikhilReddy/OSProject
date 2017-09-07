@@ -24,7 +24,7 @@ char prompt[1000];
 char *in = &input[0] ;
 char *args[1000] ; 
 char *command = &com[0];
-char *env[1000];
+char env_var[1000][1000];
 int env_length=0;
 
 int main(int argc, char *argv[], char *envp[]) { 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	int i=0;
 	while(envp[i]!=NULL)
 	{
-		strcpy(env[i],envp[i]);
+		strcpy(&env_var[i][0],envp[i]);
 		i++;
 	}
 	env_length=i;
@@ -48,8 +48,9 @@ int main(int argc, char *argv[], char *envp[]) {
 			if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
 				return 0;	
 			}
+			
 			parseInput();
-			//			execCommand();
+			//execCommand();
 
 			clearInput();
 			clearCommand();
@@ -248,7 +249,7 @@ void setvar(char *args[]){
 		strcpy(prompt,a[1]);
 	}
 	if(strcmp("PATH",a[0])==0){
-		strcpy(env[env_length++],a[1]);
+		strcpy(&env_var[env_length][0],a[1]);
 		//  setenv("PATH", a[1], 1);
 	}
 }
