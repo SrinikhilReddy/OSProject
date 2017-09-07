@@ -42,6 +42,7 @@ char* strcat(char *string1, char *string2)
 		*string1=*string2;
 		string1++;
 		string2++;
-	{
+	}
+	*string1='\0';
 	return string1;
 }

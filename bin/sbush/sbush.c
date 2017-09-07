@@ -23,6 +23,7 @@ char arg[1000][1000];
 char prompt[1000];
 char *in = &input[0] ;
 char *args[1000] ; 
+char path[50];
 char *command = &com[0];
 char env_var[1000][1000];
 int env_length=0;
@@ -30,6 +31,7 @@ int env_length=0;
 int main(int argc, char *argv[], char *envp[]) { 
 	initargs();
 	strcpy(prompt,"sbush");
+	strcpy(path,".");
 	int i=0;
 	while(envp[i]!=NULL)
 	{
@@ -96,8 +98,15 @@ void execCommand(){
 }
 void forkandExec(char* cmd,char* ag[]){
 	pid_t pid;
+	char cmd_w_path[50];
+	strcpy(&cmd_w_path[0],path);
+        if(path[(strlen(path))-1] != '/') {
+		strcat(&cmd_w_path[0],"/");
+	}
+	strcat(&cmd_w_path[0],cmd);
+	strcpy(ag[0],cmd);
 	if ( (pid = fork()) == 0) {
-		if(execvp(cmd, ag) == -1){
+		if(execvp(cmd_w_path, ag) == -1){
 			puts("error");
 		}
 	}
@@ -250,10 +259,10 @@ void setvar(char *args[]){
 	}
 	if(strcmp("PATH",a[0])==0){
 		strcpy(&env_var[env_length][0],a[1]);
+		strcpy(path,a[1]);
 		//  setenv("PATH", a[1], 1);
 	}
 }
-
 void setStringTokens(char* str, char delimiter, char* strs[]){
 	int i=0,j=0,k=0;
 	while(str[k]!='\n'){
