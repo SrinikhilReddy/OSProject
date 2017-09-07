@@ -5,7 +5,9 @@ char env_var[1000][1000];
 int env_length=0;
 char temp[50];
 char* getvar(char* name);
-
+char* getallenv(int i){
+	return &env_var[i][0];
+}
 char *getenv(const char *name){
 	for(int i=0;i<env_length;i++)
 	{
@@ -15,13 +17,16 @@ char *getenv(const char *name){
 	}
 	return NULL;	
 }
-
+int getenvlength()
+{
+	return env_length;
+}
 int setenv( char *name, char *value, int overwrite){
 	for(int i=0;i<env_length;i++){
 		getvar(&env_var[i][0]);
 		if(strcmp(name,&temp[0])== 0){
 			int k = strlen(&temp[0]);
-			strcpy(&env_var[i][k],value);
+			strcpy(&env_var[i][k+1],value);
 			return 1;
 		}
 	}

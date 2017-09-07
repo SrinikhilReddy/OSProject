@@ -1,7 +1,7 @@
 #include <stdlib.h>
 int *adr;
 char **adr2; 
-char* argv[20],*env[50];
+char* argv[20],*env[100];
 void _start(void) {
   __asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
 	 :"=m" (adr),"=m" (adr2)
@@ -21,6 +21,7 @@ void _start(void) {
 	env[k++] = (*(adr2++));
   }
   while(env[k-1]!=NULL);
+  pushenvs(env);
   int i = main( *(adr+2),argv,env);
   // call main() and exit() here
   exit(i);

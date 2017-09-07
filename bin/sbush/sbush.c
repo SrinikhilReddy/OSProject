@@ -16,6 +16,7 @@ void initargs();
 void setvar(char *args[]);
 void forkandExec(char* cmd,char* ag[]);
 int getInputArgCounts();
+void setenvs();
 
 int isBackground;
 int argsNo;
@@ -26,10 +27,12 @@ char prompt[1000];
 char *in = &input[0] ;
 char *args[1000] ; 
 char *command = &com[0];
+char *envpe[100];
 
 int main(int argc, char *argv[], char *envp[]) { 
 	initargs();
 	strcpy(prompt,"sbush");
+	setenvs();
 	if(argc==1){ 	
 		while(1){
 			fputs(prompt,stdout);
@@ -95,9 +98,10 @@ void execCommand(){
 void forkandExec(char* cmd,char* ag[]){
 	pid_t pid;
 	if ( (pid = fork()) == 0) {
-		if(execvp(cmd, ag) == -1){
+		if(execvp(cmd, ag,envpe) == -1){
 			puts("error");
 		}
+		exit(1);
 	}
 	else if (pid < 0) {
 		puts("Failed to fork\n");
@@ -143,11 +147,11 @@ void parseInput(){
 		if(pipe(fd) == 0)
 		{
 			if((pid1=fork()) == 0){
-				//				close(fd[1]);
+								close(fd[1]);
 				if(dup2(fd[0],0)> -1){
 		//			puts("sssss");
-					close(fd[1]);
-					execvp(pargs2[0],pargs2);
+				//	close(fd[1]);
+					execvp(pargs2[0],pargs2,envpe);
 				}else{
 					puts("Error creating dup2 for child\n");
 					exit(0);
@@ -159,11 +163,11 @@ void parseInput(){
 			}
 			else if(pid1 > 0){
 				if( (pid2=fork()) == 0){
-					//					close(fd[0]);
+										close(fd[0]);
 					if(dup2(fd[1],1)> -1){
 					//	puts("Success\n");
-						close(fd[0]);
-						execvp(pargs1[0],pargs1);
+					//	close(fd[0]);
+						execvp(pargs1[0],pargs1,envpe);
 					}else{
 						puts("Error Creating dup2 for parent\n");
 						exit(0);
@@ -248,6 +252,7 @@ void setvar(char *args[]){
 	}
 	if(strcmp("PATH",a[0])==0){
 		 setenv("PATH", a[1], 1);
+	         setenvs();
 	}
 }
 void setStringTokens(char* str, char delimiter, char* strs[]){
@@ -274,8 +279,19 @@ void setStringTokens(char* str, char delimiter, char* strs[]){
 			j=0;
 		}
 		else{
+			if(str[k] == '"' && delimiter == '='){
+				k++;
+				continue;
+			}
 			strs[i][j++]=str[k];
 		}
 		++k;
 	}	
+}
+void setenvs(){	
+	int i = getenvlength();
+	for(int j=0;j<i;j++)
+	{
+		envpe[j] = getallenv(j);	
+	}
 }
