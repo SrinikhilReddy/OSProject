@@ -56,7 +56,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			puts("File not found, Exiting!");
 			return 0;
 		}
-		int c,i=0;
+		int c=1,i=0;
 		while(c!=EOF){
 			c = fgetc(fp);	
 			while(c!='\n' && c!=EOF){
@@ -72,6 +72,9 @@ int main(int argc, char *argv[], char *envp[]) {
 			clearInput();
 			clearCommand();
 			clearArguments();
+			}
+			else{
+				return 0;
 			}
 		}
 	}

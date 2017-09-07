@@ -20,8 +20,8 @@ int main(int argc, char* argv[], char* envp[])
 	while(i>0)
 	{
 		puts(buf);
-		int l= 	lseek(fp->fd,i,SEEK_CUR);		
-		putchar(65+l);
+	 	lseek(fp->fd,i,SEEK_CUR);		
+	//	putchar(65+l);
 		i=readstring(fp->fd,buf,4096);
 	}
 	close(fp->fd);
