@@ -31,4 +31,17 @@ int strlen(const char *string)
 	return length;
 }
 
-
+char* strcat(char *string1, char *string2)
+{
+	while(*string1!='\0')
+	{
+		string1++;
+	}
+	while(*string2!='\0')
+	{
+		*string1=*string2;
+		string1++;
+		string2++;
+	{
+	return string1;
+}
