@@ -3,6 +3,7 @@
 #include<stdbool.h>
 #include<unistd.h>
 #include<signal.h>
+#include<stdlib.h>
 
 volatile sig_atomic_t flag = false;
 
@@ -27,11 +28,11 @@ int main()
 	{
 		if(flag)
 		{
+			system("clear");
 			printf("%d\n",i);
 			++i;
 			flag = false;
 			alarm(1);
-			fflush(stdout);
 		}
 		/*printf("%d",t->tm_hour);
 		printf(":");
