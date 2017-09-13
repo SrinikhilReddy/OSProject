@@ -11,8 +11,10 @@ extern char kernmem, physbase;
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-	int i =10;
-	kprintf("A %d B",i);
+	int i =12;
+	kprintf("AAA%x B\r",i);
+	char *s="Hello";
+	kprintf("%s",s);
 /*  struct smap_t {
     uint64_t base, length;
     uint32_t type;
@@ -31,8 +33,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 void boot(void)
 {
   // note: function changes rsp, local stack variables can't be practically used
-  register char *temp1, *temp2;
-
+  register char /* *temp1, */ *temp2;
   for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
   __asm__(
     "cli;"
