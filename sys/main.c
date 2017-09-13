@@ -12,9 +12,12 @@ extern char kernmem, physbase;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
 	int i =12;
-	kprintf("AAA%x B\r",i);
+	kprintf("AAA%x B\n",i);
+	for(int k=0;k<23;k++) kprintf("ABCD%d \n",k);
 	char *s="Hello";
-	kprintf("%s",s);
+	kprintf("1%s\n",s);
+	kprintf("2%s\n",s);
+	kprintf("3%s\n",s);
 /*  struct smap_t {
     uint64_t base, length;
     uint32_t type;
