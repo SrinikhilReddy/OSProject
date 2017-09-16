@@ -1,4 +1,14 @@
-#include<stdio.h>
+#include <../sys/idt.h>
+#include <sys/kprintf.h>
+static int count = 0,sec=0;
+void timer(){
+	count++;
+	if(count == 18){
+		kprintf("%d",++sec);
+		count = 0;
+	}
+}
+/*#include<stdio.h>
 #include<time.h>
 #include<stdbool.h>
 #include<unistd.h>
@@ -20,10 +30,10 @@ int main()
 	
 	int i=0;	
 
-	/*time_t start;
+	time_t start;
 	struct tm *t;
 	time(&start);
-	t = localtime(&start);*/
+	t = localtime(&start);
 	while(1)
 	{
 		if(flag)
@@ -34,12 +44,11 @@ int main()
 			flag = false;
 			alarm(1);
 		}
-		/*printf("%d",t->tm_hour);
+		printf("%d",t->tm_hour);
 		printf(":");
 		printf("%d",t->tm_min);
 		printf(":");
-		printf("%d",t->tm_sec);*/
+		printf("%d",t->tm_sec);
 	}
 	//return 0;
-}
-
+}*/
