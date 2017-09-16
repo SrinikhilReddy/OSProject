@@ -1,7 +1,8 @@
 #include <../sys/idt.h>
 #include <sys/kprintf.h>
 static int count = 0,sec=0;
-void timer(){
+void timer_handler(){
+//	outportb(0x20,0x20);
 	count++;
 	if(count == 18){
 		kprintf("%d",++sec);

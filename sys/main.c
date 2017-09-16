@@ -23,6 +23,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
   init_idt();
+  __asm__(
+	"sti;"
+  );
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 }
