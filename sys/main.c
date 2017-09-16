@@ -11,14 +11,7 @@ extern char kernmem, physbase;
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-	int i =12;
-	kprintf("AAA%x B\n",i);
-	for(int k=0;k<23;k++) kprintf("ABCD%d \n",k);
-	char *s="Hello";
-	kprintf("1%s\n",s);
-	kprintf("2%s\n",s);
-	kprintf("3%s\n",s);
-/*  struct smap_t {
+ struct smap_t {
     uint64_t base, length;
     uint32_t type;
   }__attribute__((packed)) *smap;
@@ -30,7 +23,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   }
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
-*/
 }
 
 void boot(void)

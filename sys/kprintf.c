@@ -52,7 +52,6 @@ void put_to_screen(char a){
 	}
 	else{
 		*p_reg = (char)a;
-
 		p_reg+=2;
 	}
 	if(h_offset == 79){
@@ -93,12 +92,30 @@ void print_int(int i){
 		j = j/10;
 	}
 }
+void print_pointer(unsigned long i){
+	//	put_to_screen('w');	
+	char a[32];
+        int l=0;
+        while(i!=0){
+                int k = i%16;
+                if(k<10){
+                        a[l++] = '0'+k;
+                }   
+                else{
+                        a[l++] = 'A'+(k-10);
+                }   
+                i = i/16;
+        }   
+        for(int k=l-1;k>=0;k--){
+                put_to_screen(a[k]);    
+        }   	
+}
 void print_hex(int i){
 	char a[11];
 	int l=0;
 	while(i!=0){
 		int k = i%16;
-		if(k<9){
+		if(k<=9){
 			a[l++] = '0'+k;
 		}
 		else{
@@ -142,6 +159,14 @@ void parse_str(const char* s){
 				case 'x':
 					print_hex(va_arg(list,int));
 					s = s+2;
+					break;
+				case 'p':
+					put_to_screen('0');
+					put_to_screen('x');
+					unsigned long p  = va_arg(list,unsigned long);	
+					//print_hex(p);
+					print_pointer(p);
+					s+=2;
 					break;
 				default:
 					break;	
