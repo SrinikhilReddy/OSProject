@@ -3,13 +3,28 @@
 static int count = 0,sec=0;
 static char* reg = (char*)0xB8F9E;
 //uint16_t PIT_reload_value = 1193;
+//static char *reg = (char*)0xB8F9E;
 void timer_handler(){
 	//outportb(0x20,0x20);
 	count++;
 	if(count == 18){
+<<<<<<< Updated upstream
 		sec++;
 		*reg = '0'+ sec;
 		//kprintf("%d \r",++sec);
+=======
+		//kprintf("%d \r",++sec);
+		//kprintf("%d \r",*reg);
+		sec++;
+		int temp = sec;
+		char *reg = (char*)0xB8F9E;
+		while(temp>0)
+		{
+			*reg = '0'+temp%10; 
+			temp = temp/10;
+			reg-=2;			
+		}
+>>>>>>> Stashed changes
 		count = 0;
 	}
 	outportb(0x20,0x20);
