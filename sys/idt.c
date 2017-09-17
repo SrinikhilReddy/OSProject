@@ -5,11 +5,8 @@ static struct idt_ptr pr;
 void isr();
 
 extern void timer();
-<<<<<<< Updated upstream
 extern void kb1();
-=======
-extern void kb();
->>>>>>> Stashed changes
+//extern void kb();
 
 
 static void inline load_idt(void* ptr){
