@@ -1,4 +1,4 @@
-nclude<../sys/idt.h>
+#include<../sys/idt.h>
 #include<sys/kprintf.h>
 static struct idt idt_table[256];
 static struct idt_ptr pr;
