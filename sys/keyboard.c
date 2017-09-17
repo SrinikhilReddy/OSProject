@@ -65,7 +65,7 @@ static char code_map[58][2] =
    };
 
 
-static char *reg = (char*)0xB8F9E;
+static char *reg = (char*)0xB8F90;
 static uint8_t inb(uint64_t port);
 static int caps=0;
 
@@ -82,15 +82,14 @@ void kb()
 			if(c>128) ;
 			
 			else if(c==42||c==54)
+			//else if(c==32)
 			{
 				caps=1;
 			}
 			else
 			{
 				key_pressed=code_map[c][caps];
-//	for(int i = 0;i<255;i++){
 				caps=0;
-				kprintf("%c",key_pressed);
 				*reg=key_pressed;						
 			}	
 		}		

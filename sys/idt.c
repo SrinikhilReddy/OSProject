@@ -2,7 +2,7 @@
 #include <sys/kprintf.h>
 static struct idt idt_table[256];
 static struct idt_ptr pr;
-//void isr0();
+void isr();
 
 extern void timer();
 extern void kb1();
@@ -27,6 +27,7 @@ void set_value(uint16_t intNum,uint64_t handler)
 	idt_table[intNum].zero_2 = 0;
 }
 void init_idt(){
+	set_value(0,(uint64_t)&isr);
 	set_value(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)idt_table;
