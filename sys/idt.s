@@ -1,4 +1,5 @@
 .global timer
+
 .macro pop
 popq %r11 
 popq %r10 
@@ -10,6 +11,7 @@ popq %rdx
 popq %rcx 
 popq %rax 
 .endm
+
 .macro push
 pushq %rax 
 pushq %rcx 
@@ -21,11 +23,11 @@ pushq %r9
 pushq %r10 
 pushq %r11
 .endm
+
 .extern timer_handler
+
 timer:
-cli
-push
-callq timer_handler
-pop
-sti
-iretq
+	push
+	callq timer_handler
+	pop
+	iretq
