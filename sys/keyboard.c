@@ -74,7 +74,7 @@ void kb()
 	char key_pressed;
 	int c=0;
 	//while(1)
-	{
+	//{
 		if(inb(0x60)!=0)
 			c=inb(0x60);
 		if(c>0)
@@ -88,11 +88,14 @@ void kb()
 			else
 			{
 				key_pressed=code_map[c][caps];
+//	for(int i = 0;i<255;i++){
 				caps=0;
+				kprintf("%c",key_pressed);
 				*reg=key_pressed;						
 			}	
 		}		
-	}	
+	//}
+	outportb(0x20,0x20);	
 }
 
 static inline uint8_t inb(uint64_t port)

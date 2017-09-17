@@ -2,10 +2,10 @@
 #include <sys/kprintf.h>
 static struct idt idt_table[256];
 static struct idt_ptr pr;
-void isr0();
+//void isr0();
 
 extern void timer();
-//extern void kb();
+extern void kb1();
 
 
 static void inline load_idt(void* ptr){
@@ -27,19 +27,17 @@ void set_value(uint16_t intNum,uint64_t handler)
 	idt_table[intNum].zero_2 = 0;
 }
 void init_idt(){
-//	for(int i = 0;i<255;i++){
-		set_value(32,(uint64_t)&timer);
-//	}
+	set_value(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)idt_table;
-//	set_value(0,(uint64_t)&isr0);
+	set_value(33,(uint64_t)&kb1);
 //	set_value(0x20,(uint64_t)&timer);
 	load_idt(&pr);
 }
 
 void isr0(){	
-	kprintf("=================================");
-	kprintf("This is a general exception");
+	kprintf("\n This is a general exception");
+	outportb(0x20,0x20);
 }
 
 void outportb(uint16_t port,uint8_t data){
