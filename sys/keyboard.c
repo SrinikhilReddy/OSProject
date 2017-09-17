@@ -66,24 +66,24 @@ static char code_map[58][2] =
 
 
 static char *reg = (char*)0xB8F9E;
-
 static uint8_t inb(uint64_t port);
+static int caps=0;
 
 void kb()
 {
 	char key_pressed;
 	int c=0;
-	int caps=0;
 	//while(1)
 	{
 		if(inb(0x60)!=0)
 			c=inb(0x60);
 		if(c>0)
 		{
-			if(c==42||c==54)
+			if(c>128) ;
+			
+			else if(c==42||c==54)
 			{
 				caps=1;
-				continue;
 			}
 			else
 			{
