@@ -64,6 +64,8 @@ static char code_map[58][2] =
        { ' ',' ' } ,
    };
 
+//scancode array:http://www.cs.umd.edu/~hollings/cs412/s98/project/proj1/scancode
+
 
 static char *reg = (char*)0xB8F90;
 static char *preg = (char*)0xB8F8E;
