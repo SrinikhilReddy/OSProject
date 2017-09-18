@@ -20,11 +20,11 @@ void scroll(){
 		}
 	}
 	p_reg = (char*)(0xb8000);
-	p_reg = p_reg+(160*24);
+	p_reg = p_reg+(160*23);
 	for(int i=0;i<160;i=i+2){
 		*(p_reg+i) = '\0';
 	}
-	p_reg = (char*)(0xb8000)+(160*24);
+	p_reg = (char*)(0xb8000)+(160*23);
 }
 void put_to_screen(char a){
 	if(a == '\n'){
@@ -33,7 +33,7 @@ void put_to_screen(char a){
 		for(int i=0;i<k;i++){
 			p_reg+=2;
 		}
-		if(v_offset == 24){
+		if(v_offset == 23){
 			scroll();	
 		}
 		else{
@@ -55,11 +55,11 @@ void put_to_screen(char a){
 		p_reg+=2;
 	}
 	if(h_offset == 79){
-		if(v_offset == 24){
+		if(v_offset == 23){
 			//scroll
 			scroll();
 			p_reg = (char*)0xb8000;
-			p_reg = p_reg + 160*23;
+			p_reg = p_reg + 160*22;
 			h_offset = 0;
 			return;
 		}

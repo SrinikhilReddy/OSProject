@@ -1,6 +1,10 @@
 .global timer
 .global kb1
 .global isr
+.extern timer_handler
+.extern kb
+.extern isr0
+
 .macro pop
 popq %r11 
 popq %r10 
@@ -25,9 +29,6 @@ pushq %r10
 pushq %r11
 .endm
 
-.extern timer_handler
-.extern kb
-.extern isr0
 timer:
 	push
 	callq timer_handler
@@ -40,6 +41,6 @@ kb1:
 	iretq
 isr:
 	push
-	callq isr0
+	call isr0
 	pop
 	iretq

@@ -3,7 +3,7 @@
 #include <sys/kprintf.h>
 #include <sys/tarfs.h>
 #include <sys/ahci.h>
-#include <../sys/idt.h>
+#include <sys/idt.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -23,8 +23,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
  // init_timer();
-  init_idt();
-  __asm__ volatile("sti");
+  //init_idt();
+ // __asm__ volatile("sti");
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 }
@@ -41,7 +41,10 @@ void boot(void)
     :"=g"(loader_stack)
     :"r"(&initial_stack[INITIAL_STACK_SIZE])
   );
-  init_gdt();
+ 
+ init_gdt();
+init_idt();
+  __asm__ volatile("sti");
   start(
     (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),
     (uint64_t*)&physbase,
@@ -52,5 +55,7 @@ void boot(void)
     *temp1;
     temp1 += 1, temp2 += 2
   ) *temp2 = *temp1;*/
-  while(1);
+//   int i =0;
+ //  kprintf("%d",2/i);
+   while(1);
 }

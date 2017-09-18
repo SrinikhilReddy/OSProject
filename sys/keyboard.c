@@ -1,6 +1,5 @@
-#include<../sys/idt.h>
+#include<sys/idt.h>
 #include<sys/kprintf.h>
-#include<../sys/idt.h>
 
 static char code_map[58][2] =
      {

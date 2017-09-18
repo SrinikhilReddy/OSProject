@@ -1,4 +1,4 @@
-#include <../sys/idt.h>
+#include <sys/idt.h>
 #include <sys/kprintf.h>
 static struct idt idt_table[256];
 static struct idt_ptr pr;
@@ -8,13 +8,8 @@ extern void timer();
 extern void kb1();
 //extern void kb();
 
-
 static void inline load_idt(void* ptr){
-	__asm__(
-			"lidt (%0)"
-			:
-			:"r"(ptr)	
-			);
+	__asm__("lidt (%0)"::"r"(ptr));
 }
 
 void set_value(uint16_t intNum,uint64_t handler)
@@ -28,18 +23,23 @@ void set_value(uint16_t intNum,uint64_t handler)
 	idt_table[intNum].zero_2 = 0;
 }
 void init_idt(){
-	set_value(0,(uint64_t)&isr);
+	for(int i=0;i<32;i++){
+		set_value(i,(uint64_t)&isr);
+	}
 	set_value(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)idt_table;
 	set_value(33,(uint64_t)&kb1);
+	for(int i = 34;i<255;i++){
+		set_value(i,(uint64_t)&isr);
+	}
 //	set_value(0x20,(uint64_t)&timer);
 	load_idt(&pr);
 }
 
 void isr0(){	
-	kprintf("\n This is a general exception");
-	outportb(0x20,0x20);
+	kprintf(" This is a general exception");
+	outportb(0x0,0x0);
 }
 
 void outportb(uint16_t port,uint8_t data){

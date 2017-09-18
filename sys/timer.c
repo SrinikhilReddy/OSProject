@@ -1,4 +1,4 @@
-#include <../sys/idt.h>
+#include <sys/idt.h>
 #include <sys/kprintf.h>
 static int count = 0,sec=0;
 //char* reg = (char*)0xB8F9E;
