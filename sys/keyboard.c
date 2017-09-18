@@ -33,7 +33,7 @@ static char code_map[58][2] =
        { '[','{' } ,
        { ']','}' } ,
        {  13,13  } ,
-       {   0,0   } ,
+       { ' ','^' } ,
        { 'a','A' } ,
        { 's','S' } ,
        { 'd','D' } ,
@@ -66,9 +66,10 @@ static char code_map[58][2] =
 
 
 static char *reg = (char*)0xB8F90;
+static char *preg = (char*)0xB8F8E;
 static uint8_t inb(uint64_t port);
 static int caps=0;
-
+static int ctrl=0;
 void kb()
 {
 	char key_pressed;
@@ -80,7 +81,11 @@ void kb()
 		if(c>0)
 		{
 			if(c>128) ;
-			
+			else if(c==29)
+			{
+				ctrl=1;
+				*preg=code_map[c][ctrl];
+			}
 			else if(c==42||c==54)
 			//else if(c==32)
 			{
@@ -90,7 +95,15 @@ void kb()
 			{
 				key_pressed=code_map[c][caps];
 				caps=0;
-				*reg=key_pressed;						
+				*reg=key_pressed;
+				if(ctrl==1)
+				{	
+					ctrl=0;	
+				}	
+				else
+				{
+					*preg=code_map[29][ctrl];
+				}				
 			}	
 		}		
 	//}
