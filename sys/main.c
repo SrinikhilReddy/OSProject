@@ -54,7 +54,6 @@ init_idt();
     temp1 = "!!!!! start() returned !!!!!", temp2 = (char*)0xb8000;
     *temp1;
     temp1 += 1, temp2 += 2
-<<<<<<< HEAD
   ) *temp2 = *temp1;*/
 //   int i =0;
  //  kprintf("%d",2/i);

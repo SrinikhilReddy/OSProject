@@ -5,6 +5,7 @@ void init_idt();
 extern void init_timer();
 void outportb(uint16_t port,uint8_t data);
 extern void timer_handler();
+
 struct idt{
 	uint16_t lower_offset;
 	uint16_t selector;

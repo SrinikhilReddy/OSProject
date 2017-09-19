@@ -31,7 +31,7 @@ static char code_map[58][2] =
        { 'p','P' } ,
        { '[','{' } ,
        { ']','}' } ,
-       {  13,13  } ,
+       { '/','r' } ,
        { ' ','^' } ,
        { 'a','A' } ,
        { 's','S' } ,
@@ -94,17 +94,21 @@ void kb()
 			}
 			else
 			{
-				key_pressed=code_map[c][caps];
+				/*key_pressed=code_map[c][caps];
 				caps=0;
-				*reg=key_pressed;
+				*reg=key_pressed;*/
 				if(ctrl==1)
 				{	
-					ctrl=0;	
+					ctrl=0;
+					caps=1;	
 				}	
 				else
 				{
 					*preg=code_map[29][ctrl];
-				}				
+				}
+				key_pressed=code_map[c][caps];
+				caps=0;
+				*reg=key_pressed;				
 			}	
 		}		
 	//}
