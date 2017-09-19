@@ -31,7 +31,7 @@ static char code_map[58][2] =
        { 'p','P' } ,
        { '[','{' } ,
        { ']','}' } ,
-       { '/','r' } ,
+       { '^','M' } ,
        { ' ','^' } ,
        { 'a','A' } ,
        { 's','S' } ,
@@ -82,6 +82,11 @@ void kb()
 		if(c>0)
 		{
 			if(c>128) ;
+			else if(c==28)
+			{
+				*preg=code_map[c][0];
+				*reg=code_map[c][1];
+			}
 			else if(c==29)
 			{
 				ctrl=1;
