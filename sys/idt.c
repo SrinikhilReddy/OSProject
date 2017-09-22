@@ -19,6 +19,17 @@ void set_value(uint16_t intNum,uint64_t handler)
 	idt_table[intNum].type = 0x8E;
 	idt_table[intNum].zero_2 = 0;
 }
+
+static inline uint8_t inportb(uint64_t port)
+{
+        uint8_t r;
+        __asm__ volatile( 
+                        "inb %1, %0"
+                        : "=a"(r)
+                        : "Nd"(port)
+                        );  
+        return r;
+}
 void init_idt(){
 	for(int i=0;i<32;i++){
 		set_value(i,(uint64_t)&isr);

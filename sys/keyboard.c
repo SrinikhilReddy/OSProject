@@ -1,6 +1,6 @@
 #include<sys/idt.h>
 #include<sys/kprintf.h>
-
+//Reference://scancode array:http://www.cs.umd.edu/~hollings/cs412/s98/project/proj1/scancode
 static char code_map[58][2] =
      {
        {   0,0   } ,
@@ -63,7 +63,6 @@ static char code_map[58][2] =
        { ' ',' ' } ,
    };
 
-//scancode array:http://www.cs.umd.edu/~hollings/cs412/s98/project/proj1/scancode
 
 
 static char *reg = (char*)0xB8F90;

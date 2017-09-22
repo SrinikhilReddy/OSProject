@@ -23,8 +23,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
  // init_timer();
-  //init_idt();
- // __asm__ volatile("sti");
+  init_idt();
+  __asm__ volatile("sti");
+  checkAllBuses();
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 }
@@ -32,8 +33,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 void boot(void)
 {
   // note: function changes rsp, local stack variables can't be practically used
-  register char /* *temp1, */ *temp2;
-  for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
+ register char /* *temp1, */ *temp2;
+ for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
   __asm__ volatile (
     "cli;"
     "movq %%rsp, %0;"
@@ -43,8 +44,6 @@ void boot(void)
   );
  
  init_gdt();
-init_idt();
-  __asm__ volatile("sti");
   start(
     (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),
     (uint64_t*)&physbase,
