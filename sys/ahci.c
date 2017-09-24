@@ -6,6 +6,7 @@ void probe_port(hba_mem_t *abar)
 {
 	// Search disk in impelemented ports
 	uint32_t pi = abar->pi;
+	kprintf("************************************%d",pi);
 	int i = 0;
 	while (i<32)
 	{
@@ -43,16 +44,16 @@ void probe_port(hba_mem_t *abar)
 // Check device type
 static int check_type(hba_port_t *port)
 {
-//	uint32_t ssts = port->ssts;
+	uint32_t ssts = port->ssts;
  
-	/*uint8_t ipm = (ssts >> 8) & 0x0F;
+	uint8_t ipm = (ssts >> 8) & 0x0F;
 	uint8_t det = ssts & 0x0F;
  
 	if (det != HBA_PORT_DET_PRESENT)	// Check drive status
 		return AHCI_DEV_NULL;
 	if (ipm != HBA_PORT_IPM_ACTIVE)
 		return AHCI_DEV_NULL;
- 	*/
+ 
 	switch (port->sig)
 	{
 	case SATA_SIG_ATAPI:

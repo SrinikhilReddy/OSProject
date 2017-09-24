@@ -12,10 +12,13 @@
 #define HBA_PxCMD_CR   (1U << 15)
 #define HBA_PxIS_TFES  (1U << 30)
 
+#define AHCI_DEV_NULL 0
 #define AHCI_DEV_SATA   0x00000101  // SATA drive
 #define AHCI_DEV_SATAPI 0xEB140101  // SATAPI drive
 #define AHCI_DEV_SEMB   0xC33C0101  // Enclosure management bridge
 #define AHCI_DEV_PM     0x96690101  // Port multiplier
+#define HBA_PORT_DET_PRESENT 3
+#define HBA_PORT_IPM_ACTIVE 1
 
 #define ATA_STATUS_ERR  0x01 // Indicates an error occurred. Send a new command to clear it (or nuke it with a Software Reset).
 #define ATA_STATUS_DRQ  0x08 // Set when the drive has PIO data to transfer, or is ready to accept PIO data.
