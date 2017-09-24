@@ -75,6 +75,9 @@ void put_to_screen(char a){
 void print_int(int i){
 	int j = 1000000000;
 	int lead_zero = 1;
+	if(i==0){
+		put_to_screen('0');
+	}
 	if(i<0){
 		put_to_screen('-');
 		i = i* -1;

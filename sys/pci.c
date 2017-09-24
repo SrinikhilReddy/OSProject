@@ -100,8 +100,8 @@ void pciConfigWrite(uint8_t bus, uint8_t slot,uint8_t func, uint8_t offset,uint3
 
 	
 	sysOutLong (0xCF8,address);	
-	 uint32_t tmp = ((sysInLong (0xCFC)));
-	sysOutLong (0xCF8, tmp); 
+//	uint32_t tmp = ((sysInLong (0xCFC)));
+//	sysOutLong (0xCF8, tmp); 
 	sysOutLong (0xCFC, writeVal);
 	return;
 }
@@ -114,8 +114,9 @@ uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun){
 		kprintf("DeviceId:%d",device);
 		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x06) && ( (pciConfigReadWord(bus,slot,fun,11) & 0xFF00 ) >> 8 == 0x01)){
 			kprintf(" Type:AHCI \n");
-			uint32_t x = (uint32_t)0xFFFFAAED;
+			uint32_t x = (uint32_t)0x3ffff000;
 			pciConfigWrite(bus,slot,fun,0x24,x);
+			x = pciConfigReadLong (bus,slot,fun,0x24); 
 			probe_port((hba_mem_t *)(uint64_t)(x));
 		}
 	kprintf("\n");
