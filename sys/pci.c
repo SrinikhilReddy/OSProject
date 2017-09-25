@@ -112,7 +112,7 @@ uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun){
 	if ((vendor = pciConfigReadWord(bus,slot,fun,0)) != 0xFFFF) {
 		device = pciConfigReadWord(bus,slot,fun,2);
 		kprintf("DeviceId:%d",device);
-		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x06) && ( (pciConfigReadWord(bus,slot,fun,11) & 0xFF00 ) >> 8 == 0x01)){
+		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x06) && ( (pciConfigReadWord(bus,slot,fun,10) & 0xFF00 ) >> 8 == 0x01)){
 			kprintf(" Type:AHCI \n");
 			uint32_t x = (uint32_t)0x3ffff000;
 			pciConfigWrite(bus,slot,fun,0x24,x);
