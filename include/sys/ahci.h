@@ -37,6 +37,15 @@
 #define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
 #define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
 #define	SATA_SIG_PM	0x96690101	// Port multiplier
+
+#define LOBYTE(w) ((uint8_t)(w))
+#define HIBYTE(w) ((uint8_t)(((uint16_t)(w) >> 8) & 0xFF))
+
+//typedef unsigned char BYTE;
+
+typedef int BOOL;
+enum { FALSE, TRUE };
+
 void checkAllBuses();
 typedef enum {
   FIS_TYPE_REG_H2D = 0x27,   // Register FIS - host to device

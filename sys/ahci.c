@@ -1,7 +1,13 @@
 #include<sys/defs.h>
 #include<sys/ahci.h>
 #include<sys/kprintf.h>
+
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
 static int check_type(hba_port_t *port);
+int find_cmdslot(hba_port_t *port);
+
 void probe_port(hba_mem_t *abar)
 {
 	// Search disk in impelemented ports
@@ -67,56 +73,59 @@ static int check_type(hba_port_t *port)
 	}
 }
 
-BOOL read(HBA_PORT *port, DWORD startl, DWORD starth, DWORD count, WORD *buf)
+BOOL read(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf)
 {
-	port->is = (DWORD)-1;		// Clear pending interrupt bits
+	port->is_rwc = (uint32_t)-1;		// Clear pending interrupt bits
 	int spin = 0; // Spin lock timeout counter
 	int slot = find_cmdslot(port);
 	if (slot == -1)
 		return FALSE;
  
-	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)port->clb;
+	hba_cmd_header_t *cmdheader = (hba_cmd_header_t*)port->clb;
 	cmdheader += slot;
-	cmdheader->cfl = sizeof(FIS_REG_H2D)/sizeof(DWORD);	// Command FIS size
+	cmdheader->cfl = sizeof(fis_reg_h2d_t)/sizeof(uint32_t);	// Command FIS size
 	cmdheader->w = 0;		// Read from device
-	cmdheader->prdtl = (WORD)((count-1)>>4) + 1;	// PRDT entries count
+	cmdheader->prdtl = (uint16_t)((count-1)>>4) + 1;	// PRDT entries count
  
-	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)(cmdheader->ctba);
-	memset(cmdtbl, 0, sizeof(HBA_CMD_TBL) +
- 		(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
- 
+	hba_cmd_tbl_t *cmdtbl = (hba_cmd_tbl_t*)(cmdheader->ctba);
+	memset(cmdtbl, 0, sizeof(hba_cmd_tbl_t) +
+ 		(cmdheader->prdtl-1)*sizeof(hba_prdt_entry_t));
+	
+	int i=0; 
 	// 8K bytes (16 sectors) per PRDT
-	for (int i=0; i<cmdheader->prdtl-1; i++)
+	for (i=0; i<cmdheader->prdtl-1; i++)
 	{
-		cmdtbl->prdt_entry[i].dba = (DWORD)buf;
+		cmdtbl->prdt_entry[i].dba = (uint64_t)buf;
 		cmdtbl->prdt_entry[i].dbc = 8*1024;	// 8K bytes
 		cmdtbl->prdt_entry[i].i = 1;
 		buf += 4*1024;	// 4K words
 		count -= 16;	// 16 sectors
 	}
 	// Last entry
-	cmdtbl->prdt_entry[i].dba = (DWORD)buf;
+	cmdtbl->prdt_entry[i].dba = (uint64_t)buf;
 	cmdtbl->prdt_entry[i].dbc = count<<9;	// 512 bytes per sector
 	cmdtbl->prdt_entry[i].i = 1;
  
 	// Setup command
-	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)(&cmdtbl->cfis);
+	fis_reg_h2d_t *cmdfis = (fis_reg_h2d_t*)(&cmdtbl->cfis);
  
 	cmdfis->fis_type = FIS_TYPE_REG_H2D;
 	cmdfis->c = 1;	// Command
-	cmdfis->command = ATA_CMD_READ_DMA_EX;
+	cmdfis->command = 0x25;
  
-	cmdfis->lba0 = (BYTE)startl;
-	cmdfis->lba1 = (BYTE)(startl>>8);
-	cmdfis->lba2 = (BYTE)(startl>>16);
+	cmdfis->lba0 = (uint8_t)startl;
+	cmdfis->lba1 = (uint8_t)(startl>>8);
+	cmdfis->lba2 = (uint8_t)(startl>>16);
 	cmdfis->device = 1<<6;	// LBA mode
  
-	cmdfis->lba3 = (BYTE)(startl>>24);
-	cmdfis->lba4 = (BYTE)starth;
-	cmdfis->lba5 = (BYTE)(starth>>8);
- 
-	cmdfis->countl = LOBYTE(count);
-	cmdfis->counth = HIBYTE(count);
+	cmdfis->lba3 = (uint8_t)(startl>>24);
+	cmdfis->lba4 = (uint8_t)starth;
+	cmdfis->lba5 = (uint8_t)(starth>>8);
+	
+	cmdfis->count = count;
+ 	
+	/*cmdfis->countl = LOBYTE(count);
+	cmdfis->counth = HIBYTE(count);*/
  
 	// The below loop waits until the port is no longer busy before issuing a new command
 	while ((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000)
@@ -125,7 +134,7 @@ BOOL read(HBA_PORT *port, DWORD startl, DWORD starth, DWORD count, WORD *buf)
 	}
 	if (spin == 1000000)
 	{
-		trace_ahci("Port is hung\n");
+		kprintf("Port is hung\n");
 		return FALSE;
 	}
  
@@ -138,19 +147,34 @@ BOOL read(HBA_PORT *port, DWORD startl, DWORD starth, DWORD count, WORD *buf)
 		// in the PxIS port field as well (1 << 5)
 		if ((port->ci & (1<<slot)) == 0) 
 			break;
-		if (port->is & HBA_PxIS_TFES)	// Task file error
+		if (port->is_rwc & HBA_PxIS_TFES)	// Task file error
 		{
-			trace_ahci("Read disk error\n");
+			kprintf("Read disk error\n");
 			return FALSE;
 		}
 	}
  
 	// Check again
-	if (port->is & HBA_PxIS_TFES)
+	if (port->is_rwc & HBA_PxIS_TFES)
 	{
-		trace_ahci("Read disk error\n");
+		kprintf("Read disk error\n");
 		return FALSE;
 	}
  
 	return TRUE;
+}
+
+// Find a free command list slot
+int find_cmdslot(hba_port_t *port)
+{
+	// If not set in SACT and CI, the slot is free
+	uint32_t slots = (port->sact | port->ci);
+	for (int i=0; i<32; i++)
+	{
+		if ((slots&1) == 0)
+			return i;
+		slots >>= 1;
+	}
+	kprintf("Cannot find free command list entry\n");
+	return -1;
 }
