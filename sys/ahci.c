@@ -1,13 +1,22 @@
 #include<sys/defs.h>
 #include<sys/ahci.h>
 #include<sys/kprintf.h>
-
 #define ATA_DEV_BUSY 0x80
 #define ATA_DEV_DRQ 0x08
 
 static int check_type(hba_port_t *port);
 int find_cmdslot(hba_port_t *port);
 int verify_read_write(hba_port_t* port);
+int strcmp(char *s,char *t){
+        while(*s==*t)
+        {   
+                if(*s=='\0')
+                        return 0;
+                s++;
+                t++;
+        }   
+        return *s-*t;
+}
 void *memset(void *s, int c, size_t n)
 {
 	unsigned char* p=s;
@@ -198,18 +207,20 @@ int verify_read_write(hba_port_t* port){
 	int i;
 	for( i=0;i<100;i++){
 		char* buf = (char*)0x800000;
-                int j;
-		//*buf = 'A';
-		for(j=0;j<2048;j++){
+                int j = 0;
+		for(j=0;j<4096;j++){
 			*(buf+j) = (char)(i);
 		}
-		*(buf+2048) = '\0';
+//		*(buf+512) = '\0';
 		//*buf = (char)'A';
-		readorwrite(port,i,0,1,(uint16_t*)buf,1);
+		readorwrite(port,8*i,0,8,(uint16_t*)buf,1);
 		char* ss =  (char*)0x900000;
-		readorwrite(port,i,0,1,(uint16_t*)ss,0);
-		kprintf("%s",ss);
+		readorwrite(port,8*i,0,8,(uint16_t*)ss,0);
+		if(strcmp(buf,ss)==0) ;
+		else {kprintf("Incorrect"); return 0;}
+		//kprintf("%s",ss);
 	}
 	port->cmd &= ~HBA_PxCMD_ST;
+	kprintf("Read Write Verified");
 	return 1;
 }

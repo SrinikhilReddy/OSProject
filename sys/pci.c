@@ -2,7 +2,7 @@
 #include<sys/kprintf.h>
 #include<sys/ahci.h>
 uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun);
-void checkDevice(uint8_t bus, uint8_t device);
+void checkDevice(uint8_t bus, uint8_t device,uint8_t fun);
 
 
 
@@ -18,19 +18,19 @@ uint32_t sysInLong(uint16_t port){
 }
 void checkAllBuses(void) {
 	uint8_t bus;
-	uint8_t device;
-
+	uint8_t device,fun;
 	for(bus = 0; bus < 255; bus++) {
 		for(device = 0; device < 32; device++) {
-			checkDevice(bus, device);
+			for(fun=0;fun<7;fun++)	
+			{checkDevice(bus, device, fun);}
 		}
 	}
 }
 
-void checkDevice(uint8_t bus, uint8_t device) {
-	uint8_t function = 0;
+void checkDevice(uint8_t bus, uint8_t device,uint8_t fun) {
+//	uint8_t function = 0;
 
-	uint16_t vendorID = getVendorID(bus, device, function);
+	uint16_t vendorID = getVendorID(bus, device, fun);
 	if(vendorID == 0xFFFF) return;        // Device doesn't exist
 	/* checkFunction(bus, device, function);
 	   headerType = getHeaderType(bus, device, function);
@@ -42,14 +42,13 @@ void checkDevice(uint8_t bus, uint8_t device) {
 	}
 	}
 	}*/
-	else{
+/*	else{
 	 kprintf("VendorId:%d ",vendorID);
-	}
+	}*/
 }
 
 uint16_t pciConfigReadWord (uint8_t bus, uint8_t slot,
-		uint8_t func, uint8_t offset)
-{
+		uint8_t func, uint8_t offset){
 	uint32_t address;
 	uint32_t lbus  = (uint32_t)bus;
 	uint32_t lslot = (uint32_t)slot;
@@ -111,7 +110,7 @@ uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun){
 	/* vendors that == 0xFFFF, it must be a non-existent device. */
 	if ((vendor = pciConfigReadWord(bus,slot,fun,0)) != 0xFFFF) {
 		device = pciConfigReadWord(bus,slot,fun,2);
-		kprintf("DeviceId:%d",device);
+		kprintf("DeviceId:%d, VendorId:%d",device,vendor);
 		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x06) && ( (pciConfigReadWord(bus,slot,fun,10) & 0xFF00 ) >> 8 == 0x01)){
 			kprintf(" Type:AHCI \n");
 			uint32_t x = (uint32_t)0x3ffff000;
