@@ -233,3 +233,46 @@ void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, uns
       }
    }
 }
+
+
+void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
+                      unsigned short es, unsigned int edi) {
+ 
+   // 1: Check if the drive presents:
+   if (drive > 3 || ide_devices[drive].Reserved == 0) package[0] = 0x1;      // Drive Not Found!
+ 
+   // 2: Check if inputs are valid:
+   else if (((lba + numsects) > ide_devices[drive].Size) && (ide_devices[drive].Type == IDE_ATA))
+      package[0] = 0x2;                     // Seeking to invalid position.
+ 
+   // 3: Read in PIO Mode through Polling & IRQs:
+   else {
+      unsigned char err;
+      if (ide_devices[drive].Type == IDE_ATA)
+         err = ide_ata_access(ATA_READ, drive, lba, numsects, es, edi);
+      else if (ide_devices[drive].Type == IDE_ATAPI)
+         for (i = 0; i < numsects; i++)
+            err = ide_atapi_read(drive, lba + i, 1, es, edi + (i*2048));
+      package[0] = ide_print_error(drive, err);
+   }
+}
+
+void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
+                       unsigned short es, unsigned int edi) {
+ 
+   // 1: Check if the drive presents:
+   if (drive > 3 || ide_devices[drive].Reserved == 0)
+      package[0] = 0x1;      // Drive Not Found!
+   // 2: Check if inputs are valid:
+   else if (((lba + numsects) > ide_devices[drive].Size) && (ide_devices[drive].Type == IDE_ATA))
+      package[0] = 0x2;                     // Seeking to invalid position.
+   // 3: Read in PIO Mode through Polling & IRQs:
+   else {
+      unsigned char err;
+      if (ide_devices[drive].Type == IDE_ATA)
+         err = ide_ata_access(ATA_WRITE, drive, lba, numsects, es, edi);
+      else if (ide_devices[drive].Type == IDE_ATAPI)
+         err = 4; // Write-Protected.
+      package[0] = ide_print_error(drive, err);
+   }
+}
