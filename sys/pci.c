@@ -1,6 +1,7 @@
 #include<sys/defs.h>
 #include<sys/kprintf.h>
 #include<sys/ahci.h>
+#include<sys/ide.h>
 uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun);
 void checkDevice(uint8_t bus, uint8_t device,uint8_t fun);
 
@@ -110,14 +111,20 @@ uint16_t getVendorID(uint8_t bus, uint8_t slot,uint8_t fun){
 	/* vendors that == 0xFFFF, it must be a non-existent device. */
 	if ((vendor = pciConfigReadWord(bus,slot,fun,0)) != 0xFFFF) {
 		device = pciConfigReadWord(bus,slot,fun,2);
-		kprintf("DeviceId:%d, VendorId:%d",device,vendor);
-		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x06) && ( (pciConfigReadWord(bus,slot,fun,10) & 0xFF00 ) >> 8 == 0x01)){
-			kprintf(" Type:AHCI \n");
-			uint32_t x = (uint32_t)0x3ffff000;
-			pciConfigWrite(bus,slot,fun,0x24,x);
-			x = pciConfigReadLong (bus,slot,fun,0x24); 
-			probe_port((hba_mem_t *)(uint64_t)(x));
+//		kprintf("DeviceId:%d, VendorId:%d ",device,vendor);
+	//	kprintf("------- %d,%d \n",pciConfigReadWord(bus,slot,fun,10) & 0x00FF,pciConfigReadWord(bus,slot,fun,10) & 0xFF00);
+		if(( (pciConfigReadWord(bus,slot,fun,10) & 0x00FF)  == 0x01) && ( (pciConfigReadWord(bus,slot,fun,10) & 0xFF00 ) >> 8 == 0x01)){
+			kprintf("DeviceId:%d, VendorId:%d",device,vendor);
+			kprintf(" Type: IDE \n");
+			kprintf("----------- %d",((pciConfigReadWord(bus,slot,fun,8) & 0xFF00 ) >> 8));
+			ide_initialize(0x1F0, 0x3F6, 0x170, 0x376, 0x000);
+
+			//uint32_t x = (uint32_t)0x3ffff000;
+			//pciConfigWrite(bus,slot,fun,0x24,x);
+			//x = pciConfigReadLong (bus,slot,fun,0x24); 
+			//probe_port((hba_mem_t *)(uint64_t)(x));
 		}
-	kprintf("\n");
+//	kprintf("\n");
 	} return (vendor);
 }
+//uint32_t ideconfigReadWord(uint8_t bus,uint8_t slot,uint8_t func,
