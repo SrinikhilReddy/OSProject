@@ -59,7 +59,7 @@ void ide_read_buffer(unsigned char channel, unsigned char reg, void*  buffer,
     
    if (reg > 0x07 && reg < 0x0C)
       ide_write(channel, ATA_REG_CONTROL, 0x80 | channels[channel].nIEN);
-//   __asm__ volatile ("pushw %es; movw %ds, %ax; movw %ax, %es");
+   __asm__ volatile ("push %rax; movw %ds, %ax; movw %ax, %es");
    if (reg < 0x08)
       insl(channels[channel].base  + reg - 0x00, buffer, quads);
    else if (reg < 0x0C)
@@ -68,7 +68,7 @@ void ide_read_buffer(unsigned char channel, unsigned char reg, void*  buffer,
       insl(channels[channel].ctrl  + reg - 0x0A, buffer, quads);
    else if (reg < 0x16)
       insl(channels[channel].bmide + reg - 0x0E, buffer, quads);
- //  __asm__ volatile("popw %es;");
+   __asm__ volatile("pop %rax;");
    if (reg > 0x07 && reg < 0x0C)
       ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
 }
@@ -292,10 +292,10 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba, unsigned cha
       ide_wait_irq();                  // Wait for an IRQ.
       if ((err = ide_polling(channel, 1)))
          return err;      // Polling and return if error.
-      //__asm__ volatile ("pushw %es");
+      __asm__ volatile ("push %rax");
       __asm__ volatile ("mov %%ax, %%es"::"a"(selector));
       __asm__ volatile("rep insw"::"c"(words), "d"(bus), "D"(edi));// Receive Data.
-      //__asm__ volatile ("popw %es");
+      __asm__ volatile ("pop %rax");
       edi += (words * 2);
    }
    // (X): Waiting for an IRQ:
@@ -406,19 +406,19 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsig
       for (i = 0; i < numsects; i++) {
          if ((err = ide_polling(channel, 1)))
             return err; // Polling, set error and exit if there is.
-         //__asm__ volatile ("pushw %es");
+         __asm__ volatile ("push %rax");
          __asm__ volatile ("mov %%ax, %%es" : : "a"(selector));
          __asm__ volatile ("rep insw" : : "c"(words), "d"(bus), "D"(edi)); // Receive Data.
-         //__asm__ volatile ("popw %es");
+         __asm__ volatile ("pop %rax");
          edi += (words*2);
       } else {
       // PIO Write.
          for (i = 0; i < numsects; i++) {
             ide_polling(channel, 0); // Polling.
-            //__asm__ volatile ("pushw %ds");
+            __asm__ volatile ("push %rax");
             __asm__ volatile ("mov %%ax, %%ds"::"a"(selector));
             __asm__ volatile ("rep outsw"::"c"(words), "d"(bus), "S"(edi)); // Send Data
-            //__asm__ volatile ("popw %ds");
+            __asm__ volatile ("pop %rax");
             edi += (words*2);
          }
          ide_write(channel, ATA_REG_COMMAND, (char []) {   ATA_CMD_CACHE_FLUSH,
