@@ -7,7 +7,7 @@
 static int check_type(hba_port_t *port);
 int find_cmdslot(hba_port_t *port);
 int verify_read_write(hba_port_t* port);
-int strcmp(char *s,char *t){
+/*int strcmp(char *s,char *t){
         while(*s==*t)
         {   
                 if(*s=='\0')
@@ -16,7 +16,7 @@ int strcmp(char *s,char *t){
                 t++;
         }   
         return *s-*t;
-}
+}*/
 void *memset(void *s, int c, size_t n)
 {
 	unsigned char* p=s;
@@ -216,8 +216,8 @@ int verify_read_write(hba_port_t* port){
 		readorwrite(port,8*i,0,8,(uint16_t*)buf,1);
 		char* ss =  (char*)0x900000;
 		readorwrite(port,8*i,0,8,(uint16_t*)ss,0);
-		if(strcmp(buf,ss)==0) ;
-		else {kprintf("Incorrect"); return 0;}
+//		if(strcmp(buf,ss)==0) ;
+//		else {kprintf("Incorrect"); return 0;}
 		//kprintf("%s",ss);
 	}
 	port->cmd &= ~HBA_PxCMD_ST;

@@ -8,9 +8,19 @@ unsigned char package[3] = {0};
 unsigned static char ide_irq_invoked = 0;
 unsigned static char atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
-		unsigned short es, unsigned int edi);
+		unsigned short es, char* buf);
 void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
-		unsigned short es, unsigned int edi);
+		unsigned short es, char* buf);
+int strcmp(char *s,char *t){
+        while(*s==*t)
+        {
+                if(*s=='\0')
+                        return 0;
+                s++;
+                t++;
+        }
+        return *s-*t;
+}
 static inline void outb(uint16_t port, uint8_t val)
 {
 	__asm__ volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
@@ -237,9 +247,22 @@ void ide_initialize(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, uns
 					ide_devices[i].Size,               /* Size */
 					ide_devices[i].Model);
 			if(i==1){
-				//	ide_read_sectors(ide_devices[i].Drive,1,ATA_REG_LBA1,0,0);
-				//		ide_write_sectors(ide_devices[i].Drive,1,2,0,0);
-				ide_read_sectors(ide_devices[i].Drive,7,0,0,0);
+				for(int k=0;k<100;k++){
+					  char* buf = (char*)0x800000;
+                			  int j = 0;
+                			  for(j=0;j<4096;j++){
+                        			*(buf+j) = (char)(k);
+                			  }
+					  
+					  ide_write_sectors(ide_devices[i].Drive,8,(8*k),0,buf);
+				          char* ss =  (char*)0x900000;
+					  ide_read_sectors(ide_devices[i].Drive,8,(8*k),0,ss);
+//					  kprintf("%s",ss);
+					  if(strcmp(buf,ss)==0);
+					  else {kprintf("Incorrect"); return; }
+//					  kprintf("%s",ss);
+				}
+				//ide_read_sectors(ide_devices[i].Drive,7,0,0,0);
 			}
 		}
 	}
@@ -315,7 +338,7 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba, unsigned cha
 	return 0;
 }
 
-unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsigned int lba, unsigned char numsects, unsigned short selector, unsigned int edi) {
+unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsigned int lba, unsigned char numsects, unsigned short selector, char* buf) {
 
 	unsigned char lba_mode /* 0: CHS, 1:LBA28, 2: LBA48 */, dma /* 0: No DMA, 1: DMA */, cmd;
 	unsigned char lba_io[6];
@@ -414,21 +437,23 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsig
 			for (i = 0; i < numsects; i++) {
 				if ((err = ide_polling(channel, 1)))
 					return err; // Polling, set error and exit if there is.
-				char* buf = (char*)0x700000;
-				__asm__ volatile ("rep insw" : : "c"(words), "d"(bus), "D"(buf)); // Receive Data.
-
-				kprintf("Read ------------------------%s----------------\n",buf);
+				//char* buf = (char*)0x700000;
+				__asm__ volatile ("rep insw" : : "c"(words), "d"(bus), "D"(buf+(i*512) )); // Receive Data.
+		//		kprintf("%s",buf);
+//				kprintf("Read ------------------------%s----------------\n",buf);
 			} else {
 				// PIO Write.
 				for (i = 0; i < numsects; i++) {
-					char* buf = (char*)0x800000;
-					int j = 0;
-					for(j=0;j<4096;j++){
-						*(buf+j) = 'A';
-					}
-					*(buf+j) = '\0';	
+				//	char* buf = (char*)0x800000;
+				//	int j = 0;
+					
+				//	for(j=0;j<4096;j++){
+				//		*(buf+j) = 'A';
+				//	}
+				//	*(buf+j) = '\0';	
+//					kprintf("++++++++++++%s",buf);
 					ide_polling(channel, 0); // Polling.
-					__asm__ volatile ("rep outsw"::"c"(words), "d"(bus), "S"(buf)); // Send Data
+					__asm__ volatile ("rep outsw"::"c"(words), "d"(bus), "S"(buf+(i*512))); // Send Data
 				}
 				ide_write(channel, ATA_REG_COMMAND, (char []) {   ATA_CMD_CACHE_FLUSH,
 						ATA_CMD_CACHE_FLUSH,
@@ -440,7 +465,7 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive, unsig
 }
 
 
-void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int lba, unsigned short es, unsigned int edi) {
+void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int lba, unsigned short es, char* buf) {
 
 	//unsigned char err = 0; 
 	// 1: Check if the drive presents:
@@ -453,18 +478,15 @@ void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int 
 	// 3: Read in PIO Mode through Polling & IRQs:
 	else {
 		unsigned char err = 0;
-		if (ide_devices[drive].Type == IDE_ATA)
-			err = ide_ata_access(ATA_READ, drive, lba, numsects, es, edi);
-		else if (ide_devices[drive].Type == IDE_ATAPI)
-			for (int i = 0; i < numsects; i++)
-				err = ide_atapi_read(drive, lba + i, 1, es, edi + (i*2048));
+		if (ide_devices[drive].Type == IDE_ATA){
+			err = ide_ata_access(ATA_READ, drive, lba, numsects, es, buf);
+		}
 		package[0] = ide_print_error(drive, err);
 	}
 }
 
 void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
-		unsigned short es, unsigned int edi) {
-
+		unsigned short es, char* buf) {
 	//unsigned char err = 0;
 	// 1: Check if the drive presents:
 	if (drive > 3 || ide_devices[drive].Reserved == 0)
@@ -476,10 +498,13 @@ void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int
 	else {
 		unsigned char err = 0;
 		if (ide_devices[drive].Type == IDE_ATA)
-			err = ide_ata_access(ATA_WRITE, drive, lba, numsects, es, edi);
+		{
+			err = ide_ata_access(ATA_WRITE, drive, lba, numsects, es, buf);
+		}
 		else if (ide_devices[drive].Type == IDE_ATAPI)
+		{	
 			err = 4; // Write-Protected.
-		package[0] = ide_print_error(drive, err);
+		}package[0] = ide_print_error(drive, err);
 	}
 }
 /*int verify_read_write(hba_port_t* port){
