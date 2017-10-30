@@ -43,6 +43,8 @@ void count_memory(void)
 	uint16_t memkb;
 	uint8_t irq1, irq2;
 	uint64_t cr0;
+	uint64_t mem_end;
+	uint64_t bse_end;
  
 	/* save IRQ's */
 	irq1=inb(0x21);
@@ -77,7 +79,7 @@ void count_memory(void)
  
           // the empty asm calls tell gcc not to rely on what's in its registers
           // as saved variables (this avoids GCC optimisations)
-		asm("":::"memory");
+		__asm__("":::"memory");
 		if (*mem!=0x55AA55AA) mem_count=0;
 		else {
 			*mem=0xAA55AA55;
