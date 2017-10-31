@@ -1,15 +1,5 @@
 #include<sys/defs.h>
 #include<stdint.h>
-typedef struct SMAP_entry {
- 
-	uint32_t BaseL; // base address uint64_t
-	uint32_t BaseH;
-	uint32_t LengthL; // length uint64_t
-	uint32_t LengthH;
-	uint32_t Type; // entry Type
-	uint32_t ACPI; // extended
- 
-}__attribute__((packed)) SMAP_entry_t;
  
 // load memory map to buffer - note: regparm(3) avoids stack issues with gcc in real mode
 int __attribute__((noinline)) __attribute__((regparm(3))) detectMemory(SMAP_entry_t* buffer, int maxentries)
@@ -79,7 +69,7 @@ void count_memory(void)
  
           // the empty asm calls tell gcc not to rely on what's in its registers
           // as saved variables (this avoids GCC optimisations)
-		__asm__("":::"memory");
+		asm("":::"memory");
 		if (*mem!=0x55AA55AA) mem_count=0;
 		else {
 			*mem=0xAA55AA55;

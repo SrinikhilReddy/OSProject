@@ -3,8 +3,8 @@
 extern void loadPageDirectory(unsigned int*);
 extern void enablePaging();
 
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
-uint32_t first_page_table[1024] __attribute__((aligned(4096)));
+uint64_t page_directory[1024] __attribute__((aligned(4096)));
+uint64_t first_page_table[1024] __attribute__((aligned(4096)));
 
 void loadPageDirectory(unsigned int* page_directory) {
 
@@ -35,30 +35,3 @@ void loadPageDirectory(unsigned int* page_directory) {
 	page_directory[0] = ((unsigned int)first_page_table) | 3;
 }
 
-//NOt sure where this code should be placed!
-/*void enablePaging() {
-
-	.text
-	.globl loadPageDirectory
-	loadPageDirectory:
-	push %ebp
-	mov %esp, %ebp
-	mov 8(%esp), %eax
-	mov %eax, %cr3
-	mov %ebp, %esp
-	pop %ebp
-	ret
-
-	.text
-	.globl enablePaging
-	enablePaging:
-	push %ebp
-	mov %esp, %ebp
-	mov %cr0, %eax
-	or $0x80000000, %eax
-	mov %eax, %cr0
-	mov %ebp, %esp
-	pop %ebp
-	ret
-
-}*/
