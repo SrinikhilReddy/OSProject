@@ -9,7 +9,7 @@
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
-
+//extern struct freelist pagelist[1000];
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t* smap;
@@ -21,6 +21,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
       
     }
   }
+  init_ia32e_paging();
  // init_timer();
  // init_idt();
  // __asm__ volatile("sti");
