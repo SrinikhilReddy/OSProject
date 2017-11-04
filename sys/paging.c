@@ -4,6 +4,7 @@
 static freelist* head = NULL;
 //freelist* nu
 //struct freelist pagelist[1000];
+extern char kernmem;
 static uint64_t count =0;
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 	uint64_t sbase = sm->base;
@@ -44,13 +45,28 @@ void init_ia32e_paging(){
 
 	//Following the convention described in Intel specification of IA32e type paging.
 	uint64_t *pml4e, *pdpte,*pde,*pte;
+	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
+	uint64_t viraddr = (uint64_t)&kernmem;
+	
+	pml4_idx = (viraddr >> 39 ) & 0x1FF;
+	pdpt_idx = (viraddr >> 30 ) & 0x1FF;
+	pd_idx = (viraddr >> 21 ) & 0x1FF;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	
 	pml4e = (uint64_t *)allocate_page();
 	pdpte = (uint64_t *)allocate_page();
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
-	kprintf("------------------------%p\n",pml4e);			
-	 kprintf("------------------------%p\n",pdpte);
-	 kprintf("------------------------%p\n",pde);
-	 kprintf("------------------------%p\n",pte);
+	
+	kprintf("------------------------%p %d\n",pml4e,pml4_idx);			
+	kprintf("------------------------%p %d\n",pdpte,pdpt_idx);
+	kprintf("------------------------%p %d\n",pde,pd_idx);
+	kprintf("------------------------%p %d\n",pte,pt_idx);
 
+	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
+	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
+	
+	 	
 }
+
