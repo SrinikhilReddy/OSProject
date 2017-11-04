@@ -41,13 +41,14 @@ uint64_t allocate_page(){
 	
 	return temp->address;
 }	
-void init_ia32e_paging(){
+
+void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	//Following the convention described in Intel specification of IA32e type paging.
 	uint64_t *pml4e, *pdpte,*pde,*pte;
 	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 	uint64_t viraddr = (uint64_t)&kernmem;
-	
+//	kprintf("==============%d",count);	
 	pml4_idx = (viraddr >> 39 ) & 0x1FF;
 	pdpt_idx = (viraddr >> 30 ) & 0x1FF;
 	pd_idx = (viraddr >> 21 ) & 0x1FF;
@@ -58,15 +59,25 @@ void init_ia32e_paging(){
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
 	
-	kprintf("------------------------%p %d\n",pml4e,pml4_idx);			
-	kprintf("------------------------%p %d\n",pdpte,pdpt_idx);
-	kprintf("------------------------%p %d\n",pde,pd_idx);
-	kprintf("------------------------%p %d\n",pte,pt_idx);
+//	kprintf("------------------------%p %d\n",pml4e,pml4_idx);			
+//	kprintf("------------------------%p %d\n",pdpte,pdpt_idx);
+//	kprintf("------------------------%p %d\n",pde,pd_idx);
+//	kprintf("------------------------%p %d\n",pte,pt_idx);
 
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
 	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
-	
-	 	
+		
+ 	for(int j=0;physbase<physfree;physbase+=4096,j++){
+		if(j<512){
+//			kprintf("--%d",j);
+			pte[pt_idx+j] = (physbase & 0xFFFFFFFFFFFFF000) | 7;
+		}
+		else{
+			kprintf("=======Overflow");	
+		}
+	}
+	uint64_t cr3 = (uint64_t)pml4e;
+	__asm__ volatile("movq %0,%%cr3"::"r"(cr3));	
 }
 
