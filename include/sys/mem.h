@@ -5,7 +5,7 @@ typedef struct freelist{
 	int free;
 	struct freelist* next; 
 }freelist;
-struct freelist pagelist[35000]; 
+struct freelist pagelist[75000]; 
 typedef struct smap_t {
     uint64_t base, length;
     uint32_t type;

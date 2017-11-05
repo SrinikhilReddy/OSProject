@@ -26,8 +26,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
  // init_idt();
  // __asm__ volatile("sti");
 //  checkAllBuses();
-//  kprintf("physfree %p\n", (uint64_t)physfree);
-//  kprintf("physbase %p\n", (uint64_t)physbase);
+  kprintf("physfree %p\n", (uint64_t)physfree);
+  kprintf("physbase %p\n", (uint64_t)physbase);
  // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 }
 

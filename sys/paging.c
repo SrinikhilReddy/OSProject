@@ -15,7 +15,7 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 
 	physfree = physfree + sizeof(pagelist);
 	for(uint64_t ptr=sbase;ptr<(sbase+slim);ptr+=4096){
-		if(ptr>physfree){
+		if(ptr>physfree && ptr+4096<(sbase+slim)){
 			//			freelist* temp = (freelist *)freelist_space;
 			//			temp->address =ptr;
 			//			temp->next = head;
@@ -52,7 +52,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 	uint64_t viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
 	
-	kprintf("==============%p",viraddr);	
+//	kprintf("==============%p",viraddr);	
 	pml4_idx = (viraddr >> 39 ) & 0x1FF;
 	pdpt_idx = (viraddr >> 30 ) & 0x1FF;
 	pd_idx = (viraddr >> 21 ) & 0x1FF;
@@ -63,10 +63,10 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
 
-		kprintf("------------------------%p %d\n",pml4e,pml4_idx);			
-		kprintf("------------------------%p %d\n",pdpte,pdpt_idx);
-	kprintf("------------------------%p %d\n",pde,pd_idx);
-		kprintf("------------------------%p %d\n",pte,pt_idx);
+//		kprintf("------------------------%p %d\n",pml4e,pml4_idx);			
+//		kprintf("------------------------%p %d\n",pdpte,pdpt_idx);
+//	kprintf("------------------------%p %d\n",pde,pd_idx);
+//		kprintf("------------------------%p %d\n",pte,pt_idx);
 	physbase = 0;//xffffffff80000000;
 	//	physfree = physfree + 0xffffffff80000000;
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
@@ -74,9 +74,9 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
 	int i = 1;
 	for(int j=0;physbase<physfree;viraddr+=4096,physbase+=4096,j++){
-		if(physbase == 0x200000){
-			kprintf("-----%p,%p\n",physbase,viraddr);		
-		}
+//		if(physbase == 0x200000){
+//			kprintf("-----%p,%p\n",physbase,viraddr);		
+//		}
 		 pml4_idx = (viraddr >> 39 ) & 0x1FF;
                         pdpt_idx = (viraddr >> 30 ) & 0x1FF;
                 //      kprintf("==========%d",pd_idx);
@@ -120,9 +120,9 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 //			pt_idx = (viraddr >> 12 ) & 0x1FF;	
 	}
 //	kprintf("**************%p\n",physbase);
-	for(;pd_idx>=1;pd_idx--){
-		kprintf("***%p",pde[pd_idx]);
-	}//Video mem paging
+//	for(;pd_idx>=1;pd_idx--){
+//		kprintf("***%p",pde[pd_idx]);
+//	}//Video mem paging
 	//	uint64_t* vde_mem = (uint64_t *)allocate_page();
 	//	pde[pd_idx+1] = ((uint64_t)vde_mem & 0xFFFFFFFFFFFFF000)|7;
 	//	vde_mem[0] = (0xb8000 &0xFFFFFFFFFFFFF000) | 7;
