@@ -9,6 +9,7 @@
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
+uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t* smap;
@@ -17,17 +18,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     if (smap->type == 1  && smap->length != 0) {
       	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
 	kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-      
+	max = smap->base+smap->length; 
     }
   }
-  init_ia32e_paging((uint64_t)physbase, (uint64_t)physfree);
+  init_ia32e_paging((uint64_t)physbase, (uint64_t)max);
  // init_timer();
  // init_idt();
  // __asm__ volatile("sti");
 //  checkAllBuses();
-  kprintf("physfree %p\n", (uint64_t)physfree);
-  kprintf("physbase %p\n", (uint64_t)physbase);
-  kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+//  kprintf("physfree %p\n", (uint64_t)physfree);
+//  kprintf("physbase %p\n", (uint64_t)physbase);
+ // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 }
 
 void boot(void)
