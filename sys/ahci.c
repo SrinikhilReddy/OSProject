@@ -42,7 +42,7 @@ void probe_port(hba_mem_t *abar)
 				//				port_rebase(&abar->ports[i],i,(uint32_t)abar);
 				if(i==1)
 				{
-					verify_read_write(&(abar->ports[i]));
+//					verify_read_write(&(abar->ports[i]));
 				}
 			}
 			else if (dt == AHCI_DEV_SATAPI)
@@ -206,7 +206,7 @@ int verify_read_write(hba_port_t* port){
         port->cmd |= HBA_PxCMD_ST;  
 	int i;
 	for( i=0;i<100;i++){
-		char* buf = (char*)0x800000;
+		char* buf = (char*)0xffffffff8800000;
                 int j = 0;
 		for(j=0;j<4096;j++){
 			*(buf+j) = (char)(i);
@@ -214,7 +214,7 @@ int verify_read_write(hba_port_t* port){
 //		*(buf+512) = '\0';
 		//*buf = (char)'A';
 		readorwrite(port,8*i,0,8,(uint16_t*)buf,1);
-		char* ss =  (char*)0x900000;
+		char* ss =  (char*)0xffffffff900000;
 		readorwrite(port,8*i,0,8,(uint16_t*)ss,0);
 //		if(strcmp(buf,ss)==0) ;
 //		else {kprintf("Incorrect"); return 0;}

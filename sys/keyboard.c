@@ -65,8 +65,8 @@ static char code_map[58][2] =
 
 
 
-static char *reg = (char*)0xB8F90;
-static char *preg = (char*)0xB8F8E;
+static char *reg = (char*)0xffffffff800B8F90;
+static char *preg = (char*)0xffffffff800B8F8E;
 static uint8_t inb(uint64_t port);
 static int caps=0;
 static int ctrl=0;
