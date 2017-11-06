@@ -22,9 +22,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
   init_ia32e_paging((uint64_t)physbase, (uint64_t)max);
- // init_timer();
- // init_idt();
- // __asm__ volatile("sti");
+//  init_timer();
+  init_idt();
+  __asm__ volatile("sti");
 //  checkAllBuses();
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("physbase %p\n", (uint64_t)physbase);

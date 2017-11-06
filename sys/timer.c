@@ -10,7 +10,8 @@ void timer_handler(){
 	if(count == 18){
 		sec++;
 		int temp = sec;
-		char *reg = (char*)0xB8F9E;
+		//0xffffffff800b8000
+		char *reg = (char*)0xffffffff800B8F9E;
 		while(temp>0)
 		{
 			*reg = '0'+temp%10; 
