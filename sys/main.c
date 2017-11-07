@@ -9,7 +9,7 @@
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
-uint64_t max;
+//uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t* smap;
@@ -18,10 +18,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     if (smap->type == 1  && smap->length != 0) {
       	mem_map(smap,(uint64_t)physbase,(uint64_t)physfree);
 	kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-	max = smap->base+smap->length; 
+//	max = smap->base+smap->length; 
     }
   }
-  init_ia32e_paging((uint64_t)physbase, (uint64_t)max);
+  init_ia32e_paging((uint64_t)0, (uint64_t)physfree);
 //  init_timer();
   init_idt();
   __asm__ volatile("sti");

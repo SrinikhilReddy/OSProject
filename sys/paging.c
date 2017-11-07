@@ -53,7 +53,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
 
-	physbase = 0;//xffffffff80000000;
+//	physbase = 0;//xffffffff80000000;
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
 	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
