@@ -5,6 +5,7 @@
 #include <sys/ahci.h>
 #include <sys/idt.h>
 #include <sys/mem.h>
+#include <sys/process.h>
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
@@ -23,12 +24,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   }
   init_ia32e_paging((uint64_t)0, (uint64_t)physfree);
 //  init_timer();
-  init_idt();
-  __asm__ volatile("sti");
+//  init_idt();
+  //__asm__ volatile("sti");
 //  checkAllBuses();
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("physbase %p\n", (uint64_t)physbase);
  // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+
+  kprintf("Switching to next task");
+  yield();
+  kprintf("Returned to main task");
+
 }
 
 void boot(void)
