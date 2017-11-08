@@ -52,7 +52,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pdpte = (uint64_t *)allocate_page();
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
-
+	kprintf("-----%p",pml4e);
 //	physbase = 0;//xffffffff80000000;
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
@@ -72,6 +72,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;		
 		}
 	}
+	kprintf("================%p",physbase);
 	uint64_t cr3 = (uint64_t)pml4e;
 	__asm__ volatile("movq %0,%%cr3"::"r"(cr3));	
 }
