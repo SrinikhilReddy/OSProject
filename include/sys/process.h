@@ -48,7 +48,7 @@ typedef struct task_struct {
 
 extern void switch_task(r*, r*);
 extern void init_task();
-extern void create_task(task_struct*, void (*main)(), uint64_t flags, uint64_t pagedir);
+extern void create_task(task_struct*,uint64_t main, uint64_t flags, uint64_t pagedir);
 extern void yield();
 
 int get_pid();

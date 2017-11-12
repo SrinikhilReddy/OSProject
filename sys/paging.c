@@ -7,6 +7,8 @@ static freelist* head = NULL;
 // 
 extern char kernmem;
 static uint64_t count =0;
+  static      uint64_t *pml4e, *pdpte,*pde,*pte;
+  static      uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 	uint64_t sbase = sm->base;
 	uint64_t slim = sm->length;
@@ -35,12 +37,17 @@ uint64_t allocate_page(){
 
 	return temp->address;
 }	
-
+//uint64_t allocate_for_p(uint64_t addr){
+	
+	//uint64_t ax =  ((uint64_t*)allocate_page());	
+	//pde[pd_idx] = ((uint64_t)ax & (0xFFFFFFFFFFFFF000)) | 7;
+	//pte[pt_idx] = (addr & 0xFFFFFFFFFFFFF000) | 7;	
+//}
 void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	//Following the convention described in Intel specification of IA32e type paging.
-	uint64_t *pml4e, *pdpte,*pde,*pte;
-	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
+//	uint64_t *pml4e, *pdpte,*pde,*pte;
+//	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
 	uint64_t viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
 
 	pml4_idx = (viraddr >> 39 ) & 0x1FF;

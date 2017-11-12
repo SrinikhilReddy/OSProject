@@ -10,6 +10,7 @@ typedef struct smap_t {
     uint64_t base, length;
     uint32_t type;
 }__attribute__((packed)) smap_t;
+uint64_t allocate_page();
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree);
 void init_ia32e_paging();
 #endif
