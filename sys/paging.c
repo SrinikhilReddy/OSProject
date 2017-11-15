@@ -9,6 +9,7 @@ extern char kernmem;
 static uint64_t count =0;
   static      uint64_t *pml4e, *pdpte,*pde,*pte;
   static      uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
+static uint64_t viraddr;
 void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 	uint64_t sbase = sm->base;
 	uint64_t slim = sm->length;
@@ -37,18 +38,24 @@ uint64_t allocate_page(){
 
 	return temp->address;
 }	
-//uint64_t allocate_for_p(uint64_t addr){
-	
-	//uint64_t ax =  ((uint64_t*)allocate_page());	
-	//pde[pd_idx] = ((uint64_t)ax & (0xFFFFFFFFFFFFF000)) | 7;
-	//pte[pt_idx] = (addr & 0xFFFFFFFFFFFFF000) | 7;	
-//}
+uint64_t allocate_page_for_process(){
+	viraddr+=4096;	
+	uint64_t ax = (uint64_t )allocate_page();	
+	//pd_idx = (viraddr >> 21 ) & 0x1FF;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	if(pd_idx == ((viraddr >> 21 ) & 0x1FF)){
+		uint64_t s =  ( ax & 0xFFFFFFFFFFFFF000) | 7;
+		kprintf("%p",s);
+		pte[pt_idx] = s;
+	}
+	return viraddr;
+}
 void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	//Following the convention described in Intel specification of IA32e type paging.
 //	uint64_t *pml4e, *pdpte,*pde,*pte;
 //	uint64_t pml4_idx,pdpt_idx,pd_idx,pt_idx;
-	uint64_t viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
+	viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
 
 	pml4_idx = (viraddr >> 39 ) & 0x1FF;
 	pdpt_idx = (viraddr >> 30 ) & 0x1FF;
@@ -72,6 +79,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 		if(pt_idx!=0){
 			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;
+//			kprintf("%p\n",pte[pt_idx]);
 		}
 		else{
 			pte = ((uint64_t*)allocate_page());
@@ -80,7 +88,35 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 		}
 	}
 	kprintf("================%p",physbase);
-	uint64_t cr3 = (uint64_t)pml4e;
+	uint64_t cr3 = (uint64_t)pml4e;	
+// Temp Fix, we need a better approach
+	
+	viraddr+=4096;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 7;
+	pml4e = (uint64_t*)viraddr;
+
+	viraddr+=4096;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+	pdpte = (uint64_t*)viraddr;
+
+	viraddr+=4096;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
+	pde= (uint64_t*)viraddr;
+
+	viraddr+=4096;
+	pt_idx = (viraddr >> 12 ) & 0x1FF;
+	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 7;
+	pte = (uint64_t*)viraddr;
+	
+//	uint64_t cr3 = (uint64_t)pml4e;
+//	pml4e += 0xffffffff80000000;
+//	pdpte +=  0xffffffff80000000;
+//	pde +=  0xffffffff80000000;
+//	pte +=  0xffffffff80000000;
+//	uint64_t cr3 = (uint64_t)pml4e;
 	__asm__ volatile("movq %0,%%cr3"::"r"(cr3));	
 }
 

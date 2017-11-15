@@ -36,7 +36,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("Switching to next task");
   yield();
   kprintf("Returned to main task");
-
+  while(1);
 }
 
 void boot(void)
