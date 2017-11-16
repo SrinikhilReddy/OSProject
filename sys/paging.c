@@ -45,7 +45,7 @@ uint64_t allocate_page_for_process(){
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	if(pd_idx == ((viraddr >> 21 ) & 0x1FF)){
 		uint64_t s =  ( ax & 0xFFFFFFFFFFFFF000) | 7;
-		kprintf("%p",s);
+//		kprintf("%p",s);
 		pte[pt_idx] = s;
 	}
 	return viraddr;
@@ -66,7 +66,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pdpte = (uint64_t *)allocate_page();
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
-	kprintf("-----%p",pml4e);
+//	kprintf("-----%p",pml4e);
 //	physbase = 0;//xffffffff80000000;
 	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
@@ -87,7 +87,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;		
 		}
 	}
-	kprintf("================%p",physbase);
+//	kprintf("================%p",physbase);
 	uint64_t cr3 = (uint64_t)pml4e;	
 // Temp Fix, we need a better approach
 	

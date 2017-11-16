@@ -9,7 +9,7 @@ static task_struct next_task;
 //extern void push_all();
 //extern void pop_all();
 static void next_main() {
-	kprintf("Test Context Switching");
+	kprintf("Test Context Switching\n");
 	yield();
 }
 
