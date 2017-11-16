@@ -18,8 +18,8 @@ void user_process_test(){
 }
 void switchtor3(){
 	uint64_t fad =  (uint64_t)&user_process_test;
-	
-	__asm__ volatile("movq %%rsp,%%rax;pushq $0x23;pushq %%rax;pushfq;pushq $0x1B;":::"%rax","%rsp");
+	//create_task(&u_p,(uint64_t)fad,main_task.regs.eflags,(uint64_t)main_task.regs.cr3);		
+	__asm__ volatile("movq %%rsp,%%rax;pushq $0x23;pushq %%rax;pushf;pushq $0x2B;":::"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(fad):"memory");
 	__asm__ volatile("iretq");
 }

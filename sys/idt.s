@@ -106,163 +106,163 @@ kb1:
 	iretq
 isr_0:
 	push
-	call isr0
+	callq isr0
 	pop
 	iretq
 isr_1:
 	push
-	call isr1
+	callq isr1
 	pop
 	iretq
 isr_2:
 	push
-	call isr2
+	callq isr2
 	pop
 	iretq
 isr_3:
 	push
-	call isr3
+	callq isr3
 	pop
 	iretq
 isr_4:
 	push
-	call isr4
+	callq isr4
 	pop
 	iretq
 isr_5:
 	push
-	call isr5
+	callq isr5
 	pop
 	iretq
 isr_6:
 	push
-	call isr6
+	callq isr6
 	pop
 	iretq
 isr_7:
 	push
-	call isr7
+	callq isr7
 	pop
 	iretq
 isr_8:
 	push
-	call isr8
+	callq isr8
 	pop
 	iretq
 isr_9:
 	push
-	call isr9
+	callq isr9
 	pop
 	iretq
 isr_10:
 	push
-	call isr10
+	callq isr10
 	pop
 	iretq
 isr_11:
 	push
-	call isr11
+	callq isr11
 	pop
 	iretq
 isr_12:
 	push
-	call isr12
+	callq isr12
 	pop
 	iretq
 isr_13:
 	push
-	call isr13
+	callq isr13
 	pop
 	iretq
 isr_14:
 	push
-	call isr14
+	callq isr14
 	pop
 	iretq
 isr_15:
 	push
-	call isr15
+	callq isr15
 	pop
 	iretq
 isr_16:
 	push
-	call isr16
+	callq isr16
 	pop
 	iretq
 isr_17:
 	push
-	call isr17
+	callq isr17
 	pop
 	iretq
 isr_18:
 	push
-	call isr18
+	callq isr18
 	pop
 	iretq
 isr_19:
 	push
-	call isr19
+	callq isr19
 	pop
 	iretq
 isr_20:
 	push
-	call isr20
+	callq isr20
 	pop
 	iretq
 isr_21:
 	push
-	call isr21
+	callq isr21
 	pop
 	iretq
 isr_22:
 	push
-	call isr22
+	callq isr22
 	pop
 	iretq
 isr_23:
 	push
-	call isr23
+	callq isr23
 	pop
 	iretq
 isr_24:
 	push
-	call isr24
+	callq isr24
 	pop
 	iretq
 isr_25:
 	push
-	call isr25
+	callq isr25
 	pop
 	iretq
 isr_26:
 	push
-	call isr26
+	callq isr26
 	pop
 	iretq
 isr_27:
 	push
-	call isr27
+	callq isr27
 	pop
 	iretq
 isr_28:
 	push
-	call isr28
+	callq isr28
 	pop
 	iretq
 isr_29:
 	push
-	call isr29
+	callq isr29
 	pop
 	iretq
 
 isr_30:
 	push
-	call isr30
+	callq isr30
 	pop
 	iretq
 isr_31:
 	push
-	call isr31
+	callq isr31
 	pop
 	iretq
 
