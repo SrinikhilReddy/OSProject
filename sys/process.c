@@ -6,8 +6,22 @@
 static task_struct *curr_task;
 static task_struct main_task;
 static task_struct next_task;
-//extern void push_all();
-//extern void pop_all();
+//static task_struct u_p;
+
+void user_process_test(){
+	//This should throw isr14 hopefully if ring0 to ring 3 works correctly.
+	int i =0;
+	for (;i<100;){
+		i++;
+	}
+	__asm__ volatile("hlt");
+}
+void switchtor3(){
+	uint64_t fad =  (uint64_t)&user_process_test;
+	
+	__asm__ volatile("movq %%rsp,%%rax;pushq $0x23;pushq %%rax;pushfq;pushq $0x1B;pushq %0"::"g"(fad):"memory");
+	__asm__ volatile("iretq");
+}
 static void next_main() {
 	kprintf("Test Context Switching\n");
 	yield();
@@ -45,34 +59,18 @@ void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t page
 			*temp = i;
 		}
 		task->regs.esp = (uint64_t)--temp;	
-		/*	
-			uint64_t* temp = (uint64_t*) (task->regs.esp - (sizeof(uint64_t)));
-			if(i==0){
-		 *temp = (uint64_t) main;
-		 }
-		 else{
-		 *temp = (uint64_t)i; 
-		 }
-		 kprintf("%p,%p\n",temp,*temp);
-		 task->regs.esp = (uint64_t)temp;//(task->regs.esp - i);
-		 */		//	task->regs.esp = (task->regs.esp - i);
 	}
-//	task->regs.esp +=8;
 	task->next = 0;
 }
 
 void yield() {
 	task_struct *last = curr_task;
 	curr_task = curr_task->next;
-	//	push_all();	
-	//	switch_task(&(last->regs), &(curr_task->regs));
 	__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
 	__asm__ volatile("movq %%rsp, %0;":"=g"((last->regs.esp))::"memory");
 	__asm__ volatile("movq %0,%%rsp;"::"r"(curr_task->regs.esp):"memory");
-	//	__asm__ volatile("retq;");
 	__asm__ volatile("popq %%r11; popq %%r10;popq %%r9 ;popq %%r8 ;popq %%rdi ;popq %%rsi ;popq %%rdx ;popq %%rcx ;popq %%rax":::);
 	__asm__ volatile("movq %%rsp, %0;":"=g"((curr_task->regs.esp))::"memory");
 	__asm__ volatile("pushq (%0);"::"r"(curr_task->regs.esp):"memory");
 	__asm__ volatile("retq");
-	//	pop_all();
 }

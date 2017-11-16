@@ -10,6 +10,7 @@
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 extern char kernmem, physbase;
+
 //uint64_t max;
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
@@ -30,10 +31,11 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("physbase %p\n", (uint64_t)physbase);
  // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
-  init_task();
+//  init_task();
   kprintf("Switching to next task\n");
-  yield();
+ // yield();
   kprintf("Returned to main task\n");
+  switchtor3();
   while(1);
 }
 
