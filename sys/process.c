@@ -2,7 +2,7 @@
 #include<sys/process.h>
 #include<sys/mem.h>
 #include<sys/kprintf.h>
-
+#include<sys/gdt.h>
 static task_struct *curr_task;
 static task_struct main_task;
 static task_struct next_task;
@@ -14,13 +14,17 @@ void user_process_test(){
 	for (;i<100;){
 		i++;
 	}
+	kprintf("%d",i);
 	__asm__ volatile("hlt");
 }
 void switchtor3(){
 	uint64_t fad =  (uint64_t)&user_process_test;
+	uint64_t *rsp;
 	//create_task(&u_p,(uint64_t)fad,main_task.regs.eflags,(uint64_t)main_task.regs.cr3);		
+	__asm__ volatile("movq %%rsp,%0;":"=r"(rsp)::"memory");
 	__asm__ volatile("movq %%rsp,%%rax;pushq $0x23;pushq %%rax;pushf;pushq $0x2B;":::"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(fad):"memory");
+//	set_tss_rsp(rsp);
 	__asm__ volatile("iretq");
 }
 static void next_main() {
