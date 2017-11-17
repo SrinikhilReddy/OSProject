@@ -33,6 +33,7 @@
 .global isr_29
 .global isr_30
 .global isr_31
+.global isr_80
 
 .extern timer_handler
 .extern kb
@@ -265,4 +266,8 @@ isr_31:
 	callq isr31
 	pop
 	iretq
-
+isr_80:
+	push
+	callq isr80
+	pop
+	iretq

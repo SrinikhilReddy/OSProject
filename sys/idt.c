@@ -35,6 +35,7 @@ static struct idt_ptr pr;
  void isr_29();
  void isr_30();
  void isr_31();
+ void isr_80();
 extern void timer();
 extern  void kb1();
 // void kb();
@@ -46,6 +47,9 @@ void set_value(uint16_t intNum,uint64_t handler)
 	idt_table[intNum].mid_offset = (handler >> 16) & 0xFFFF;
 	idt_table[intNum].high_offset = (handler >> 32) & 0xFFFFFFFF;
 	idt_table[intNum].zero_1 = 0;
+	if(intNum == 80){
+		idt_table[intNum].type = 0xEE;
+	}
 	idt_table[intNum].type = 0x8E;
 	idt_table[intNum].zero_2 = 0;
 }
@@ -94,6 +98,7 @@ set_value(28,(uint64_t)&isr_28) ;
 set_value(29,(uint64_t)&isr_29) ;
 set_value(30,(uint64_t)&isr_30) ;
 set_value(31,(uint64_t)&isr_31) ;	
+set_value(80,(uint64_t)&isr_80) ;
 	set_value(32,(uint64_t)&timer);
 	pr.size = (sizeof(struct idt) * 256) - 1 ;
 	pr.base = (uint64_t)idt_table;
@@ -233,6 +238,11 @@ void isr30(){
 void isr31(){
 	kprintf("This is an exception");
 	outportb(0x20,0x20);
+}
+void isr80(){
+        kprintf("Interrupt 80 raised!!!!");
+	while(1);
+        outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){
 	__asm__ volatile("outb %1,%0"
