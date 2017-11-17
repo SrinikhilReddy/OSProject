@@ -2,15 +2,6 @@
 
 #include<sys/defs.h>
 
-enum state {
-	RUNNING,
-	SLEEPING,
-	ZOMBIE,
-	IDLE,
-	READY,
-	WAIT
-};
-
 typedef struct vm_area_struct {
 	uint64_t vm_start;
 	uint64_t vm_end;
@@ -20,7 +11,7 @@ typedef struct vm_area_struct {
 }vma;
 
 typedef struct Register{
-        uint64_t eax, ebx, ecx, edx, esi, edi, esp, ebp, eip, eflags, cr3;
+	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }r;
 
 typedef struct mm_struct {
@@ -35,14 +26,27 @@ typedef struct mm_struct {
 
 typedef struct task_struct {
 	char name[128];
-	char kstack[4096];
+	uint64_t kstack[512];
+	uint64_t *ustack;
+	
+	enum {
+		RUNNING,
+		SLEEPING,
+		ZOMBIE,
+		IDLE,
+		READY,
+		WAIT
+	} state;
 	uint64_t pid;
 	uint64_t ppid;
-	uint64_t rsp;
+	uint64_t *rsp;
+
+
 	struct task_struct *prev;
 	struct task_struct *next;
 	struct task_struct *parent;
 	struct task_struct *child;
+
 	struct Register regs;
 }task_struct;
 

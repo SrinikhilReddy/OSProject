@@ -52,7 +52,7 @@ uint64_t allocate_page_for_process(){
 	uint64_t ax = (uint64_t )allocate_page();	
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
 	if(pd_idx == ((viraddr >> 21 ) & 0x1FF)){
-		uint64_t s =  ( ax & 0xFFFFFFFFFFFFF000) | 3;
+		uint64_t s =  ( ax & 0xFFFFFFFFFFFFF000) | 7;
 		pte[pt_idx] = s;
 	}
 	return viraddr;
@@ -93,22 +93,22 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 3;
+	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 7;
 	pml4e = (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
+	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 	pdpte = (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
+	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
 	pde= (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 3;
+	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 7;
 	pte = (uint64_t*)viraddr;
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(cr3));	

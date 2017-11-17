@@ -162,7 +162,8 @@ void isr13(){
 	outportb(0x20,0x20);
 }
 void isr14(){
-	kprintf("This is an exception");
+	kprintf("Page Fault!!!!!!");
+	while(1);
 	outportb(0x20,0x20);
 }
 void isr15(){
