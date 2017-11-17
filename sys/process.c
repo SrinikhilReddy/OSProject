@@ -14,6 +14,7 @@ void user_process_test(){
 	for (;i<100;){
 		i++;
 	}
+	__asm__ volatile("int $0x80;");
 //	kprintf("%d",i);
 
 //	__asm__ volatile("hlt");

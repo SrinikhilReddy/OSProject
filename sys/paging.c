@@ -70,9 +70,9 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pdpte = (uint64_t *)allocate_page();
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
-	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
-	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
-	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
+	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
+	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
 	for(int j=0;physbase<physfree;j++,viraddr+=4096,physbase+=4096){
 		pml4_idx = (viraddr >> 39 ) & 0x1FF;
 		pdpt_idx = (viraddr >> 30 ) & 0x1FF;
@@ -80,12 +80,12 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 		pt_idx = (viraddr >> 12 ) & 0x1FF;   
 
 		if(pt_idx!=0){
-			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;
+			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;
 		}
 		else{
 			pte = ((uint64_t*)allocate_page());
-			pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
-			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;		
+			pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
+			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;		
 		}
 	}
 	uint64_t cr3 = (uint64_t)pml4e;	
