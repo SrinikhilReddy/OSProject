@@ -241,10 +241,20 @@ void isr31(){
 	kprintf("This is an exception");
 	outportb(0x20,0x20);
 }
+typedef struct registers_t{
+///	uint64_t rbp,rdi,rsi,rdx,rcx,rbx,rax;
+	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx, rax;
+}registers_t;
 void isr128(){
         kprintf("Interrupt 80 raised!!!!");
-	while(1);
-        outportb(0x20,0x20);
+	uint64_t as;
+	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
+        registers_t *y = (registers_t *)as;
+	if(y->rax == 1 && y->rbx == 1){ //This is a write syscall to stdout
+		int* i = (int *)(y->rcx);
+		kprintf("\n%d\n",(*i));
+	}
+	outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){
 	__asm__ volatile("outb %1,%0"

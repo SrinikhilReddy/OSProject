@@ -4,23 +4,27 @@
 #include<sys/kprintf.h>
 #include<sys/gdt.h>
 #include<syscall.h>
+#include<string.h>
+
 static task_struct *curr_task;
 static task_struct main_task;
 static task_struct next_task;
 //static task_struct u_p;
-
+//int len = 99;
 int user_process_test(){
 	//This should throw isr14 hopefully if ring0 to ring 3 works correctly.
-	int i =0;
-	for (;i<68;){
-		i++;
-	}
 //	__asm__ volatile("int $0x80;");
 //	_syscall3(int,write,int,stdout,char*,s,int,len);;
-	_syscall3(int,write,int,stdout,int*,&i,int,1);	
+//	char k = 'a';
+//	char *s = "Hello\n";
+
+	int len = 97;
+	_syscall3(int,write,int,stdout,int*,&len,int,len);
+//	_syscall3(int,write,int,stdout,int*,&k,int,1);	
 //	kprintf("%d",i);
 
-//	__asm__ volatile("hlt");
+//	__asm__ volatile("retq");
+//	return 0;
 }
 void switchtor3(){
 	uint64_t fad =  (uint64_t)&user_process_test;
