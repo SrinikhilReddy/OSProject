@@ -3,18 +3,21 @@
 #include<sys/mem.h>
 #include<sys/kprintf.h>
 #include<sys/gdt.h>
+#include<syscall.h>
 static task_struct *curr_task;
 static task_struct main_task;
 static task_struct next_task;
 //static task_struct u_p;
 
-void user_process_test(){
+int user_process_test(){
 	//This should throw isr14 hopefully if ring0 to ring 3 works correctly.
 	int i =0;
-	for (;i<100;){
+	for (;i<68;){
 		i++;
 	}
-	__asm__ volatile("int $0x80;");
+//	__asm__ volatile("int $0x80;");
+//	_syscall3(int,write,int,stdout,char*,s,int,len);;
+	_syscall3(int,write,int,stdout,int*,&i,int,1);	
 //	kprintf("%d",i);
 
 //	__asm__ volatile("hlt");
