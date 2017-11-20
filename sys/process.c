@@ -18,8 +18,12 @@ int user_process_test(){
 //	char k = 'a';
 //	char *s = "Hello\n";
 
-	int len = 97;
+	int len ;
+	len = 98;	
 	_syscall3(int,write,int,stdout,int*,&len,int,len);
+	
+//	kprintf("------------------------- %d\n",len);
+
 //	_syscall3(int,write,int,stdout,int*,&k,int,1);	
 //	kprintf("%d",i);
 

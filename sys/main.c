@@ -5,6 +5,7 @@
 #include <sys/ahci.h>
 #include <sys/idt.h>
 #include <sys/mem.h>
+#include <sys/tarfs.h>
 #include <sys/process.h>
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -27,16 +28,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   init_idt();
   __asm__ volatile("sti");
 //  checkAllBuses();
-  kprintf("physfree %p\n", (uint64_t)physfree);
-  kprintf("physbase %p\n", (uint64_t)physbase);
+//  kprintf("physfree %p\n", (uint64_t)physfree);
+//  kprintf("physbase %p\n", (uint64_t)physbase);
  // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 //  init_task();
-  kprintf("Switching to next task\n");
+//  kprintf("Switching to next task\n");
  // yield();
-  kprintf("Returned to main task\n");
-  switchtor3();
-  while(1);
+//  kprintf("Returned to main task\n");
+//  switchtor3();
+     init_tarfs(); 
+    while(1);
 }
 
 void boot(void)

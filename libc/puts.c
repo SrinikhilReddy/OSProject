@@ -6,4 +6,5 @@ int puts(const char *s)
 {
 	int len=strlen(s);
 	_syscall3(int,write,int,stdout,char*,s,int,len);
+	return 0;
 }

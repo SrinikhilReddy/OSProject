@@ -42,9 +42,10 @@ do{ \
 long __res; \
 __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; movq %3, %%rcx; movq %4, %%rdx; int $0x80; movq %%rax, %0;" \
                   : "=m" (__res) \
-                  : "g" (__NR_##name),"g" ((long)(arg1)),"g" ((long)(arg2)), "g" ((long)(arg3)) \
-		  : "rax","rbx","rcx","rdx"); \
- return (type) (__res); \
+                  : "g" (__NR_##name),"r" ((long)(arg1)),"r" ((long)(arg2)), "r" ((long)(arg3)) \
+		  : "rax","memory","rbx","rcx","rdx"); \
+while(1);\
+return (type) (__res); \
 }while(0)
 
 #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4)\

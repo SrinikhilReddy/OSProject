@@ -6,6 +6,7 @@
 
 int direccall(int fd,char* buff,int size){
 	_syscall3(int,getdents,int, fd,char*, buff,int,size);
+	return 0;
 }
 int main(int argc, char *argv[])
 {

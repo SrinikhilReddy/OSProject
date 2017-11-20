@@ -10,4 +10,5 @@ int getchar()
 int readCall(){
 
 	_syscall3(int, read, int, stdin,int*,&c, int, 1);
+	return 0;
 }

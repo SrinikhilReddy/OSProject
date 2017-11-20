@@ -23,5 +23,5 @@ struct posix_header_ustar {
   char prefix[155];
   char pad[12];
 };
-
+void init_tarfs();
 #endif
