@@ -22,12 +22,14 @@ unsigned int getsize(const char *in)
 void read_elf(uint64_t add){
 	struct Elf64_Ehdr* elf_hdr = (struct Elf64_Ehdr*)add;
 	uint64_t phdr;
-	phdr = add + (elf_hdr->e_phoff);
-	struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
-	if(phdr1 != NULL){
-		kprintf("Whatever\n");
+	if(elf_hdr->e_phoff > 0){
+		phdr = add + (elf_hdr->e_phoff);
+		struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
+		if(phdr1 != NULL){
+			kprintf("Whatever\n");
+		}
+		kprintf("%d\n",(phdr1->p_type));
 	}
-//	kprintf("%p\n",(phdr1->p_type));
 }
 void init_tarfs()
 {
@@ -37,10 +39,10 @@ void init_tarfs()
 	while(address< &_binary_tarfs_end){	
 		kprintf("%s ",header->name);
 		unsigned int size = getsize(header->size);
-		kprintf("%d, %d \n",i, size);
+		kprintf("Size: %d \n",i, size);
 		headers[i++] = header;
 		if(size!=0){
-		read_elf((uint64_t)(header+1));
+			read_elf((uint64_t)(header+1));
 		}
 		address += ((size / 512) + 1) * 512;
 

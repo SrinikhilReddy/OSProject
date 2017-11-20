@@ -57,6 +57,42 @@ uint64_t allocate_page_for_process(){
 	}
 	return viraddr;
 }
+uint64_t allocate_pages_for_process(uint64_t vaddr,uint64_t phy_start,uint64_t phy_end){
+	uint64_t *pml4,*pdpt,*pd,*pt;
+	uint64_t idx1,idx2,idx3,idx4;
+
+	pml4 = (uint64_t *)allocate_page();
+        pdpt = (uint64_t *)allocate_page();
+        pd = (uint64_t *)allocate_page();
+        pt = (uint64_t *)allocate_page();	
+	
+	idx1 = (vaddr >> 39 ) & 0x1FF;
+        idx2 = (vaddr >> 30 ) & 0x1FF;
+        idx3 = (vaddr >> 21 ) & 0x1FF;
+        idx4 = (vaddr >> 12 ) & 0x1FF;
+	
+	pml4[idx1] = ((uint64_t)pdpt & 0xFFFFFFFFFFFFF000) | 7;
+        pdpt[idx2] = ((uint64_t)pd & 0xFFFFFFFFFFFFF000) | 7;
+        pd[idx3] = ((uint64_t)pt & (0xFFFFFFFFFFFFF000)) | 7;
+	
+	for(;phy_start<phy_end;phy_start+=4096){
+		idx1 = (vaddr >> 39 ) & 0x1FF;
+                idx2 = (vaddr >> 30 ) & 0x1FF;
+                idx3 = (vaddr >> 21 ) & 0x1FF;
+                idx4 = (vaddr >> 12 ) & 0x1FF;
+
+                if(idx4!=0){
+                        pt[idx4] = (phy_start & 0xFFFFFFFFFFFFF000) | 7;
+                }
+                else{
+                        pt = ((uint64_t*)allocate_page());
+                        pd[idx3] = ((uint64_t)pt & (0xFFFFFFFFFFFFF000)) | 7;
+                        pt[idx4] = (phy_start & 0xFFFFFFFFFFFFF000) | 7;
+                }
+		
+	}
+	return (uint64_t)pml4;
+}
 void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	viraddr = (uint64_t)0xffffffff80000000;//(uint64_t)&kernmem;
