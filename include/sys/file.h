@@ -3,7 +3,15 @@
 #define<sys/defs.h>
 
 typedef struct {
+
+
+} file_system;
+
+typedef struct {
+	char file_name[100];
+	uint64_t inode_num;
 	uint64_t size;
+	uint64_t address;
 } file;
 
 typedef struct {
@@ -27,5 +35,10 @@ typedef struct {
 	struct inode *inode;
 	char file_name[100];
 } dentry;
+
+extern int register_filesystem(struct file_system *);
+extern int unregister_filesystem(struct file_system *);
+
+file* open(char* file_name);
 
 #endif
