@@ -3,6 +3,26 @@
 
 #include "sys/defs.h"
 
+struct dirent {
+           long           d_ino;
+           off_t          d_off;
+           unsigned short d_reclen;
+           char           d_name[];
+};
+
+
+struct DIR {
+	uint64_t fd;
+	size_t size;
+	char* buf;
+	struct dirent *next;
+};
+
+typedef struct DIR DIR;
+
+uint64_t open_dir(char* name);
+uint64_t read_dir(DIR* dir);
+
 int main(int argc, char *argv[], char *envp[]);
 void exit(int status);
 
