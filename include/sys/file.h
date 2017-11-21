@@ -1,11 +1,11 @@
 #ifndef _FILE_H
 #define _FILE_H
-#define<sys/defs.h>
+#include<sys/defs.h>
 
-typedef struct {
+/*typedef struct {
 
 
-} file_system;
+} file_system;*/
 
 typedef struct {
 	char file_name[100];
@@ -36,8 +36,8 @@ typedef struct {
 	char file_name[100];
 } dentry;
 
-extern int register_filesystem(struct file_system *);
-extern int unregister_filesystem(struct file_system *);
+//extern int register_filesystem(struct file_system *);
+//extern int unregister_filesystem(struct file_system *);
 
 file* open(char* file_name);
 

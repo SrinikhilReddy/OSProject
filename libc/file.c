@@ -1,20 +1,23 @@
-#define<syscall.h>
-#define<stdlib.h>
-#define<sys/defs.h>
-#define<file.h>
+#include "../include/syscall.h"
+#include "../include/stdlib.h"
+#include "../include/sys/defs.h"
+#include "../include/sys/file.h"
 
 file* open(char* file_name) {
-	uint64_t addr = syscall1(file*, open, char*, file_name);
-	return (file*) addr;		
+	_syscall1(file*, open, char*, file_name);
+	return 0;
+	//return (file*) addr;		
 }
 
 uint64_t open_dir(char* name) {
-	uint64_t addr = syscall1(uint64_t, open_dir, char*, name);
-	return addr;
+	_syscall1(uint64_t, open_dir, char*, name);
+	return 0;
+	//return addr;
 }
 
 uint64_t read_dir(DIR* d) {
-	uint64_t addr = syscall1(uint64_t, read_dir, DIR*, d);
-	return addr; 
+	_syscall1(uint64_t, read_dir, DIR*, d);
+	return 0;
+	//return addr; 
 } 
 
