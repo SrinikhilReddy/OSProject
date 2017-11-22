@@ -2,6 +2,9 @@
 #include <sys/kprintf.h>
 #include <sys/defs.h>
 #include <sys/elf64.h>
+#include <sys/file.h>
+#include <string.h>
+#include <stdlib.h>
 
 struct posix_header_ustar *headers[32];
 
@@ -51,5 +54,26 @@ void init_tarfs()
 
 		header = (struct posix_header_ustar *)address;
 	}
+}
 
+struct file_t* open_tarfs(char* file_path, int flags)
+{
+
+	struct file_t *f;
+	struct posix_header_ustar* h = NULL;
+	int i=0;
+	for(i=0; i<32 && headers[i]!=NULL; i++)
+	{
+		if(strcmp(headers[i]->name,file_path)==0)
+		{
+			h = headers[i];
+			break;
+		}
+	}
+	f = kmalloc(sizeof(struct file_t));
+	//f->offset = (off_t)headers[i+1];
+	f->flags = flags;
+	f->size = (uint64_t)h->size;
+	f->address = (uint64_t)h;
+	return f;
 }

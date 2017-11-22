@@ -7,12 +7,14 @@
 
 } file_system;*/
 
-typedef struct {
+typedef struct file_t {
 	char file_name[100];
+	off_t offset;
+	uint64_t flags; 
 	uint64_t inode_num;
 	uint64_t size;
 	uint64_t address;
-} file;
+} file_t;
 
 typedef struct {
 	uint64_t size;
@@ -39,6 +41,6 @@ typedef struct {
 //extern int register_filesystem(struct file_system *);
 //extern int unregister_filesystem(struct file_system *);
 
-file* open(char* file_name);
+struct file_t* open_tarfs(char* file_path, int flags);
 
 #endif
