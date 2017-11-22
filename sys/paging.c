@@ -49,11 +49,11 @@ uint64_t allocate_page(){
 }*/
 uint64_t kmalloc(int size){
 	int no_pages = (size/4096)+1;
-	uint64_t add = allocate_page();
+	uint64_t add = allocate_page_for_process();
 	no_pages--;
 	if(no_pages>0){
  	for(int i=0;i<no_pages;i++){
-		allocate_page();
+		allocate_page_for_process();
 		}
 	}
 	return add;
