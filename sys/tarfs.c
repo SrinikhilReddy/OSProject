@@ -80,7 +80,7 @@ struct file_t* open_tarfs(char* file_path, int flags)
 		kprintf("%s ",headers[i]->name);
 		if(strcmp(headers[i]->name,file_path)==0)
 		{
-			kprintf("MATCHED %s ",headers[i]->name);
+			//kprintf("MATCHED %s ",headers[i]->name);
 			h = headers[i];
 			break;
 		}
@@ -90,14 +90,19 @@ struct file_t* open_tarfs(char* file_path, int flags)
 	{
 		return NULL;
 	}
-	kprintf("\nFILE: %p",f);
-	//f->offset = (off_t)headers[i+1];
-	//f->flags = flags;
-	kprintf("\nH->SIZE%d",h->size);
-	//kprintf("/nF->SIZE%d ",f->size);
-	//f->size = (uint64_t)h->size;
-	//f->address = (uint64_t)h;
-	//kprintf("File Address: [%p]\n",f->address);
+	f->offset = (off_t)headers[i+1];
+	f->flags = flags;
+	f->size = (uint64_t)h->size;
+	f->address = (uint64_t)h;
+	kprintf("\nF->OFFSET%d ",f->offset);
+	kprintf("\nF->SIZE%d ",f->size);
+	kprintf("\nFile Address: [%p]\n",f->address);
 	return f;
 }
 
+/*ssize_t read_tarfs(struct file_t *f, char* buf, size_t count)
+{
+      struct posix_header_ustar *header;
+     header = f->address;
+
+}*/
