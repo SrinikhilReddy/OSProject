@@ -5,7 +5,8 @@
 #include<sys/gdt.h>
 #include<syscall.h>
 #include<string.h>
-
+#include<sys/tarfs.h>
+#include<sys/elf64.h>
 static task_struct *curr_task;
 static task_struct main_task;
 static task_struct next_task;
@@ -56,7 +57,21 @@ void init_task() {
 	next_task.next = &main_task;
 	curr_task = &main_task;
 }
-
+void create_process(char* filename){
+	//Load elf headers using the filename
+	uint64_t f_a = get_file_address(filename);
+	if(f_a < 0){
+		kprintf("No such file\n");
+		return;
+	}
+	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
+	Elf64_Phdr* ep = (Elf64_Phdr*)(eh + (eh->e_phoff));
+	
+	int msize = ep->p_memsz;
+	int svaddr = ep->p_vaddr;
+	
+	kprintf("Atleast this works %d,%p",msize,svaddr);
+}
 void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t pagedir) {
 	task->regs.rax = 0;
 	task->regs.rbx = 0;

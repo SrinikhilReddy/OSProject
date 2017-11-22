@@ -47,6 +47,17 @@ uint64_t allocate_page(){
 /*uint64_t newpage_u_proc(){
 	
 }*/
+uint64_t kmalloc(int size){
+	int no_pages = (size/4096)+1;
+	uint64_t add = allocate_page();
+	no_pages--;
+	if(no_pages>0){
+ 	for(int i=0;i<no_pages;i++){
+		allocate_page();
+		}
+	}
+	return add;
+}
 uint64_t allocate_page_for_process(){
 	viraddr+=4096;	
 	uint64_t ax = (uint64_t )allocate_page();	
@@ -57,6 +68,7 @@ uint64_t allocate_page_for_process(){
 	}
 	return viraddr;
 }
+
 uint64_t allocate_pages_for_process(uint64_t vaddr,uint64_t phy_start,uint64_t phy_end){
 	uint64_t *pml4,*pdpt,*pd,*pt;
 	uint64_t idx1,idx2,idx3,idx4;

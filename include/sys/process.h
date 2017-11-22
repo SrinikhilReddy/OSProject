@@ -1,5 +1,8 @@
 #ifndef _PROCESS_H
-
+/**
+References: http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vma.html
+	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
+**/
 #include<sys/defs.h>
 
 typedef struct vm_area_struct {
@@ -56,6 +59,10 @@ typedef struct task_struct {
 	struct task_struct *parent;
 	struct task_struct *child;
 
+	struct mm_struct *mm;
+	struct vm_area_struct *vm;
+	
+	
 	struct Register regs;
 }task_struct;
 
@@ -66,5 +73,5 @@ void yield();
 void switchtor3();
 int get_pid();
 int get_ppid();
-
+void create_process(char* filename);
 #endif

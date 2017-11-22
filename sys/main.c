@@ -24,9 +24,11 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //	max = smap->base+smap->length; 
     }
   }
+
   init_ia32e_paging((uint64_t)0, (uint64_t)physfree);
-  init_idt();
-  __asm__ volatile("sti");
+//  init_idt();
+//  create_process("bin/ls");
+ // __asm__ volatile("sti");
 //  checkAllBuses();
 //  kprintf("physfree %p\n", (uint64_t)physfree);
 //  kprintf("physbase %p\n", (uint64_t)physbase);
@@ -37,8 +39,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
  // yield();
 //  kprintf("Returned to main task\n");
 //  switchtor3();
-     init_tarfs(); 
-    while(1);
+//     init_tarfs(); 
+//	create_process("bin/ls");  
+  while(1);
 }
 
 void boot(void)

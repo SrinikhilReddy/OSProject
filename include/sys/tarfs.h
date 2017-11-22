@@ -24,4 +24,5 @@ struct posix_header_ustar {
   char pad[12];
 };
 void init_tarfs();
+uint64_t get_file_address(char* filename);
 #endif

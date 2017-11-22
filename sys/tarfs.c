@@ -1,13 +1,14 @@
-#include <sys/tarfs.h>
 #include <sys/kprintf.h>
 #include <sys/defs.h>
 #include <sys/elf64.h>
 #include <sys/file.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <string.h>
+#include <sys/tarfs.h>
+#include <sys/mem.h>
 struct posix_header_ustar *headers[32];
-
+static int fc = 0;
 unsigned int getsize(const char *in)
 {
 
@@ -34,19 +35,29 @@ void read_elf(uint64_t add){
 		kprintf("%d\n",(phdr1->p_type));
 	}
 }
+uint64_t get_file_address(char* filename){
+	for(int i=0;i<fc;i++){
+		struct posix_header_ustar *f = headers[i];
+		if(strcmp(filename,f->name) == 0){
+			return ((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
+		}
+	}
+	return -1;
+}
 void init_tarfs()
 {
 	struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
-	int i = 0;
+//	int i = 0;
 	char* address = &_binary_tarfs_start;
 	while(address< &_binary_tarfs_end){	
 		kprintf("%s ",header->name);
 		unsigned int size = getsize(header->size);
-		kprintf("Size: %d \n",i, size);
-		headers[i++] = header;
-		if(size!=0){
+		kprintf("Size: %d \n", size);
+		headers[fc++] = header;
+/*		if(size!=0){
 			read_elf((uint64_t)(header+1));
 		}
+*/		
 		address += ((size / 512) + 1) * 512;
 
 		if (size % 512)
@@ -70,7 +81,7 @@ struct file_t* open_tarfs(char* file_path, int flags)
 			break;
 		}
 	}
-	f = kmalloc(sizeof(struct file_t));
+	f =(file_t *) kmalloc(sizeof(struct file_t));
 	//f->offset = (off_t)headers[i+1];
 	f->flags = flags;
 	f->size = (uint64_t)h->size;
