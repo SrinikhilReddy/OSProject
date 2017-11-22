@@ -65,6 +65,8 @@ void init_tarfs()
 
 		header = (struct posix_header_ustar *)address;
 	}
+	kprintf("INIT_TARFS\n");
+	kprintf(headers[0]->size);
 }
 
 struct file_t* open_tarfs(char* file_path, int flags)
@@ -75,16 +77,27 @@ struct file_t* open_tarfs(char* file_path, int flags)
 	int i=0;
 	for(i=0; i<32 && headers[i]!=NULL; i++)
 	{
+		kprintf("%s ",headers[i]->name);
 		if(strcmp(headers[i]->name,file_path)==0)
 		{
+			kprintf("MATCHED %s ",headers[i]->name);
 			h = headers[i];
 			break;
 		}
 	}
-	f =(file_t *) kmalloc(sizeof(struct file_t));
+	f = (file_t*) kmalloc(sizeof(struct file_t));
+	if(!f)
+	{
+		return NULL;
+	}
+	kprintf("\nFILE: %p",f);
 	//f->offset = (off_t)headers[i+1];
-	f->flags = flags;
-	f->size = (uint64_t)h->size;
-	f->address = (uint64_t)h;
+	//f->flags = flags;
+	kprintf("\nH->SIZE%d",h->size);
+	//kprintf("/nF->SIZE%d ",f->size);
+	//f->size = (uint64_t)h->size;
+	//f->address = (uint64_t)h;
+	//kprintf("File Address: [%p]\n",f->address);
 	return f;
 }
+

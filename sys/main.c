@@ -7,6 +7,7 @@
 #include <sys/mem.h>
 #include <sys/tarfs.h>
 #include <sys/process.h>
+#include <sys/file.h>
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
@@ -26,6 +27,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   }
 
   init_ia32e_paging((uint64_t)0, (uint64_t)physfree);
+	
+	init_tarfs();
+	struct file_t* f = open_tarfs("lib/libc.a",0);
+	kprintf("%p", f);
 //  init_idt();
 //  create_process("bin/ls");
  // __asm__ volatile("sti");
