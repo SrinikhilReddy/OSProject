@@ -8,6 +8,8 @@
 #include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/file.h>
+#include <dirent.h>
+#include <stdlib.h>
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
@@ -35,6 +37,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	ssize_t bytes = read_tarfs(f,buf,100);
 	kprintf("\nBuffer:%s", buf);
 	kprintf("\nBytes read: %d", bytes);
+	struct DIR* d = opendir("/bin");
+	kprintf("\nOPENDIR: %d", d->fd);
 //  init_idt();
 //  create_process("bin/ls");
  // __asm__ volatile("sti");

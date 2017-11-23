@@ -19,4 +19,5 @@ FILE *fopen(char *name, char *mode)
 int open(const char *path,int flags)
 {
 	_syscall2(int, open, char*, path, int, flags);
+	return 0;
 }
