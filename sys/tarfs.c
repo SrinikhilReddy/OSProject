@@ -92,7 +92,7 @@ struct file_t* open_tarfs(char* file_path, int flags)
 	}
 	f->offset = (off_t)headers[i+1];
 	f->flags = flags;
-	f->size = (uint64_t)h->size;
+	f->size = (uint64_t)(octal_to_binary((char*)h->size));
 	f->address = (uint64_t)h;
 	kprintf("\nF->OFFSET%d ",f->offset);
 	kprintf("\nF->SIZE%d ",f->size);
@@ -100,9 +100,49 @@ struct file_t* open_tarfs(char* file_path, int flags)
 	return f;
 }
 
-/*ssize_t read_tarfs(struct file_t *f, char* buf, size_t count)
+ssize_t read_tarfs(struct file_t *f, char* buf, int count)
 {
-      struct posix_header_ustar *header;
-     header = f->address;
+	if(count==0)
+        {
+                return 0;
+        }
+ 	//size_t read;
+	struct posix_header_ustar *header;
+      	header = (struct posix_header_ustar*) f->address;
+	char* start_address = (char *) (header+512);
+	kprintf("\nSTART ADDRESS%p", start_address);
+	//char* temp = buf;
+	int i=0;
+	if(f->size<count)
+	{
+		count = f->size;
+	}
+	for(i=0; i<count; i++)
+	{
+		buf[i] = *(start_address+i);
+	}
+	kprintf("\n%s", buf);
+	return count;
+}
 
-}*/
+uint64_t octal_to_binary(const char* octal)
+{
+	int oct=0;
+	while(*octal)
+	{
+		oct = (*octal-'0')+(oct*10);
+		octal++;
+	}
+	int octal_dict[8] = {0,1,10,11,100,101,111};
+	uint64_t bin=0;
+	int i=1;
+	int temp=0;
+	while(oct!=0)
+	{
+		temp = oct%10;
+		bin += octal_dict[temp]*i;
+		i *= 1000;
+		oct /= 10;
+	}
+	return bin;
+}

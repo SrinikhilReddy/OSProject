@@ -31,6 +31,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	init_tarfs();
 	struct file_t* f = open_tarfs("lib/libc.a",0);
 	kprintf("%p", f);
+	char* buf = "";
+	ssize_t bytes = read_tarfs(f,buf,100);
+	kprintf("\nBuffer:%s", buf);
+	kprintf("\nBytes read: %d", bytes);
 //  init_idt();
 //  create_process("bin/ls");
  // __asm__ volatile("sti");
