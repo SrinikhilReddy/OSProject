@@ -71,7 +71,7 @@ void init_task() {
 }
 void create_process(char* filename){
         //Load elf headers using the filename
-        uint64_t f_a = get_file_address(filename);
+        uint64_t f_a = get_file_address(filename) +512;
         if(f_a < 0){
                 kprintf("No such file\n");
                 return;
@@ -89,7 +89,8 @@ void create_process(char* filename){
         int no_ph = eh->e_phnum;
         uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
         ts->pml4e =(uint64_t) pml4; 
-        Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+       	ts->regs.rip = eh->e_entry;
+	Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
         for(int i=0;i<no_ph;i++){
                 if(ep->p_type == 1){               
                         
@@ -104,22 +105,36 @@ void create_process(char* filename){
                                 vm->next = ts->vm;
                                 ts->vm = vm;
                         }
-                        init_pages_for_process(vm->vm_start, vm->vm_end, pml4);
-                        uint64_t pcr3;
+                        for(uint64_t k = vm->vm_start;k<( vm->vm_end);k+=4096){ 
+				uint64_t yy = allocate_page();
+				init_pages_for_process(k,yy, pml4);
+                        }
+			uint64_t pcr3;
                         __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
-//                        *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+//                      *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
 			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);			
 			
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-			kprintf("%p",pml4);
                         memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
 
                         __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
                 }
                 ep = ep+1;
-
         }
-
+	
+	ts->ustack = (uint64_t*) allocate_page_for_process();
+		
+	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511*8));
+	
+	set_tss_rsp(&(ts->kstack[511]));
+	
+	 uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
+	 __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+	kprintf("------------------\n");
+	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
+	__asm__ ("pushq %0"::"r"(ts->regs.rip):"memory");
+    
+	__asm__("iretq");
         //Load elf sections into memory.
 
 //        kprintf("Atleast this works %d,%p",msize,svaddr);

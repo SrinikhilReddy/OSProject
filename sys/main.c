@@ -28,7 +28,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
 
-  init_ia32e_paging((uint64_t)0, (uint64_t)physfree+(uint64_t)0x200000);
+  init_ia32e_paging((uint64_t)0, (uint64_t)physfree+(uint64_t)0x20000000);
 	
 /*	init_tarfs();
 	struct file_t* f = open_tarfs("lib/libc.a",0);
@@ -53,7 +53,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  kprintf("Returned to main task\n");
 //  switchtor3();
      init_tarfs(); 
-     create_process("bin/ls");  
+     create_process("bin/sbush");  
   while(1);
 }
 

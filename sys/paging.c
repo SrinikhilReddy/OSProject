@@ -174,7 +174,84 @@ uint64_t allocate_page_for_process(){
 
     }
     }*/
+//uint64_t a(uint64_t vaddr_s, uint64_t vaddr_e, uint64_t* pml4){
 
+
+
+void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
+	pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
+		int id1 = (vaddr_s >> 39 ) & 0x1FF;
+        if(!(pml4[id1] & 1)){
+                uint64_t* p3 = (uint64_t *)allocate_page();
+                pml4[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
+
+                p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+
+                int id2 = (vaddr_s >> 30 ) & 0x1FF;
+                uint64_t* p2 = (uint64_t *)allocate_page();
+                p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
+
+                p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
+
+                int id3 = (vaddr_s >> 21 ) & 0x1FF;
+                uint64_t* p1 = (uint64_t *)allocate_page();
+                p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+
+                p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+
+                int id4 = (vaddr_s >> 12 ) & 0x1FF;
+                p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+                return ;
+        }
+
+	        else{
+                uint64_t* p3 = (uint64_t *)(pml4[id1] & 0xFFFFFFFFFFFFF000);
+                int id2 =  (vaddr_s >> 30 ) & 0x1FF;
+                p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+                if( !(p3[id2] & 1)){
+                        uint64_t* p2 =(uint64_t *) allocate_page();
+                        pdpte[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
+
+                        p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
+
+                        int id3 = (vaddr_s >> 21 ) & 0x1FF;
+                        uint64_t* p1 = (uint64_t *)allocate_page();
+                        p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+
+                        p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+
+                        int id4 = (vaddr_s >> 12 ) & 0x1FF;
+                        p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+                        return;
+                }
+                else{
+                        uint64_t* p2 = (uint64_t *)(p3[id2] &0xFFFFFFFFFFFFF000);
+                        int id3 =  (vaddr_s >> 21) & 0x1FF;
+                        p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
+
+                        if( !(p2[id3] & 1)){
+                                uint64_t* p1 = (uint64_t *)allocate_page();
+                                p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+
+                                p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+
+                                int id4 = (vaddr_s >> 12 ) & 0x1FF;
+                                p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+                                return;
+                        }
+                        else{
+                                uint64_t* p1 = (uint64_t *)(p2[id3] &0xFFFFFFFFFFFFF000);
+                                int id4 = (vaddr_s >> 12 ) & 0x1FF;
+
+                                p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+
+                                p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+                                return;
+                        }
+                }
+        }
+}
+/*
 uint64_t init_pages_for_process(uint64_t vaddr_s, uint64_t vaddr_e, uint64_t* pml4){
 	uint64_t *pdpt,*pd,*pt;
 	uint64_t idx1,idx2,idx3,idx4;
@@ -217,6 +294,7 @@ uint64_t init_pages_for_process(uint64_t vaddr_s, uint64_t vaddr_e, uint64_t* pm
 	}	 
 	return (uint64_t)pml4;
 }
+*/
 
 
 void init_ia32e_paging(uint64_t physbase, uint64_t physfree){

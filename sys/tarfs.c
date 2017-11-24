@@ -39,7 +39,7 @@ uint64_t get_file_address(char* filename){
 	for(int i=0;i<fc;i++){
 		struct posix_header_ustar *f = headers[i];
 		if(strcmp(filename,f->name) == 0){
-			return ((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
+			return (uint64_t)headers[i];//((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
 		}
 	}
 	return -1;
