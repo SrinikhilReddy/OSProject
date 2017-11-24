@@ -12,6 +12,18 @@ static task_struct main_task;
 static task_struct next_task;
 //static task_struct u_p;
 //int len = 99;
+void *memcpy(void *dst,void *src, uint64_t count)
+{
+        char *dest= dst;
+        char *source= src;
+        while(count--)
+        {
+                *dest=*source;
+                dest++;
+                source++;
+        }
+	return 0;
+}
 int user_process_test(){
 	//This should throw isr14 hopefully if ring0 to ring 3 works correctly.
 //	__asm__ volatile("int $0x80;");
@@ -58,20 +70,61 @@ void init_task() {
 	curr_task = &main_task;
 }
 void create_process(char* filename){
-	//Load elf headers using the filename
-	uint64_t f_a = get_file_address(filename);
-	if(f_a < 0){
-		kprintf("No such file\n");
-		return;
-	}
-	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
-	Elf64_Phdr* ep = (Elf64_Phdr*)(eh + (eh->e_phoff));
-	
-	int msize = ep->p_memsz;
-	int svaddr = ep->p_vaddr;
-	
-	kprintf("Atleast this works %d,%p",msize,svaddr);
+        //Load elf headers using the filename
+        uint64_t f_a = get_file_address(filename);
+        if(f_a < 0){
+                kprintf("No such file\n");
+                return;
+        }
+        
+        task_struct* ts = (task_struct *) kmalloc(sizeof(struct task_struct));
+     //   ts->regs.rip = eh->e_entry;
+//      strcpy(ts->name,filename);
+        ts->ppid = -1;
+        ts->pid = 0;
+        ts->vm = NULL;
+
+
+        Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
+        int no_ph = eh->e_phnum;
+        uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
+        ts->pml4e =(uint64_t) pml4; 
+        Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+        for(int i=0;i<no_ph;i++){
+                if(ep->p_type == 1){               
+                        
+                        vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+                        vm->vm_start = ep->p_vaddr;
+                        vm->vm_end = ep->p_vaddr+ep->p_memsz;
+                        if(ts->vm == NULL){
+                                vm->next = NULL;
+                                ts->vm = vm;
+                        }
+                        else{
+                                vm->next = ts->vm;
+                                ts->vm = vm;
+                        }
+                        init_pages_for_process(vm->vm_start, vm->vm_end, pml4);
+                        uint64_t pcr3;
+                        __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
+//                        *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+			pml4 =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);			
+			
+			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pml4));
+			kprintf("%p",pml4);
+                        memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
+
+                        __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
+                }
+                ep = ep+1;
+
+        }
+
+        //Load elf sections into memory.
+
+//        kprintf("Atleast this works %d,%p",msize,svaddr);
 }
+
 void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t pagedir) {
 	task->regs.rax = 0;
 	task->regs.rbx = 0;

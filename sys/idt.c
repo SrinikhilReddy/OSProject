@@ -254,6 +254,7 @@ void isr128(){
 		int* i = (int *)(y->rcx);
 		kprintf("\n%d\n",(*i));
 	}
+	
 	outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){
