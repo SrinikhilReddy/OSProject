@@ -108,9 +108,9 @@ void create_process(char* filename){
                         uint64_t pcr3;
                         __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
 //                        *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
-			pml4 =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);			
+			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);			
 			
-			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pml4));
+			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 			kprintf("%p",pml4);
                         memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
 

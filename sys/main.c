@@ -28,9 +28,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
 
-  init_ia32e_paging((uint64_t)0, (uint64_t)physfree);
+  init_ia32e_paging((uint64_t)0, (uint64_t)physfree+(uint64_t)0x200000);
 	
-	init_tarfs();
+/*	init_tarfs();
 	struct file_t* f = open_tarfs("lib/libc.a",0);
 	kprintf("%p", f);
 	char* buf = "";
@@ -39,9 +39,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	kprintf("\nBytes read: %d", bytes);
 	struct DIR* d = opendir("/bin");
 	kprintf("\nOPENDIR: %d", d->fd);
-//  init_idt();
+*/  init_idt();
 //  create_process("bin/ls");
- // __asm__ volatile("sti");
+  __asm__ volatile("sti");
 //  checkAllBuses();
 //  kprintf("physfree %p\n", (uint64_t)physfree);
 //  kprintf("physbase %p\n", (uint64_t)physbase);
@@ -52,8 +52,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
  // yield();
 //  kprintf("Returned to main task\n");
 //  switchtor3();
-//     init_tarfs(); 
-//	create_process("bin/ls");  
+     init_tarfs(); 
+     create_process("bin/ls");  
   while(1);
 }
 
