@@ -50,9 +50,7 @@ void init_tarfs()
 //	int i = 0;
 	char* address = &_binary_tarfs_start;
 	while(address< &_binary_tarfs_end){	
-		kprintf("%s ",header->name);
 		unsigned int size = getsize(header->size);
-		kprintf("Size: %d \n", size);
 		headers[fc++] = header;
 /*		if(size!=0){
 			read_elf((uint64_t)(header+1));
@@ -65,8 +63,6 @@ void init_tarfs()
 
 		header = (struct posix_header_ustar *)address;
 	}
-	kprintf("INIT_TARFS\n");
-	kprintf(headers[0]->size);
 }
 
 struct file_t* open_tarfs(char* file_path, int flags)

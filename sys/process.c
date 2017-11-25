@@ -81,9 +81,8 @@ void create_process(char* filename){
      //   ts->regs.rip = eh->e_entry;
 //      strcpy(ts->name,filename);
         ts->ppid = -1;
-        ts->pid = 0;
+        ts->pid = 40;
         ts->vm = NULL;
-
 
         Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
         int no_ph = eh->e_phnum;
@@ -123,11 +122,13 @@ void create_process(char* filename){
         }
 	
 	ts->ustack = (uint64_t*) allocate_page_for_process();
-		
+	
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511*8));
 	
 	set_tss_rsp(&(ts->kstack[511]));
 	
+	r = ts;
+	addToQ(*ts);
 	 uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 	 __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 	kprintf("------------------\n");
@@ -164,7 +165,18 @@ void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t page
 	}
 	task->next = 0;
 }
-
+void copytask(task_struct* c){
+	c->ppid = r->pid;
+	c->pml4e = allocate_page();
+	
+		
+}
+void fork(){
+	task_struct* new = (task_struct *) kmalloc(sizeof(struct task_struct));
+	
+	new->ppid = r->pid;
+	
+}
 void yield() {
 	task_struct *last = curr_task;
 	curr_task = curr_task->next;

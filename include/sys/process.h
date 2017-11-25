@@ -19,7 +19,7 @@ typedef struct vm_area_struct {
 
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
-}r;
+}reg;
 
 typedef struct mm_struct {
 	struct vma_area_struct *mmap, *mmap_active;
@@ -66,12 +66,15 @@ typedef struct task_struct {
 	struct Register regs;
 }task_struct;
 
-void switch_task(r*, r*);
+void switch_task(reg*, reg*);
 void init_task();
 void create_task(task_struct*,uint64_t main, uint64_t flags, uint64_t pagedir);
 void yield();
 void switchtor3();
 int get_pid();
 int get_ppid();
+void fork();
 void create_process(char* filename);
+void addToQ(task_struct q);
+task_struct* r;
 #endif
