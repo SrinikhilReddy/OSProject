@@ -12,6 +12,25 @@ static task_struct main_task;
 static task_struct next_task;
 //static task_struct u_p;
 //int len = 99;
+int newPID(){
+	for(int i =0;i<MAX;i++){
+		if(pid[i] == 0){
+			pid[i] = 1;
+			return i;
+		}
+	}
+	return -1;
+}
+void strcpy(char *string2, char *string1){
+
+        while(*string1)
+        {   
+                *string2=*string1;
+                string1++;
+                string2++;
+        }   
+        *string2='\0';
+}
 void *memcpy(void *dst,void *src, uint64_t count)
 {
         char *dest= dst;
@@ -78,10 +97,9 @@ void create_process(char* filename){
         }
         
         task_struct* ts = (task_struct *) kmalloc(sizeof(struct task_struct));
-     //   ts->regs.rip = eh->e_entry;
-//      strcpy(ts->name,filename);
+        strcpy(ts->name,filename);
         ts->ppid = -1;
-        ts->pid = 40;
+        ts->pid = newPID();
         ts->vm = NULL;
 
         Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
@@ -166,30 +184,54 @@ void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t page
 	task->next = 0;
 }
 void copytask(task_struct* c){
+	
+	c->pid = newPID();
 	c->ppid = r->pid;
+		
 	c->pml4e = allocate_page();
+
+	strcpy(c->name,r->name);
+	
 	copytables(r,c);
+	
 	vma* a = r->vm;
 	vma* p = NULL;
+	c->vm = NULL;
 	while(a!=NULL){	
 		vma* new = (vma *)kmalloc(sizeof(struct vm_area_struct));
 		memcpy(new,a,sizeof(struct vm_area_struct));
 		if(p == NULL){
 			p = new;
+			c->vm = p;	
 		}
 		else{
 			p->next = new;
 			p = new;
 		}
 		a = a->next;
-	}	
+	}
+
 		
+	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
+	
+	memcpy(c->ustack,r->ustack,512*8);
+	
+	
 }
-void fork(){
+int fork(){
 	task_struct* new = (task_struct *) kmalloc(sizeof(struct task_struct));
+		
+	copytask(new);	
 	
-	new->ppid = r->pid;
+	r->child_count+=1;
+	r->child = new;
 	
+	if(r->ppid == -1){
+		return new->pid;
+	}
+	else{
+		return 0;
+	}
 }
 void yield() {
 	task_struct *last = curr_task;

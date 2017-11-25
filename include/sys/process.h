@@ -1,10 +1,17 @@
 #ifndef _PROCESS_H
+#define _PROCESS_H
+
+#define MAX 100
+
 /**
-References: http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vma.html
+
+VMA & Task struct References:
+	 http://venkateshabbarapu.blogspot.com/2012/09/process-segments-and-vma.html
 	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 **/
 #include<sys/defs.h>
 
+int pid[MAX];
 typedef struct vm_area_struct {
 	uint64_t vm_start;
 	uint64_t vm_end;
@@ -53,15 +60,15 @@ typedef struct task_struct {
 
 	uint64_t *rsp;
 
-	uint64_t count;
-
 	uint64_t pml4e;
-	uint64_t cr3; 
 
 	struct task_struct *prev;
 	struct task_struct *next;
+
 	struct task_struct *parent;
+	
 	struct task_struct *child;
+	int child_count;
 
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
@@ -79,7 +86,7 @@ void yield();
 void switchtor3();
 int get_pid();
 int get_ppid();
-void fork();
+int fork();
 void create_process(char* filename);
 void addToQ(task_struct q);
 task_struct* r;
