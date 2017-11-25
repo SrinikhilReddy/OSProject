@@ -4,9 +4,9 @@
 #include <sys/tarfs.h>
 #include <sys/ahci.h>
 #include <sys/idt.h>
+#include<sys/process.h>
 #include <sys/mem.h>
 #include <sys/tarfs.h>
-#include <sys/process.h>
 #include <sys/file.h>
 #include <dirent.h>
 #include <stdlib.h>

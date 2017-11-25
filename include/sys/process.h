@@ -14,9 +14,13 @@ typedef struct vm_area_struct {
 	uint64_t offset;
 
 	struct mm_struct *vm_mm;
-	struct vm_area_struct *next;;
+	struct vm_area_struct *next;
 }vma;
-
+typedef struct file_descriptor{
+	int d;
+	char* filename;
+	int r_offset;
+}fd;
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }reg;
@@ -62,7 +66,9 @@ typedef struct task_struct {
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
 	
-	
+	struct file_descriptor fd[100];	
+	int fd_c;
+
 	struct Register regs;
 }task_struct;
 

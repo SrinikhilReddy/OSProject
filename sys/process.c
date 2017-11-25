@@ -168,7 +168,21 @@ void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t page
 void copytask(task_struct* c){
 	c->ppid = r->pid;
 	c->pml4e = allocate_page();
-	
+	copytables(r,c);
+	vma* a = r->vm;
+	vma* p = NULL;
+	while(a!=NULL){	
+		vma* new = (vma *)kmalloc(sizeof(struct vm_area_struct));
+		memcpy(new,a,sizeof(struct vm_area_struct));
+		if(p == NULL){
+			p = new;
+		}
+		else{
+			p->next = new;
+			p = new;
+		}
+		a = a->next;
+	}	
 		
 }
 void fork(){

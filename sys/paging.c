@@ -1,7 +1,8 @@
 #include<sys/defs.h>
+#include<sys/process.h>
 #include<sys/mem.h>
 #include<sys/kprintf.h>
-#include<sys/process.h>
+
 static freelist* head = NULL;
 //TODO: Freelist as an array with fixed size will not work in NCS:106.
 // Need to implement a better dynamically allocated list

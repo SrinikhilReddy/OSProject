@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/tarfs.h>
+#include <sys/process.h>
 #include <sys/mem.h>
 struct posix_header_ustar *headers[32];
 static int fc = 0;
