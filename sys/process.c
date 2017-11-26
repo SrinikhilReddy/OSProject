@@ -155,7 +155,6 @@ void create_process(char* filename){
     
 	__asm__("iretq");
         //Load elf sections into memory.
-
 //        kprintf("Atleast this works %d,%p",msize,svaddr);
 }
 
@@ -188,7 +187,7 @@ void copytask(task_struct* c){
 	c->pid = newPID();
 	c->ppid = r->pid;
 		
-	c->pml4e = allocate_page();
+	c->pml4e = allocate_page_for_process();
 
 	strcpy(c->name,r->name);
 	
@@ -213,7 +212,11 @@ void copytask(task_struct* c){
 
 		
 	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
-	
+
+	c->ustack = (uint64_t*) allocate_page_for_process();	
+
+	c->rsp = (uint64_t *)((uint64_t)c->ustack + (511*8));
+
 	memcpy(c->ustack,r->ustack,512*8);
 	
 	
