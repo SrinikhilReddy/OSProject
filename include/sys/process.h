@@ -10,6 +10,7 @@ VMA & Task struct References:
 	    http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
 **/
 #include<sys/defs.h>
+#include<sys/file.h>
 
 int pid[MAX];
 typedef struct vm_area_struct {
@@ -23,11 +24,11 @@ typedef struct vm_area_struct {
 	struct mm_struct *vm_mm;
 	struct vm_area_struct *next;
 }vma;
-typedef struct file_descriptor{
+/*typedef struct file_descriptor{
 	int d;
 	char* filename;
 	int r_offset;
-}fd;
+}fd;*/
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }reg;
@@ -72,10 +73,10 @@ typedef struct task_struct {
 
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
-	
-	struct file_descriptor fd[100];	
+	char* curr_dir;
+	struct file_t* fd[100];	
 	int fd_c;
-
+	
 	struct Register regs;
 }task_struct;
 
@@ -89,5 +90,6 @@ int get_ppid();
 int fork();
 void create_process(char* filename);
 void addToQ(task_struct q);
+int get_fd(struct task_struct*);
 task_struct* r;
 #endif

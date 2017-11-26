@@ -1,5 +1,6 @@
 #ifndef _PHY_H
 #define _PHY_H
+#include<sys/process.h>
 typedef struct freelist{
 	uint64_t address;
 	int free;
