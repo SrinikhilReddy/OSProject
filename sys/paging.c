@@ -336,6 +336,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 void copytables(task_struct* p, task_struct* c){
 	uint64_t* p4 = (uint64_t *)p->pml4e;
 	uint64_t* c4 =(uint64_t *) c->pml4e;
+	c4[511] = p4[511];
 	for(int i =0;i<511;i++){
 		//CHeck if entry is present
 		if(p4[i] & 1){

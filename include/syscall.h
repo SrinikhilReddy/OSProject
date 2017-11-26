@@ -44,7 +44,6 @@ __asm__ volatile (  "movq %1, %%rax ; movq %2, %%rbx; movq %3, %%rcx; movq %4, %
                   : "=m" (__res) \
                   : "g" (__NR_##name),"r" ((long)(arg1)),"r" ((long)(arg2)), "r" ((long)(arg3)) \
 		  : "rax","memory","rbx","rcx","rdx"); \
-while(1);\
 return (type) (__res); \
 }while(0)
 
