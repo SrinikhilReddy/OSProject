@@ -54,7 +54,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  switchtor3();
      init_tarfs(); 
      create_process("bin/sbush");  
-     fork();
   while(1);
 }
 

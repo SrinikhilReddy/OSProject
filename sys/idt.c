@@ -171,6 +171,9 @@ void isr13(){
 }
 void isr14(){
 	kprintf("Page Fault!!!!!!");
+	uint64_t bb;
+	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
+	kprintf("%p",bb);
 	while(1);
 	outportb(0x20,0x20);
 }

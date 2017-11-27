@@ -47,6 +47,9 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 }
 uint64_t allocate_page(){
 	freelist* temp = head;
+	if(temp == NULL){
+		kprintf("Trouble Land\\\\\\/n");
+	}
 	temp->free=1;	
 	head = head->next;
 	return temp->address;
@@ -71,13 +74,46 @@ uint64_t kmalloc(int size){
 	}
 	return add;
 }
-//void copyTables(task_struct* p,task_struct* c){
+void printpml4(uint64_t* p4){
+	kprintf("==========================");
+        for(int i = 0;i<511;i++){
+                if( (p4[i]&1)){
+                        kprintf("PML4 id:%d val:%p \n",i,(p4[i] & 0xFFFFFFFFFFFFF000));
+                        uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
+			p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+                        for(int j=0;j<512;j++){
+                                if( (p3[j]&1)){
+                                         kprintf("P3 id:%d val:%p \n",j,(p3[j] & 0xFFFFFFFFFFFFF000));
+                                         uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
+				                                         p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
-//}
+                                          for(int k=0;k<512;k++){
+                                                 if( (p2[k]&1)){
+                                                    kprintf("P2 id:%d val:%p \n",k,(p2[k] & 0xFFFFFFFFFFFFF000));
+                                                    uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
+		                                    p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+                                                    for (int l = 0; l < 512; ++l)
+                                                    {
+                                                       if ((p1[l]&1))
+                                                       {
+                                                            kprintf("P1 id:%d val:%p \n",l,(p1[l] & 0xFFFFFFFFFFFFF000));
+                                                       }
+                                                    }
+
+                                                 }
+                                          }
+                                }   
+                        }   
+                }   
+        }   
+}
+
+
 void map(uint64_t vaddr_s, uint64_t phy){
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
 	if(!(pml4e[id1] & 1)){
 		uint64_t* p3 = (uint64_t *)allocate_page();
+		
 		pml4e[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
@@ -124,7 +160,6 @@ void map(uint64_t vaddr_s, uint64_t phy){
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 			if( !(p2[id3] & 1)){
-				kprintf("\n******************************************************\n");
 				uint64_t* p1 = (uint64_t *)allocate_page();
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
@@ -153,30 +188,32 @@ uint64_t allocate_page_for_process(){
 	map(viraddr,ax);
 	return viraddr;
 }
-
+//void vmtophy(uint64_t* pml4, uint64_t vs){
+	
+//}
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 	pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
+	kprintf("=====P4:%p====id3:%d \n",pml4,id1);
 	if(!(pml4[id1] & 1)){
+		 kprintf("=====New P3====\n");
 		uint64_t* p3 = (uint64_t *)allocate_page();
 		pml4[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
-
+	
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
-
 		int id2 = (vaddr_s >> 30 ) & 0x1FF;
 		uint64_t* p2 = (uint64_t *)allocate_page();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-
 		int id3 = (vaddr_s >> 21 ) & 0x1FF;
 		uint64_t* p1 = (uint64_t *)allocate_page();
 		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-
 		int id4 = (vaddr_s >> 12 ) & 0x1FF;
 		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+		kprintf("1=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
 		return ;
 	}
 
@@ -184,44 +221,50 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		uint64_t* p3 = (uint64_t *)(pml4[id1] & 0xFFFFFFFFFFFFF000);
 		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+		kprintf("=====P3:%p====id2:%d \n",p3,id2);
 		if( !(p3[id2] & 1)){
+			 kprintf("=====New P2====\n");			
 			uint64_t* p2 =(uint64_t *) allocate_page();
-			pdpte[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
+			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-
 			int id3 = (vaddr_s >> 21 ) & 0x1FF;
 			uint64_t* p1 = (uint64_t *)allocate_page();
 			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-
 			int id4 = (vaddr_s >> 12 ) & 0x1FF;
 			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+			 kprintf("2======= P4:%p\n,P3:%p\n,P2:%p\n,P1:%p====\n",pml4,p3,p2,p1);
 			return;
 		}
 		else{
 			uint64_t* p2 = (uint64_t *)(p3[id2] &0xFFFFFFFFFFFFF000);
 			int id3 =  (vaddr_s >> 21) & 0x1FF;
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-
+			kprintf("=====P2:%p====id3:%d \n",p2,id3);
 			if( !(p2[id3] & 1)){
+				kprintf("=====New P1====\n");
 				uint64_t* p1 = (uint64_t *)allocate_page();
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-
 				int id4 = (vaddr_s >> 12 ) & 0x1FF;
 				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+ 	                        kprintf("3=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
+
 				return;
 			}
 			else{
+				 kprintf("=====Old P1====\n");
 				uint64_t* p1 = (uint64_t *)(p2[id3] &0xFFFFFFFFFFFFF000);
 				int id4 = (vaddr_s >> 12 ) & 0x1FF;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
 				p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+				// kprintf("4=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
+				kprintf("4=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
 				return;
 			}
 		}

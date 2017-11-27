@@ -28,4 +28,5 @@ typedef uint32_t pid_t;
 
 typedef uint16_t mode_t;
 
+void *memset(void *s, int c, size_t n); 
 #endif

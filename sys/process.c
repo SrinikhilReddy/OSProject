@@ -31,6 +31,7 @@ void strcpy(char *string2, char *string1){
         }   
         *string2='\0';
 }
+
 void *memcpy(void *dst,void *src, uint64_t count)
 {
         char *dest= dst;
@@ -105,11 +106,26 @@ void create_process(char* filename){
         Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
         int no_ph = eh->e_phnum;
         uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
+	memset(pml4,0,4096);
         ts->pml4e =(uint64_t) pml4; 
        	ts->regs.rip = eh->e_entry;
-	Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
-        for(int i=0;i<no_ph;i++){
-                if(ep->p_type == 1){               
+//	pml4[511] = pml4e;
+//	uint64_t s_add = allocate_page_for_process();
+
+  //      init_pages_for_process(0x300000,(s_add - 0xffffffff80000000),pml4);
+    
+//        ts->ustack = (uint64_t*)0x300000;
+//        ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511 * 8));
+
+
+
+
+//	Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+        for(int i=no_ph;i>0;i--){
+ //               ep = ep + (i-1);
+		 Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
+		ep = ep + (i-1);
+		if(ep->p_type == 1){               
                         
                         vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
                         vm->vm_start = ep->p_vaddr;
@@ -123,9 +139,12 @@ void create_process(char* filename){
                                 ts->vm = vm;
                         }
                         for(uint64_t k = vm->vm_start;k<( vm->vm_end);k+=4096){ 
+				kprintf("---------------------------------\n");
 				uint64_t yy = allocate_page();
 				init_pages_for_process(k,yy, pml4);
                         }
+
+			printpml4(pml4);
 			uint64_t pcr3;
                         __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
 //                      *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
@@ -136,20 +155,31 @@ void create_process(char* filename){
 
                         __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
                 }
-                ep = ep+1;
+               // ep = ep+1;
         }
 	
-	ts->ustack = (uint64_t*) allocate_page_for_process();
 	
-	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511*8));
+	uint64_t s_add = allocate_page();
+
+	kprintf("----------------------\n");
+	init_pages_for_process(0xFFFF0000,s_add,pml4);
+	printpml4(pml4);	
+	ts->ustack = (uint64_t*)0xFFFF0000;
+	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
+
+//	ts->ustack = (uint64_t*) allocate_page_for_process();
+	
+//	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511*8));
+	
 	
 	set_tss_rsp(&(ts->kstack[511]));
 	
 	r = ts;
 	addToQ(*ts);
 	 uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
-	 __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
-	kprintf("------------------\n");
+	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+
+	kprintf("%p",(ts->rsp));	
 	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(ts->regs.rip):"memory");
     
@@ -213,22 +243,22 @@ void copytask(task_struct* c){
 		
 	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
 
-	c->ustack = (uint64_t*) allocate_page_for_process();	
 
-	c->rsp = (uint64_t *)((uint64_t)c->ustack + (511*8));
-
-	memcpy(c->ustack,r->ustack,512*8);
-	
+	memcpy(c->ustack,r->ustack,512*8);	
 	
 }
 int fork(){
 	task_struct* new = (task_struct *) kmalloc(sizeof(struct task_struct));
-		
+	new->ustack = (uint64_t*) allocate_page_for_process();    
+
+        new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
+	
 	copytask(new);	
 	
 	r->child_count+=1;
 	r->child = new;
 	
+	addToQ(*new);
 	if(r->ppid == -1){
 		return new->pid;
 	}
@@ -240,10 +270,11 @@ void yield() {
 	task_struct *last = curr_task;
 	curr_task = curr_task->next;
 	__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
-	__asm__ volatile("movq %%rsp, %0;":"=g"((last->regs.rsp))::"memory");
-	__asm__ volatile("movq %0,%%rsp;"::"r"(curr_task->regs.rsp):"memory");
+	__asm__ volatile("movq %%rsp, %0;":"=g"((last->rsp))::"memory");
+	__asm__ volatile("movq %0,%%rsp;"::"r"(curr_task->rsp):"memory");
 	__asm__ volatile("popq %%r11; popq %%r10;popq %%r9 ;popq %%r8 ;popq %%rdi ;popq %%rsi ;popq %%rdx ;popq %%rcx ;popq %%rax":::);
-	__asm__ volatile("movq %%rsp, %0;":"=g"((curr_task->regs.rsp))::"memory");
-	__asm__ volatile("pushq (%0);"::"r"(curr_task->regs.rsp):"memory");
+	__asm__ volatile("movq %%rsp, %0;":"=g"((curr_task->rsp))::"memory");
+	__asm__ volatile("pushq (%0);"::"r"(curr_task->rsp):"memory");
 	__asm__ volatile("retq");
+
 }
