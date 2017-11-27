@@ -10,12 +10,19 @@ struct dirent {
            char           d_name[];
 };
 
-
 struct DIR {
 	uint64_t fd;
 	size_t size;
 	char* buf;
 	struct dirent *next;
+};
+
+struct dir_stream {
+	int dd;
+	uint64_t size;
+	off_t offset;
+	uint64_t address;
+	char buf[2048];	
 };
 
 typedef struct DIR DIR;

@@ -2,9 +2,8 @@
 #include <sys/defs.h>
 #include <sys/elf64.h>
 #include <sys/file.h>
-#include <string.h>
 #include <stdlib.h>
-#include <string.h>
+#include <sys/string.h>
 #include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
@@ -53,11 +52,11 @@ void init_tarfs()
 	while(address< &_binary_tarfs_end){	
 		unsigned int size = getsize(header->size);
 		headers[fc++] = header;
+		kprintf("\n %s", headers[fc-1]->name);
 /*		if(size!=0){
 			read_elf((uint64_t)(header+1));
 		}
-*/		
-		address += ((size / 512) + 1) * 512;
+*/		address += ((size / 512) + 1) * 512;
 
 		if (size % 512)
 			address += 512;
@@ -122,6 +121,25 @@ ssize_t read_tarfs(struct file_t *f, char* buf, int count)
 	return count;
 }
 
+void readdir_tarfs(char* dir_name, char* list[100])
+{
+        //struct posix_header_ustar* h = NULL;
+        int i=0;
+	int count = 0;
+        for(i=0; i<32 && headers[i]!=NULL; i++)
+        {
+                //kprintf("%s ",headers[i]->name);
+		int index = starts_with(headers[i]->name,dir_name);
+                if(index>0)
+                {
+			//kprintf("MATCHED %s ",headers[i]->name);
+			*(list+count) = substring(headers[i]->name,index);
+			kprintf("\n %d : %s", i, *(list+count));
+			count++;
+		}
+        }
+}
+
 uint64_t octal_to_binary(const char* octal)
 {
 	int oct=0;
@@ -142,4 +160,32 @@ uint64_t octal_to_binary(const char* octal)
 		oct /= 10;
 	}
 	return bin;
+}
+
+//checks if string1 starts with string2
+int starts_with(char* string1, char* string2)
+{
+	int count = 0;
+	while(*string1==*string2)
+	{
+		count++;
+		string1++;
+		string2++;
+	}
+	return count;
+}
+
+char* substring(char* string, int index)
+{
+	int i = 0;
+	while(*string)
+	{	
+		if(i>index)
+		{
+			break;
+		}
+		string++;
+		i++;
+	}
+	return string;
 }

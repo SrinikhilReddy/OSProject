@@ -8,7 +8,7 @@
 #include <sys/mem.h>
 #include <sys/process.h>
 
-DIR* opendir(const char *name)
+/*DIR* opendir(const char *name)
 {
 	if(!name)
 	{
@@ -23,15 +23,19 @@ DIR* opendir(const char *name)
 	d = (DIR*) kmalloc(sizeof(*d));
 	d->fd = fd;
 	return d;
-}
+}*/
 
-/*struct dirent* readdir(DIR *dirp)
+/*struct dirent* readdir(void *dirp)
 {
+	//int count = 0;
+	struct dir_stream* ds = dirp;
+	struct dirent *dp = NULL;
+	dp = (struct dirent*)(ds->buf + ds->offset);
+	ds->offset = ds->offset + dp->d_reclen;
+	return dp;
+}*/
 
-
-}
-
-int closedir(DIR *dirp)
+/*int closedir(DIR *dirp)
 {
 
 

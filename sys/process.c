@@ -4,7 +4,7 @@
 #include<sys/kprintf.h>
 #include<sys/gdt.h>
 #include<syscall.h>
-#include<string.h>
+#include<sys/string.h>
 #include<sys/tarfs.h>
 #include<sys/elf64.h>
 static task_struct *curr_task;
@@ -21,7 +21,7 @@ int newPID(){
 	}
 	return -1;
 }
-void strcpy(char *string2, char *string1){
+/*void strcpy(char *string2, char *string1){
 
         while(*string1)
         {   
@@ -30,7 +30,7 @@ void strcpy(char *string2, char *string1){
                 string2++;
         }   
         *string2='\0';
-}
+}*/
 
 void *memcpy(void *dst,void *src, uint64_t count)
 {
