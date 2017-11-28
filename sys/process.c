@@ -158,7 +158,6 @@ void create_process(char* filename){
 	
 	
 	uint64_t s_add = allocate_page();
-	kprintf("------------%p\n",s_add);
 	init_pages_for_process(0x200FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x200FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
@@ -175,7 +174,6 @@ void create_process(char* filename){
 	 uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 
-	kprintf("%p",(ts->rsp));	
 	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(ts->regs.rip):"memory");
     
@@ -265,7 +263,11 @@ int fork(){
 	r->child = new;
 	
 	addToQ(*new);
-	
+
+	uint64_t pcr3;
+        __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
+		
 	if(r->ppid == -1){
 		return new->pid;
 	}

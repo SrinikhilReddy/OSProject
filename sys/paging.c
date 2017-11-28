@@ -226,7 +226,6 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 		if( !(p3[id2] & 1)){
-			 kprintf("=====New P2====\n");			
 			uint64_t* p2 =(uint64_t *) allocate_page();
 			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
 
