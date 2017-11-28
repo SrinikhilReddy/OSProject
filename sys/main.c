@@ -31,9 +31,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   init_ia32e_paging((uint64_t)0, max);
 	
 	init_tarfs();
-	char *list[100];
-	readdir_tarfs("bin",list);
-	kprintf("\n %s", list[0]);
+//	char *list[100];
+//	readdir_tarfs("bin",list);
+//	kprintf("\n %s", list[0]);
 	//struct DIR* d = opendir("/bin");
 	//kprintf("\nOPENDIR: %d", d->fd);
   init_idt();
@@ -49,7 +49,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
  // yield();
 //  kprintf("Returned to main task\n");
 //  switchtor3(); 
-     //create_process("bin/sbush");  
+   create_process("bin/sbush");  
   while(1);
 }
 

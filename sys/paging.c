@@ -96,7 +96,7 @@ void printpml4(uint64_t* p4){
                                                     {
                                                        if ((p1[l]&1))
                                                        {
-                                                            kprintf("P1 id:%d val:%p \n",l,(p1[l] & 0xFFFFFFFFFFFFF000));
+                                                            kprintf("P1 id:%d val:%p \n",l,(p1[l] ));//& 0xFFFFFFFFFFFFF000));
                                                        }
                                                     }
 
@@ -114,24 +114,24 @@ void map(uint64_t vaddr_s, uint64_t phy){
 	if(!(pml4e[id1] & 1)){
 		uint64_t* p3 = (uint64_t *)allocate_page();
 		
-		pml4e[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
+		pml4e[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 
 		int id2 = (vaddr_s >> 30 ) & 0x1FF;
 		uint64_t* p2 = (uint64_t *)allocate_page();
-		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
+		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 		int id3 = (vaddr_s >> 21 ) & 0x1FF;
 		uint64_t* p1 = (uint64_t *)allocate_page();
-		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+		p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
 		int id4 = (vaddr_s >> 12 ) & 0x1FF;
-		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
 		return ;
 	}
 	else{
@@ -140,18 +140,18 @@ void map(uint64_t vaddr_s, uint64_t phy){
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
 		if( !(p3[id2] & 1)){	
 			uint64_t* p2 =(uint64_t *) allocate_page();
-			pdpte[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
+			p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 3;
 
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
 
 			int id3 = (vaddr_s >> 21 ) & 0x1FF;
 			uint64_t* p1 = (uint64_t *)allocate_page();
-			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+			p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
 			int id4 = (vaddr_s >> 12 ) & 0x1FF;
-			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
 			return;
 		}
 		else{
@@ -161,12 +161,12 @@ void map(uint64_t vaddr_s, uint64_t phy){
 
 			if( !(p2[id3] & 1)){
 				uint64_t* p1 = (uint64_t *)allocate_page();
-				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
+				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 3;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
 				int id4 = (vaddr_s >> 12 ) & 0x1FF;
-				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
 				return;
 			}
 			else{	
@@ -175,7 +175,7 @@ void map(uint64_t vaddr_s, uint64_t phy){
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
-				p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
+				p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 3;
 				return;
 			}
 		}
@@ -188,19 +188,24 @@ uint64_t allocate_page_for_process(){
 	map(viraddr,ax);
 	return viraddr;
 }
+uint64_t getPhysical(uint64_t vr){
+	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
+
+//	return (uint64_t) *(*( *((pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF));
+}
 //void vmtophy(uint64_t* pml4, uint64_t vs){
 	
 //}
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 	pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
-	kprintf("=====P4:%p====id3:%d \n",pml4,id1);
 	if(!(pml4[id1] & 1)){
-		 kprintf("=====New P3====\n");
 		uint64_t* p3 = (uint64_t *)allocate_page();
 		pml4[id1] = ((uint64_t)p3 & 0xFFFFFFFFFFFFF000) | 7;
-	
+			
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+//		uint64_t a = getPhysical((uint64_t)p3);
+//		kprintf("((((((((((((((( %p\n",a);
 		int id2 = (vaddr_s >> 30 ) & 0x1FF;
 		uint64_t* p2 = (uint64_t *)allocate_page();
 		p3[id2] = ((uint64_t)p2 & 0xFFFFFFFFFFFFF000) | 7;
@@ -213,7 +218,6 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 		int id4 = (vaddr_s >> 12 ) & 0x1FF;
 		p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
-		kprintf("1=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
 		return ;
 	}
 
@@ -221,7 +225,6 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		uint64_t* p3 = (uint64_t *)(pml4[id1] & 0xFFFFFFFFFFFFF000);
 		int id2 =  (vaddr_s >> 30 ) & 0x1FF;
 		p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
-		kprintf("=====P3:%p====id2:%d \n",p3,id2);
 		if( !(p3[id2] & 1)){
 			 kprintf("=====New P2====\n");			
 			uint64_t* p2 =(uint64_t *) allocate_page();
@@ -235,36 +238,29 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 			p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 			int id4 = (vaddr_s >> 12 ) & 0x1FF;
 			p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
-			 kprintf("2======= P4:%p\n,P3:%p\n,P2:%p\n,P1:%p====\n",pml4,p3,p2,p1);
 			return;
 		}
 		else{
 			uint64_t* p2 = (uint64_t *)(p3[id2] &0xFFFFFFFFFFFFF000);
 			int id3 =  (vaddr_s >> 21) & 0x1FF;
 			p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-			kprintf("=====P2:%p====id3:%d \n",p2,id3);
 			if( !(p2[id3] & 1)){
-				kprintf("=====New P1====\n");
 				uint64_t* p1 = (uint64_t *)allocate_page();
 				p2[id3] = ((uint64_t)p1 & 0xFFFFFFFFFFFFF000) | 7;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 				int id4 = (vaddr_s >> 12 ) & 0x1FF;
 				p1[id4] =  ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
- 	                        kprintf("3=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
 
 				return;
 			}
 			else{
-				 kprintf("=====Old P1====\n");
 				uint64_t* p1 = (uint64_t *)(p2[id3] &0xFFFFFFFFFFFFF000);
 				int id4 = (vaddr_s >> 12 ) & 0x1FF;
 
 				p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 
 				p1[id4] = ((uint64_t)phy & 0xFFFFFFFFFFFFF000) | 7;
-				// kprintf("4=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
-				kprintf("4=====P4:%p,P3:%p,P2:%p,P1:%p====\n",pml4,p3,p2,p1);
 				return;
 			}
 		}
@@ -329,9 +325,9 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pdpte = (uint64_t *)allocate_page();
 	pde = (uint64_t *)allocate_page();
 	pte = (uint64_t *)allocate_page();
-	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
-	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
-	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
+	pml4e[pml4_idx] = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
+	pdpte[pdpt_idx] = ((uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
+	pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
 	for(int j=0;physbase<physfree;j++,viraddr+=4096,physbase+=4096){
 		pml4_idx = (viraddr >> 39 ) & 0x1FF;
 		pdpt_idx = (viraddr >> 30 ) & 0x1FF;
@@ -339,12 +335,12 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 		pt_idx = (viraddr >> 12 ) & 0x1FF;   
 
 		if(pt_idx!=0){
-			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;
+			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;
 		}
 		else{
 			pte = ((uint64_t*)allocate_page());
-			pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 7;
-			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 7;		
+			pde[pd_idx] = ((uint64_t)pte & (0xFFFFFFFFFFFFF000)) | 3;
+			pte[pt_idx] = (physbase & 0xFFFFFFFFFFFFF000) | 3;		
 		}
 
 
@@ -355,22 +351,22 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 7;
+	pte[pt_idx] = ( (uint64_t)pml4e & 0xFFFFFFFFFFFFF000) | 3;
 	pml4e = (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
+	pte[pt_idx] = ( (uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 3;
 	pdpte = (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 7;
+	pte[pt_idx] = ( (uint64_t)pde & 0xFFFFFFFFFFFFF000) | 3;
 	pde= (uint64_t*)viraddr;
 
 	viraddr+=4096;
 	pt_idx = (viraddr >> 12 ) & 0x1FF;
-	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 7;
+	pte[pt_idx] = ( (uint64_t)pte & 0xFFFFFFFFFFFFF000) | 3;
 	pte = (uint64_t*)viraddr;
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
@@ -400,8 +396,12 @@ void copytables(task_struct* p, task_struct* c){
 							uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
 							p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 							for(int l=0;l<512;l++){
-								p1[l] = p1[l] & 0xFFFFFFFFFFFFFFFD;
-								c1[l] = p1[l];
+								if(p1[l]&1){
+									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD & 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
+								//	p1[l] = p1[l] | 0x105;
+									c1[l] = p1[l];
+//									kprintf("p4:%p\n p3:%p\n p2:%p\n p1:%p\n c4:%p\n c3:%p\n c2:%p\n c1:%p\n",p4[i],p3[j],p2[k],p1[l],c4[i],c3[j],c2[k],c1[l]);
+								}
 							}
 						}	
 					}

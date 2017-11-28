@@ -19,6 +19,7 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree);
 void init_ia32e_paging();
 void init_pages_for_process(uint64_t vaddr_s,uint64_t vaddr_e,uint64_t* pml4);
 uint64_t kmalloc(int size);
+uint64_t getPhysical(uint64_t vr);
 void printpml4(uint64_t* pml4);
 void copytables(task_struct* a,task_struct* b);
 #endif

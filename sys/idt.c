@@ -1,6 +1,8 @@
 #include <sys/idt.h>
 #include <sys/kprintf.h>
+#include<sys/mem.h>
 #include <sys/process.h>
+
 static struct idt idt_table[256];
 static struct idt_ptr pr;
 
@@ -260,6 +262,7 @@ void isr128(){
 	}
 	if(y->rax == 57){
 		fork();
+		 printpml4((uint64_t *)r->pml4e);
 	}	
 	outportb(0x20,0x20);
 }

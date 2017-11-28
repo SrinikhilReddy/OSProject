@@ -1,6 +1,7 @@
 #include <sys/kprintf.h>
 #include <sys/ide.h>
 #include <sys/defs.h>
+#include <sys/string.h>
 ide_device ide_devices[4];
 IDEChannelRegisters channels[2];
 uint8_t ide_buf[2048] = {0};
@@ -11,7 +12,7 @@ void ide_read_sectors(unsigned char drive, unsigned char numsects, unsigned int 
 		unsigned short es, char* buf);
 void ide_write_sectors(unsigned char drive, unsigned char numsects, unsigned int lba,
 		unsigned short es, char* buf);
-int strcmp(char *s,char *t){
+/*int strcmp(char *s,char *t){
         while(*s==*t)
         {
                 if(*s=='\0')
@@ -20,7 +21,7 @@ int strcmp(char *s,char *t){
                 t++;
         }
         return *s-*t;
-}
+}*/
 static inline void outb(uint16_t port, uint8_t val)
 {
 	__asm__ volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );

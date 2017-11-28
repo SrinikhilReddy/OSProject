@@ -139,12 +139,10 @@ void create_process(char* filename){
                                 ts->vm = vm;
                         }
                         for(uint64_t k = vm->vm_start;k<( vm->vm_end);k+=4096){ 
-				kprintf("---------------------------------\n");
 				uint64_t yy = allocate_page();
 				init_pages_for_process(k,yy, pml4);
                         }
 
-			printpml4(pml4);
 			uint64_t pcr3;
                         __asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
 //                      *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
@@ -160,11 +158,9 @@ void create_process(char* filename){
 	
 	
 	uint64_t s_add = allocate_page();
-
-	kprintf("----------------------\n");
-	init_pages_for_process(0xFFFF0000,s_add,pml4);
-	printpml4(pml4);	
-	ts->ustack = (uint64_t*)0xFFFF0000;
+	kprintf("------------%p\n",s_add);
+	init_pages_for_process(0x200FFFFF0000,s_add,pml4);
+	ts->ustack = (uint64_t*)0x200FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 
 //	ts->ustack = (uint64_t*) allocate_page_for_process();
@@ -244,21 +240,32 @@ void copytask(task_struct* c){
 	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
 
 
-	memcpy(c->ustack,r->ustack,512*8);	
+//	memcpy(c->ustack,r->ustack,512*8);	
 	
 }
 int fork(){
 	task_struct* new = (task_struct *) kmalloc(sizeof(struct task_struct));
-	new->ustack = (uint64_t*) allocate_page_for_process();    
-
-        new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
+//	new->ustack = (uint64_t*) allocate_page();    
+	
+  //      new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
 	
 	copytask(new);	
+//	new->ustack = (uint64_t*) allocate_page(); 
+	uint64_t s_add = allocate_page();
+	init_pages_for_process(0xFFFFF0000,s_add,(uint64_t *)new->pml4e);
+	new->ustack = (uint64_t*)0xFFFFF0000;
+	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
+
+//	printpml4((uint64_t *)r->pml4e);
+//	printpml4((uint64_t *)new->pml4e);	
+	
+//	memcpy(new->ustack,r->ustack,512*8);
 	
 	r->child_count+=1;
 	r->child = new;
 	
 	addToQ(*new);
+	
 	if(r->ppid == -1){
 		return new->pid;
 	}

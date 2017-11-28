@@ -22,7 +22,7 @@ void _start(void) {
   }
   while(env[k-1]!=NULL);
   pushenvs(env);
-  */
+*/
 int i = main(0,NULL,NULL);
   // call main() and exit() here
   exit(i);
