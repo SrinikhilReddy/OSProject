@@ -107,7 +107,7 @@ void create_process(char* filename){
         int no_ph = eh->e_phnum;
         uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
 	memset(pml4,0,4096);
-        ts->pml4e =(uint64_t) pml4; 
+        ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)0xffffffff80000000); 
        	ts->regs.rip = eh->e_entry;
 //	pml4[511] = pml4e;
 //	uint64_t s_add = allocate_page_for_process();
@@ -150,7 +150,7 @@ void create_process(char* filename){
 			
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
                         memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-
+			memset((void*)vm->vm_start + (uint64_t)(ep->p_filesz), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
                         __asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
                 }
                // ep = ep+1;
@@ -158,8 +158,8 @@ void create_process(char* filename){
 	
 	
 	uint64_t s_add = allocate_page();
-	init_pages_for_process(0x200FFFFF0000,s_add,pml4);
-	ts->ustack = (uint64_t*)0x200FFFFF0000;
+	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
+	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 
 //	ts->ustack = (uint64_t*) allocate_page_for_process();
@@ -211,7 +211,7 @@ void copytask(task_struct* c){
 	c->pid = newPID();
 	c->ppid = r->pid;
 		
-	c->pml4e = allocate_page_for_process();
+	c->pml4e = (uint64_t)((uint64_t)allocate_page_for_process() - (uint64_t)0xffffffff80000000);
 
 	strcpy(c->name,r->name);
 	
@@ -234,7 +234,7 @@ void copytask(task_struct* c){
 		a = a->next;
 	}
 
-		
+			
 	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
 
 
@@ -250,33 +250,52 @@ int fork(){
 	copytask(new);	
 //	new->ustack = (uint64_t*) allocate_page(); 
 	uint64_t s_add = allocate_page();
-	init_pages_for_process(0xFFFFF0000,s_add,(uint64_t *)new->pml4e);
+	init_pages_for_process(0xFFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
 	new->ustack = (uint64_t*)0xFFFFF0000;
 	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-
-//	printpml4((uint64_t *)r->pml4e);
-//	printpml4((uint64_t *)new->pml4e);	
 	
-//	memcpy(new->ustack,r->ustack,512*8);
+	uint64_t pcr3;
+	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
 	
 	r->child_count+=1;
 	r->child = new;
-	
+	r->next = new;	
 	addToQ(*new);
 
-	uint64_t pcr3;
-        __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
+
+	char temp[4096];
+	memcpy(&temp[0],r->ustack,512*8);
+	__asm__ volatile ("movq %0,%%cr3;" ::"r"(new->pml4e):);
+	memcpy(new->ustack,&temp[0],512*8);
+
+	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
+	__asm__ __volatile__(
+                "movq $2f, %0;"
+		"2:\t"
+                :"=g"(new->regs.rip)::
+        );
+
+	__asm__ __volatile__(
+                "movq %%rsp, %0;"
+                :"=r"(new->rsp)::
+	);
+	
+
+
+
+	//Flush TLB
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
-		
+	
 	if(r->ppid == -1){
 		return new->pid;
 	}
 	else{
 		return 0;
 	}
-}
+}/*
 void yield() {
-	task_struct *last = curr_task;
+	task_struct *last = r;
 	curr_task = curr_task->next;
 	__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
 	__asm__ volatile("movq %%rsp, %0;":"=g"((last->rsp))::"memory");
@@ -286,4 +305,4 @@ void yield() {
 	__asm__ volatile("pushq (%0);"::"r"(curr_task->rsp):"memory");
 	__asm__ volatile("retq");
 
-}
+}*/

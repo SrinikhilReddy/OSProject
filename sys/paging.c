@@ -190,8 +190,6 @@ uint64_t allocate_page_for_process(){
 }
 uint64_t getPhysical(uint64_t vr){
 	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
-
-//	return (uint64_t) *(*( *((pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF));
 }
 //void vmtophy(uint64_t* pml4, uint64_t vs){
 	
@@ -372,8 +370,8 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	k_cr3 = (uint64_t)pml4e;
 }
 void copytables(task_struct* p, task_struct* c){
-	uint64_t* p4 = (uint64_t *)p->pml4e;
-	uint64_t* c4 =(uint64_t *) c->pml4e;
+	uint64_t* p4 = (uint64_t *)(p->pml4e + 0xffffffff80000000);
+	uint64_t* c4 =(uint64_t *) (c->pml4e + 0xffffffff80000000);
 	c4[511] = p4[511];
 	for(int i =0;i<511;i++){
 		//CHeck if entry is present
