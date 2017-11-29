@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <sys/defs.h>
 #include <syscall.h>
-
+#include <sys/tarfs.h>
+#include <sys/file.h>
+#include <sys/kprintf.h>
 #define BUF_SIZE 1024
 
 int direccall(int fd,char* buff,int size){
@@ -10,7 +12,7 @@ int direccall(int fd,char* buff,int size){
 }
 int main(int argc, char *argv[])
 {
-	int fd, nread;
+	/*int fd, nread;
 	char buf[BUF_SIZE];
 	struct dirent_n *d;
 
@@ -35,6 +37,17 @@ int main(int argc, char *argv[])
 		}
 
 	} 
-	puts("\n");
-	return 0;
+	puts("\n");*/
+
+	/*init_tarfs();
+	char *list[100];
+        readdir_tarfs("bin",list);
+        int i=0;
+	while(*(list+i))
+	{
+		kprintf("%s \t", list[i]);
+		i++;
+	}
+	kprintf("\n");
+	return 0;*/
 }

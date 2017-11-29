@@ -254,13 +254,17 @@ void isr128(){
 	uint64_t as;
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;
+	
 	if(y->rax == 1 && y->rbx == 1){ //This is a write syscall to stdout
 		int* i = (int *)(y->rcx);
 		kprintf("\n%d\n",(*i));
 	}
 	if(y->rax == 57){
 		fork();
-	}	
+	}
+	/*if(y->rax == 5){
+		open();
+	}*/	
 	outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){

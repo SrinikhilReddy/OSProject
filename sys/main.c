@@ -33,7 +33,12 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	init_tarfs();
 	char *list[100];
 	readdir_tarfs("bin",list);
-	kprintf("\n %s", list[0]);
+	int i=0;
+	while(*(list+i))
+	{
+		kprintf("\n %s", list[i]);
+		i++;
+	}
 	//struct DIR* d = opendir("/bin");
 	//kprintf("\nOPENDIR: %d", d->fd);
   init_idt();
