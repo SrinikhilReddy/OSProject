@@ -31,7 +31,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   init_ia32e_paging((uint64_t)0, max);
 	
 	init_tarfs();
-	char *list[100];
+/*	char *list[100];
 	readdir_tarfs("bin",list);
 	int i=0;
 	while(*(list+i))
@@ -39,7 +39,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 		kprintf("\n %s", list[i]);
 		i++;
 	}
-//	char *list[100];
+*///	char *list[100];
 //	readdir_tarfs("bin",list);
 //	kprintf("\n %s", list[0]);
 	//struct DIR* d = opendir("/bin");

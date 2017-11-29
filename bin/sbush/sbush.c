@@ -15,8 +15,9 @@ int main(){
 	call(a);
 	call(b);
 	fork();
+	call(a);
 	a = c + 40;
 	a = 0;
 	call(a);
-	while(a);
+	while(1);
 }

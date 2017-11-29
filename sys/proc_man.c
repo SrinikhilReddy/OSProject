@@ -1,4 +1,5 @@
 #include<sys/process.h>
+#include<sys/gdt.h>
 #include<sys/mem.h>
 
 //struct task_struct q[MAX];//running;
@@ -29,6 +30,8 @@ void yield(){
 	else{
 		task_struct *last = r;
 		r = r->next;
+
+		set_tss_rsp((uint64_t*)r->regs.rsp);
 		__asm__ volatile("movq %0,%%cr3;"::"r"(r->pml4e):);
 //		__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
 		__asm__ volatile("movq %%rsp, %0;":"=g"((last->regs.rsp))::"memory");

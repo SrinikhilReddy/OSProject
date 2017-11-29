@@ -9,6 +9,8 @@
 #include<sys/elf64.h>
 //static task_struct u_p;
 //int len = 99;
+task_struct* new;
+task_struct* p;
 int newPID(){
 	for(int i =0;i<MAX;i++){
 		if(pid[i] == 0){
@@ -241,12 +243,12 @@ void copytask(task_struct* c){
 }
 int fork(){
 	int pid = newPID();
-	task_struct* new = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
+	new = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
 	new->pid = pid;
 //	new->ustack = (uint64_t*) allocate_page();    
 	
   //      new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-	
+	 p = r;	
 	copytask(new);	
 //	new->ustack = (uint64_t*) allocate_page(); 
 	uint64_t s_add = allocate_page();
@@ -271,6 +273,7 @@ int fork(){
 //	memcpy(new->ustack,&temp[0],(512*8)-1);
 
 	//__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
+	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);   
 	__asm__ __volatile__(
                 "movq $2f, %0;"
 		"2:\t"
@@ -278,16 +281,17 @@ int fork(){
         );
 	__asm__ __volatile__(
                 "movq %%rsp, %0;"
-                :"=r"(s_add)::
+                :"=r"(s_add)::"memory"
 	);
-	if( (r->ppid) != -1){
+	if(r  == p){
 		//return 0;// new->pid;
-	//	new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - add);
-		return 0;
+		new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
+		return new->pid;
 	}
 	else{
-		new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - s_add);
-		return  new->pid;
+	//	new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - s_add);
+	//	return  new->pid;
+		return 0;
 	}
 }
 /*
