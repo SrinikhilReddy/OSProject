@@ -39,6 +39,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 		kprintf("\n %s", list[i]);
 		i++;
 	}
+//	char *list[100];
+//	readdir_tarfs("bin",list);
+//	kprintf("\n %s", list[0]);
 	//struct DIR* d = opendir("/bin");
 	//kprintf("\nOPENDIR: %d", d->fd);
   init_idt();
@@ -54,7 +57,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
  // yield();
 //  kprintf("Returned to main task\n");
 //  switchtor3(); 
-     //create_process("bin/sbush");  
+   create_process("bin/sbush");  
   while(1);
 }
 

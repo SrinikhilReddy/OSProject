@@ -1,6 +1,8 @@
 #include <sys/idt.h>
 #include <sys/kprintf.h>
+#include<sys/mem.h>
 #include <sys/process.h>
+
 static struct idt idt_table[256];
 static struct idt_ptr pr;
 
@@ -251,6 +253,7 @@ typedef struct registers_t{
 }registers_t;
 void isr128(){
         kprintf("Interrupt 80 raised!!!!");
+//	yield();
 	uint64_t as;
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;
@@ -265,6 +268,9 @@ void isr128(){
 	/*if(y->rax == 5){
 		open();
 	}*/	
+//		 printpml4((uint64_t *)r->pml4e);
+	}	
+	yield();
 	outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){
