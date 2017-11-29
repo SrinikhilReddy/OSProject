@@ -75,7 +75,6 @@ uint64_t kmalloc(int size){
 	return add;
 }
 void printpml4(uint64_t* p4){
-	kprintf("==========================");
         for(int i = 0;i<511;i++){
                 if( (p4[i]&1)){
                         kprintf("PML4 id:%d val:%p \n",i,(p4[i] & 0xFFFFFFFFFFFFF000));
@@ -374,7 +373,6 @@ void copytables(task_struct* p, task_struct* c){
 	uint64_t* c4 =(uint64_t *) (c->pml4e + 0xffffffff80000000);
 	c4[511] = p4[511];
 	for(int i =0;i<511;i++){
-		//CHeck if entry is present
 		if(p4[i] & 1){
 			uint64_t* c3 = (uint64_t *)allocate_page_for_process();
 			c4[i] = ((uint64_t)((uint64_t)c3 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
@@ -395,9 +393,7 @@ void copytables(task_struct* p, task_struct* c){
 							for(int l=0;l<512;l++){
 								if(p1[l]&1){
 									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD & 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
-								//	p1[l] = p1[l] | 0x105;
 									c1[l] = p1[l];
-//									kprintf("p4:%p\n p3:%p\n p2:%p\n p1:%p\n c4:%p\n c3:%p\n c2:%p\n c1:%p\n",p4[i],p3[j],p2[k],p1[l],c4[i],c3[j],c2[k],c1[l]);
 								}
 							}
 						}	

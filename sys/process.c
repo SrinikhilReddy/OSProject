@@ -253,7 +253,7 @@ int fork(){
 	init_pages_for_process(0x100FFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
 	new->ustack = (uint64_t*)0x100FFFFF0000;
 	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-	new->regs.rsp = (uint64_t)&(new->kstack[511]);
+//	new->regs.rsp = (uint64_t)&(new->kstack[511]);
 	uint64_t pcr3;
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
@@ -278,13 +278,16 @@ int fork(){
         );
 	__asm__ __volatile__(
                 "movq %%rsp, %0;"
-                :"=r"(new->rsp)::
+                :"=r"(s_add)::
 	);
-	if(r != new){
-		return new->pid;
+	if( (r->ppid) != -1){
+		//return 0;// new->pid;
+	//	new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - add);
+		return 0;
 	}
 	else{
-		return 0;
+		new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - s_add);
+		return  new->pid;
 	}
 }
 /*
