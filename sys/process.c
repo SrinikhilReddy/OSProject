@@ -7,9 +7,6 @@
 #include<sys/string.h>
 #include<sys/tarfs.h>
 #include<sys/elf64.h>
-static task_struct *curr_task;
-static task_struct main_task;
-static task_struct next_task;
 //static task_struct u_p;
 //int len = 99;
 int newPID(){
@@ -74,12 +71,12 @@ void switchtor3(){
 	__asm__ volatile("iretq");
 	kprintf("Fam WHAAAAAAAAAAAT");
 }
-static void next_main() {
+/*static void next_main() {
 	kprintf("Test Context Switching\n");
 	yield();
-}
+}*/
 
-void init_task() {
+/*void init_task() {
 	__asm__ volatile("movq %%cr3, %%rax; movq %%rax, %0;":"=m"(main_task.regs.cr3)::"%rax");
 	__asm__ volatile("pushq %%rax; movq (%%rsp), %%rax; movq %%rax, %0; popq %%rax;":"=m"(main_task.regs.rflags)::"%rax");
 
@@ -88,7 +85,7 @@ void init_task() {
 	main_task.next = &next_task;
 	next_task.next = &main_task;
 	curr_task = &main_task;
-}
+}*/
 void create_process(char* filename){
         //Load elf headers using the filename
         uint64_t f_a = get_file_address(filename) +512;
@@ -97,10 +94,11 @@ void create_process(char* filename){
                 return;
         }
         
-        task_struct* ts = (task_struct *) kmalloc(sizeof(struct task_struct));
+ 	int pid = newPID();
+        task_struct* ts = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
         strcpy(ts->name,filename);
         ts->ppid = -1;
-        ts->pid = newPID();
+        ts->pid = pid;
         ts->vm = NULL;
 
         Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
@@ -170,7 +168,7 @@ void create_process(char* filename){
 	set_tss_rsp(&(ts->kstack[511]));
 	
 	r = ts;
-	addToQ(*ts);
+	addToQ(ts);
 	 uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 
@@ -182,7 +180,7 @@ void create_process(char* filename){
 //        kprintf("Atleast this works %d,%p",msize,svaddr);
 }
 
-void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t pagedir) {
+/*void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t pagedir) {
 	task->regs.rax = 0;
 	task->regs.rbx = 0;
 	task->regs.rcx = 0;
@@ -205,10 +203,10 @@ void create_task(task_struct *task, uint64_t main, uint64_t flags, uint64_t page
 		task->regs.rsp = (uint64_t)--temp;	
 	}
 	task->next = 0;
-}
+}*/
 void copytask(task_struct* c){
 	
-	c->pid = newPID();
+//	c->pid = newPID();
 	c->ppid = r->pid;
 		
 	c->pml4e = (uint64_t)((uint64_t)allocate_page_for_process() - (uint64_t)0xffffffff80000000);
@@ -242,7 +240,9 @@ void copytask(task_struct* c){
 	
 }
 int fork(){
-	task_struct* new = (task_struct *) kmalloc(sizeof(struct task_struct));
+	int pid = newPID();
+	task_struct* new = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
+	new->pid = pid;
 //	new->ustack = (uint64_t*) allocate_page();    
 	
   //      new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
@@ -250,50 +250,44 @@ int fork(){
 	copytask(new);	
 //	new->ustack = (uint64_t*) allocate_page(); 
 	uint64_t s_add = allocate_page();
-	init_pages_for_process(0xFFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
-	new->ustack = (uint64_t*)0xFFFFF0000;
+	init_pages_for_process(0x100FFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
+	new->ustack = (uint64_t*)0x100FFFFF0000;
 	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-	
+	new->regs.rsp = (uint64_t)&(new->kstack[511]);
 	uint64_t pcr3;
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
-	
+	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 	r->child_count+=1;
 	r->child = new;
 	r->next = new;	
-	addToQ(*new);
+	addToQ(new);
 
-	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
+//	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
 
-	char temp[4096];
-	memcpy(&temp[0],r->ustack,512*8);
-	__asm__ volatile ("movq %0,%%cr3;" ::"r"(new->pml4e):);
-	memcpy(new->ustack,&temp[0],512*8);
+//	char temp[4096];
+//	kprintf("----++++ %p, %p =====",&temp[0],&temp[4095]);
+//	memcpy(&temp[0],r->ustack,512*8);
+//	__asm__ volatile ("movq %0,%%cr3;" ::"r"(new->pml4e):);
+//	memcpy(new->ustack,&temp[0],(512*8)-1);
 
-	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
+	//__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
 	__asm__ __volatile__(
                 "movq $2f, %0;"
 		"2:\t"
                 :"=g"(new->regs.rip)::
         );
-
 	__asm__ __volatile__(
                 "movq %%rsp, %0;"
                 :"=r"(new->rsp)::
 	);
-	
-
-
-
-	//Flush TLB
-	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
-	
-	if(r->ppid == -1){
+	if(r != new){
 		return new->pid;
 	}
 	else{
 		return 0;
 	}
-}/*
+}
+/*
 void yield() {
 	task_struct *last = r;
 	curr_task = curr_task->next;

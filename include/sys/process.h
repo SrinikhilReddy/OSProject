@@ -89,7 +89,8 @@ int get_pid();
 int get_ppid();
 int fork();
 void create_process(char* filename);
-void addToQ(task_struct q);
+void addToQ(task_struct* q);
 int get_fd(struct task_struct*);
 task_struct* r;
+struct task_struct q[MAX];
 #endif

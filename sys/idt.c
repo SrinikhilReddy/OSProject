@@ -265,7 +265,7 @@ void isr128(){
 		fork();
 //		 printpml4((uint64_t *)r->pml4e);
 	}	
-//	yield();
+	yield();
 	outportb(0x20,0x20);
 }
 void outportb(uint16_t port,uint8_t data){
