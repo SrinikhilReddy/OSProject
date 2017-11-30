@@ -175,9 +175,25 @@ void isr14(){
 	kprintf("Page Fault!!!!!!");
 	uint64_t bb;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
-	kprintf("%p",bb);
-	while(1);
-	outportb(0x20,0x20);
+	if( bb & 0x0000000000000200){
+		kprintf("------------COW\n");
+		uint64_t k ;//= getPTE(bb); 
+		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
+		switchtokern();
+		uint64_t p_n = allocate_page();
+//		k[bb>>12] = ((uint64_t)p_n & 0xFFFFFFFFFFFFF000) | 7;
+		init_pages_for_process(bb,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
+	//	kprintf("------%p",k);
+		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
+		outportb(0x20,0x20);
+//		return;
+	}
+	else{
+		kprintf("%p",bb);
+		while(1);
+		outportb(0x20,0x20);
+	}
+
 }
 void isr15(){
 	kprintf("This is an exception");
@@ -253,7 +269,7 @@ typedef struct registers_t{
 }registers_t;
 void isr128(){
         kprintf("Interrupt 80 raised!!!!");
-	yield();
+//	yield();
 	uint64_t as;
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;

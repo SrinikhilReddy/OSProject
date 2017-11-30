@@ -191,6 +191,7 @@ isr_14:
 	push
 	callq isr14
 	pop
+	add $8, %rsp
 	iretq
 isr_15:
 	push

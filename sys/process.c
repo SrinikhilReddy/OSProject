@@ -130,7 +130,8 @@ void create_process(char* filename){
                         vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
                         vm->vm_start = ep->p_vaddr;
                         vm->vm_end = ep->p_vaddr+ep->p_memsz;
-                        if(ts->vm == NULL){
+                        
+			if(ts->vm == NULL){
                                 vm->next = NULL;
                                 ts->vm = vm;
                         }

@@ -45,6 +45,9 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 		}
 	}	
 }
+void switchtokern(){
+__asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - 0xffffffff80000000):);
+}
 uint64_t allocate_page(){
 	freelist* temp = head;
 	if(temp == NULL){
@@ -106,7 +109,16 @@ void printpml4(uint64_t* p4){
                 }   
         }   
 }
+uint64_t* getPTE(uint64_t v){ 
+        uint64_t* p4 = (uint64_t*)(r->pml4e + 0xffffffff80000000);
+        int id4 = (v >> 39 ) & 0x1FF;
+    	uint64_t* p3 = (uint64_t*)(p4[id4] + 0xffffffff80000000);
+    	int id3 = (v >> 30 ) & 0x1FF;
+    	uint64_t* p2 = (uint64_t*)(p3[id3] + 0xffffffff80000000);
+    	int id2 = (v >> 21 ) & 0x1FF;
+    	return (uint64_t*)(p2[id2] + 0xffffffff80000000);
 
+}
 
 void map(uint64_t vaddr_s, uint64_t phy){
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
@@ -366,7 +378,7 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	pte = (uint64_t*)viraddr;
 
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
-	k_cr3 = (uint64_t)pml4e;
+//	k_cr3 = (uint64_t)pml4e;
 }
 void copytables(task_struct* p, task_struct* c){
 	uint64_t* p4 = (uint64_t *)(p->pml4e + 0xffffffff80000000);
@@ -392,7 +404,7 @@ void copytables(task_struct* p, task_struct* c){
 							p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 							for(int l=0;l<512;l++){
 								if(p1[l]&1){
-									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD & 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
+									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);//& 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
 									c1[l] = p1[l];
 								}
 							}
