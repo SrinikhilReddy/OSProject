@@ -20,17 +20,6 @@ int newPID(){
 	}
 	return -1;
 }
-/*void strcpy(char *string2, char *string1){
-
-        while(*string1)
-        {   
-                *string2=*string1;
-                string1++;
-                string2++;
-        }   
-        *string2='\0';
-}*/
-
 void *memcpy(void *dst,void *src, uint64_t count)
 {
         char *dest= dst;
@@ -234,13 +223,6 @@ void copytask(task_struct* c){
 		}
 		a = a->next;
 	}
-
-			
-	memcpy(&(c->kstack[0]),&(r->kstack[0]),512*8);
-
-
-//	memcpy(c->ustack,r->ustack,512*8);	
-	
 }
 int fork(){
 	int pid = newPID();
@@ -250,17 +232,17 @@ int fork(){
 	copytask(new);	
 	
 	uint64_t s_add = allocate_page();
-	init_pages_for_process(0x100FFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
+//	init_pages_for_process(0x100FFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
 	new->ustack = (uint64_t*)0x100FFFFF0000;
 	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-
+	
 	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 	
 	r->child_count+=1;
 	r->child = new;
-	r->next = new;	
+//	r->next = new;	
 	addToQ(new);
 
 	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);   
@@ -274,7 +256,6 @@ int fork(){
                 :"=r"(s_add)::"memory"
 	);
 	if(r  == p){
-		//return 0;// new->pid;
 		new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
 		return new->pid;
 	}

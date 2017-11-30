@@ -265,10 +265,11 @@ typedef struct registers_t{
 ///	uint64_t rbp,rdi,rsi,rdx,rcx,rbx,rax;
 	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx, rax;
 }registers_t;
-void isr128(){
+uint64_t isr128(){
         kprintf("Interrupt 80 raised!!!!");
-//	yield();
-	uint64_t as;
+	yield();
+	uint64_t as,ret = 0;
+
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;
 	
@@ -277,15 +278,14 @@ void isr128(){
 		kprintf("\n%d\n",(*i));
 	}
 	if(y->rax == 57){
-		fork();
+		kprintf("\n ------ FORK ------- \n");
+		ret = (uint64_t)fork();
 	}
-	/*if(y->rax == 5){
-		open();
-	}*/	
-//		 printpml4((uint64_t *)r->pml4e);
-//	}	
-//	yield();
+//	if(y->rax == 22){
+//		yield();
+//	}
 	outportb(0x20,0x20);
+	return ret;
 }
 void outportb(uint16_t port,uint8_t data){
 	__asm__ volatile("outb %1,%0"
