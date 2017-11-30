@@ -246,34 +246,23 @@ int fork(){
 	int pid = newPID();
 	new = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
 	new->pid = pid;
-//	new->ustack = (uint64_t*) allocate_page();    
-	
-  //      new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-	 p = r;	
+	p = r;	
 	copytask(new);	
-//	new->ustack = (uint64_t*) allocate_page(); 
+	
 	uint64_t s_add = allocate_page();
 	init_pages_for_process(0x100FFFFF0000,s_add,(uint64_t *)(new->pml4e + 0xffffffff80000000));
 	new->ustack = (uint64_t*)0x100FFFFF0000;
 	new->rsp = (uint64_t *)((uint64_t)new->ustack + (511*8));
-//	new->regs.rsp = (uint64_t)&(new->kstack[511]);
-	uint64_t pcr3;
+
+	uint64_t pcr3;	
 	__asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
+	
 	r->child_count+=1;
 	r->child = new;
 	r->next = new;	
 	addToQ(new);
 
-//	__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
-
-//	char temp[4096];
-//	kprintf("----++++ %p, %p =====",&temp[0],&temp[4095]);
-//	memcpy(&temp[0],r->ustack,512*8);
-//	__asm__ volatile ("movq %0,%%cr3;" ::"r"(new->pml4e):);
-//	memcpy(new->ustack,&temp[0],(512*8)-1);
-
-	//__asm__ volatile ("movq %0,%%cr3;" ::"r"(r->pml4e):);
 	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);   
 	__asm__ __volatile__(
                 "movq $2f, %0;"
@@ -290,8 +279,6 @@ int fork(){
 		return new->pid;
 	}
 	else{
-	//	new->regs.rsp =  &(new->kstack[511]) - (&(r->kstack[511]) - s_add);
-	//	return  new->pid;
 		return 0;
 	}
 }

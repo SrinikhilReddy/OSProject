@@ -1,6 +1,6 @@
 #include <sys/idt.h>
 #include <sys/kprintf.h>
-#include<sys/mem.h>
+#include <sys/mem.h>
 #include <sys/process.h>
 
 static struct idt idt_table[256];
@@ -172,23 +172,21 @@ void isr13(){
 	outportb(0x20,0x20);
 }
 void isr14(){
-	kprintf("Page Fault!!!!!!");
 	uint64_t bb;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
 	if( bb & 0x0000000000000200){
-		kprintf("------------COW\n");
 		uint64_t k ;//= getPTE(bb); 
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
-		switchtokern();
+		//TODO: Free the old page
 		uint64_t p_n = allocate_page();
-//		k[bb>>12] = ((uint64_t)p_n & 0xFFFFFFFFFFFFF000) | 7;
+		memcpy((uint64_t*)(0xffffffff80000000 + p_n),(uint64_t *)(bb&0xFFFFFFFFFFFFF000),4096);
+		switchtokern();
 		init_pages_for_process(bb,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
-	//	kprintf("------%p",k);
 		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 		outportb(0x20,0x20);
-//		return;
 	}
 	else{
+		kprintf("Page Fault!!!!!!");
 		kprintf("%p",bb);
 		while(1);
 		outportb(0x20,0x20);
