@@ -1,6 +1,6 @@
 #include<syscall.h>
 #include<sys/defs.h>
-int a = 8990;
+uint64_t a = 8990;
 
 int call(int k){
 	_syscall3(int,write,int,1,int*,&k,int,1);
@@ -8,8 +8,9 @@ int call(int k){
 int fork(){
 	_syscall(pid_t,fork);
 }
-int switc(){
-	_syscall(int,pipe);	
+void switc(){
+	switc();
+	//_syscall(int,pipe);	
 }
 int main(){
 	int b = 10;

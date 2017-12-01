@@ -185,6 +185,16 @@ void isr14(){
 		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 		outportb(0x20,0x20);
 	}
+	else if( ((r->vm->vm_start) > bb)){
+		uint64_t k ;
+		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
+		uint64_t n_s = r->vm->vm_start - 4096;
+		uint64_t p_n = allocate_page();
+		switchtokern();
+		init_pages_for_process(n_s,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));	
+		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
+		outportb(0x20,0x20);
+	}
 	else{
 		kprintf("Page Fault!!!!!!");
 		kprintf("%p",bb);

@@ -151,14 +151,19 @@ void create_process(char* filename){
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
-
+	vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
+	vm->vm_start = 0x100FFFFF0000;
+	vm->vm_end = 0x100FFFFF0000+(512*8) - 1;
+	vm->next = ts->vm;
+	ts->vm = vm;
+	
 	//	ts->ustack = (uint64_t*) allocate_page_for_process();
 
 	//	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (511*8));
 
 
 	set_tss_rsp(&(ts->kstack[511]));
-
+	
 	r = ts;
 	addToQ(ts);
 	uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
