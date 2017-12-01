@@ -15,7 +15,7 @@ int main(){
 	int b = 10;
 	int c = 40;
 	c = c+a;
-	call(a);
+	call(5);
 	call(b);
 	a = fork();
 	call(a);
@@ -25,7 +25,7 @@ int main(){
 	}
 	else{
 		call(900000);
-		switc();
+//		switc();
 		a = c + 40;
 		//a = 0;
 		call(9867);

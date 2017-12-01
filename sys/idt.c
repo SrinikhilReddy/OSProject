@@ -42,7 +42,7 @@ static struct idt_ptr pr;
 extern void timer();
 extern  void kb1();
 // void kb();
-
+uint64_t ret= 0;
 void set_value(uint16_t intNum,uint64_t handler)
 {
 	idt_table[intNum].selector  = 0x08;
@@ -268,7 +268,7 @@ typedef struct registers_t{
 uint64_t isr128(){
         kprintf("Interrupt 80 raised!!!!");
 	yield();
-	uint64_t as,ret = 0;
+	uint64_t as;//ret = 0;
 
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;
