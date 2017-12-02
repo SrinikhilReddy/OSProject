@@ -42,7 +42,7 @@ static struct idt_ptr pr;
 extern void timer();
 extern  void kb1();
 // void kb();
-uint64_t ret= 0;
+//uint64_t ret= 0;
 void set_value(uint16_t intNum,uint64_t handler)
 {
 	idt_table[intNum].selector  = 0x08;
@@ -185,14 +185,17 @@ void isr14(){
 		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 		outportb(0x20,0x20);
 	}
-	else if( ((r->vm->vm_start) > bb) && ((r->vm->vm_start - 4096) < bb)){
-		uint64_t k ;
+	else if( (r->vm->vm_start > bb)  && (r->vm->vm_end < bb)){   //Auto Growing stack
+		kprintf("--------i- iAutoGrowing Stack ---- %p\n",bb);
+		uint64_t k;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		uint64_t n_s = r->vm->vm_start - 4096;
 		uint64_t p_n = allocate_page();
 		switchtokern();
 		init_pages_for_process(n_s,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));	
+		r->vm->vm_start = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
+//		while(1);
 		outportb(0x20,0x20);
 	}
 	else{
@@ -273,35 +276,24 @@ void isr31(){
 }
 typedef struct registers_t{
 ///	uint64_t rbp,rdi,rsi,rdx,rcx,rbx,rax;
-	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx, rax;
+	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registers_t;
-uint64_t isr128(){
-        kprintf("Interrupt 80 raised!!!!");
-//	yield();
-	uint64_t as;//ret = 0;
-
-	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
-        registers_t *y = (registers_t *)as;
-	
-	kprintf("_________________%d",y->rax);
-	if(y->rax == 1 && y->rbx == 1){ //This is a write syscall to stdout
-		int* i = (int *)(y->rcx);
-		kprintf("\n%d\n",(*i));
+uint64_t isr128(registers_t* k){
+	uint64_t cval;
+	 uint64_t as,ret = 0;
+	__asm__ volatile("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
+	__asm__ volatile("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
+	registers_t *y = (registers_t *)as;
+	if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
+		kprintf("%s",y->rcx);
 	}
-	else if(y->rax == 57){
-			
-		kprintf("\n ------ FORK ------- \n");
+	else if(cval == 57){		//This is an execvpe call		
 		ret = (uint64_t)fork();
-//		yield();
 	}
-	else if(y->rax == 59){
-		kprintf("/////////////////////////\n**********************************\n");
+	else if(cval == 59){
 		execvpe((char *)y->rbx,(char **)y->rcx);
-		yield();
 	}
-//	if(y->rax == 22){
-//		yield();
-//	}
+	yield();
 	outportb(0x20,0x20);
 	return ret;
 }

@@ -42,7 +42,8 @@ void yield(){
 //		__asm__ volatile("pushq %0;"::"r"(r->regs.rip):"memory");
 //		__asm__ volatile("retq");
 		__asm__ __volatile__ ("movq $1f, %0":"=g"(last->regs.rip)::);
-		__asm__ __volatile__ ("pushq %0;retq;"::"r"(r->regs.rip):);
+		__asm__ __volatile__ ("pushq %0;"::"r"(r->regs.rip):);
+		__asm__ volatile("retq");
 		__asm__ __volatile__ ("1:\t");	
 
 	}

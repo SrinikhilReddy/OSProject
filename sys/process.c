@@ -153,7 +153,7 @@ void create_process(char* filename){
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 	vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
 	vm->vm_start = 0x100FFFFF0000;
-	vm->vm_end = 0x100FFFFF0000+(512*8) - 1;
+	vm->vm_end = (uint64_t)0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
 
@@ -316,19 +316,24 @@ int fork(){
 }
 int execvpe(char* file, char *argv[]){
 	task_struct* ts = r;
-//	deletepagetables( (uint64_t *)(ts->pml4e + 0xffffffff80000000));
-
 	strcpy(ts->name,file);
+	char args[10][80] ;
 	uint64_t f_a = get_file_address(file) +512;
 	if(f_a < 0){
 		kprintf("No such file\n");
 		return 0;
 	}
+	int argc = 0;
+	strcpy(args[argc++],ts->name);
+	while(argv[argc]){
+		strcpy(args[argc],argv[argc]);
+		argc++;
+	}
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a);
 	int no_ph = eh->e_phnum;
 	ts->regs.rip = eh->e_entry;
 	uint64_t* pml4 = (uint64_t *)(ts->pml4e + 0xffffffff80000000);
-	deletepagetables( (uint64_t *)(ts->pml4e + 0xffffffff80000000));
+	deletepagetables((uint64_t *)(ts->pml4e + 0xffffffff80000000));
 	for(int i=no_ph;i>0;i--){
 		Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
 		ep = ep + (i-1);
@@ -363,6 +368,7 @@ int execvpe(char* file, char *argv[]){
 		}
 		// ep = ep+1;
 	}
+	
 	uint64_t s_add = allocate_page();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
@@ -372,20 +378,34 @@ int execvpe(char* file, char *argv[]){
 	vm->vm_end = 0x100FFFFF0000+(512*8) - 1;
 	vm->next = ts->vm;
 	ts->vm = vm;
+	uint64_t* temp[argc];
+//	strcpy(temp1[argc++], filename);
+	for(int i=argc-1;i>=0;i--){
+		int l = strlen(args[i])+1;
+		ts->rsp = ts->rsp-l;
+		memcpy(ts->rsp,args[i],l);
+		temp[i] = ts->rsp;
+	}
+	for(int i=argc-1;i>=0;i--){
+		(ts->rsp)-=1;
+		*(ts->rsp) = (uint64_t)temp[i];
+	}
+	(ts->rsp)-=1;
+	*(ts->rsp) = argc;
 	set_tss_rsp(&(ts->kstack[511]));
-	
 	__asm volatile("\
 	push $0x23;\
 	push %0;\
 	pushf;\
 	push $0x2B;\
 	push %1"::"g"(ts->rsp),"g"(ts->regs.rip):"memory");
- 	
 //	 __asm volatile( "movq %0,%%rdi\n\t"::"r"((uint64_t)(params)):"rdi","memory");
-	
 	__asm volatile("iretq;");
 	return 1;
 }
+/*void exit(){
+	
+}*/
 /*
    void yield() {
    task_struct *last = r;

@@ -3,7 +3,7 @@ int *adr;
 char **adr2; 
 char* argv[20],*env[100];
 void _start(void) {
-/*  __asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
+  __asm__ __volatile__ ("movq %%rsp,%0; movq %%rsp,%1"
 	 :"=m" (adr),"=m" (adr2)
 	 :
 	 :"rsp"	
@@ -16,14 +16,12 @@ void _start(void) {
 	argv[k] = (*(adr2++));	
   }
   k=0;
-  adr2++;
-  do{
+  while((*adr2)!=NULL){
 	env[k++] = (*(adr2++));
   }
-  while(env[k-1]!=NULL);
-  pushenvs(env);
-*/
-int i = main(0,NULL,NULL);
+  //while(env[k-1]!=NULL);
+ // pushenvs(env);
+  int i = main(0,NULL,NULL);
   // call main() and exit() here
   exit(i);
 }
