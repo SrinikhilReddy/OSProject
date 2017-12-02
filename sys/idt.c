@@ -185,7 +185,7 @@ void isr14(){
 		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 		outportb(0x20,0x20);
 	}
-	else if( ((r->vm->vm_start) > bb)){
+	else if( ((r->vm->vm_start) > bb) && ((r->vm->vm_start - 4096) < bb)){
 		uint64_t k ;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		uint64_t n_s = r->vm->vm_start - 4096;
@@ -277,19 +277,27 @@ typedef struct registers_t{
 }registers_t;
 uint64_t isr128(){
         kprintf("Interrupt 80 raised!!!!");
-	yield();
+//	yield();
 	uint64_t as;//ret = 0;
 
 	__asm__ volatile("movq %%r15,%0;":"=g"(as)::"memory","r15");
         registers_t *y = (registers_t *)as;
 	
+	kprintf("_________________%d",y->rax);
 	if(y->rax == 1 && y->rbx == 1){ //This is a write syscall to stdout
 		int* i = (int *)(y->rcx);
 		kprintf("\n%d\n",(*i));
 	}
-	if(y->rax == 57){
+	else if(y->rax == 57){
+			
 		kprintf("\n ------ FORK ------- \n");
 		ret = (uint64_t)fork();
+//		yield();
+	}
+	else if(y->rax == 59){
+		kprintf("/////////////////////////\n**********************************\n");
+		execvpe((char *)y->rbx,(char **)y->rcx);
+		yield();
 	}
 //	if(y->rax == 22){
 //		yield();

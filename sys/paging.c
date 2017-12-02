@@ -380,6 +380,11 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 //	k_cr3 = (uint64_t)pml4e;
 }
+void deletepagetables(uint64_t* pml4e){
+	for(int i=0;i<511;i++){
+		pml4e[i] = 0;
+	}
+}	
 void copytables(task_struct* p, task_struct* c){
 	uint64_t* p4 = (uint64_t *)(p->pml4e + 0xffffffff80000000);
 	uint64_t* c4 =(uint64_t *) (c->pml4e + 0xffffffff80000000);
