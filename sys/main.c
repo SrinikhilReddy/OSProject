@@ -31,19 +31,22 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   init_ia32e_paging((uint64_t)0, max);
 	
 	init_tarfs();
-/*	char *list[100];
-	readdir_tarfs("bin",list);
+	//char *list[100];
+	struct file_t* ft = open_tarfs("usr/kavya/../k.txt", 0);
+	kprintf("\n READ: %s", ft->file_name);
+	char buf[10];
+	ssize_t s = read_tarfs(ft, buf, 5);
+	kprintf("\nBUF: %s", buf);
+	kprintf("\nSIZE: %d", s);
+	/*readdir_tarfs("usr",list);
 	int i=0;
+	kprintf("READDIR");
 	while(*(list+i))
 	{
-		kprintf("\n %s", list[i]);
+		kprintf("\n%d : %s", i, list[i]);
 		i++;
-	}
-*///	char *list[100];
-//	readdir_tarfs("bin",list);
-//	kprintf("\n %s", list[0]);
-	//struct DIR* d = opendir("/bin");
-	//kprintf("\nOPENDIR: %d", d->fd);
+	}*/
+
   init_idt();
 //  create_process("bin/ls");
   __asm__ volatile("sti");
@@ -56,6 +59,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  kprintf("Switching to next task\n");
  // yield();
 //  kprintf("Returned to main task\n");
+//  switchtor3(); 
+//   create_process("bin/sbush");  
 //  switchtor3();
     init_proc();
    create_process("bin/sbush");  
