@@ -41,7 +41,7 @@
 
 }*/
 
-uint64_t sys_open(char* path, int flags)
+/*uint64_t sys_open(char* path, int flags)
 {
 	if(!path)
 	{
@@ -73,4 +73,4 @@ int get_fd(struct task_struct* task)
 		}	
 	}
 	return -1;//no file. Error flag yet to be done
-}
+}*/

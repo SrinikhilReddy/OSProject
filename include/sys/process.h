@@ -75,7 +75,7 @@ typedef struct task_struct {
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
 	char* curr_dir;
-	struct file_t* fd[100];	
+	struct file_t fd[25];	
 	int fd_c;
 	
 	struct Register regs;

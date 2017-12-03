@@ -65,10 +65,9 @@ void init_tarfs()
         }
 }
 
-struct file_t* open_tarfs(char* file_path, int flags)
+int open_tarfs(char* file_path, int flags)
 {
-
-        struct file_t *f;
+        //struct file_t *f;
         struct posix_header_ustar* h = NULL;
         char *abs_path = (char*)kmalloc(100);
         *(abs_path+0) = '\0';
@@ -97,7 +96,7 @@ struct file_t* open_tarfs(char* file_path, int flags)
         }
         *(abs_path+a) = *(file_path+i);
         *(abs_path+a+1) = '\0';
-        kprintf("ABS: %s :PATH", abs_path);
+        //kprintf("ABS: %s :PATH", abs_path);
         if(*file_path!='/')
         {
 		file_path = abs_path;
@@ -117,27 +116,28 @@ struct file_t* open_tarfs(char* file_path, int flags)
                         break;
                 }
         }
-        f = (file_t*) kmalloc(sizeof(struct file_t));
-        if(!f)
-        {
-                return NULL;
-        }
-        f->offset = (off_t)headers[i+1];
-        f->flags = flags;
-        f->size = (uint64_t)(octal_to_binary((char*)h->size));
-        f->address = (uint64_t)h;
+       // f = (file_t*) kmalloc(sizeof(struct file_t));	
+	int fdc = r->fd_c + 3;
+	r->fd_c++;
+        r->fd[fdc].offset = (off_t)headers[i+1];
+        r->fd[fdc].flags = flags;
+        r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)h->size));
+        r->fd[fdc].address = (uint64_t)h;
+	r->fd[fdc].fd = fdc;	
         //kprintf("\nF->OFFSET%d ",f->offset);
         //kprintf("\nF->SIZE%d ",f->size);
         //kprintf("\nFile Address: [%p]\n",f->address);
-        return f;
+        return fdc;
 }
 
-ssize_t read_tarfs(struct file_t *f, char* buf, int count)
+ssize_t read_tarfs(int fd, char* buf, int count)
 {
         if(count==0)
         {
                 return 0;
         }
+	
+	struct file_t* f = (struct file_t*) &(r->fd[fd]);
         //size_t read;
         struct posix_header_ustar *header;
         header = (struct posix_header_ustar*) f->address;
@@ -157,11 +157,12 @@ ssize_t read_tarfs(struct file_t *f, char* buf, int count)
 	return count;
 }
 
-void readdir_tarfs(char* dir_name, char* list[100])
+void readdir_tarfs(int fd, char* list[100])
 {
         //struct posix_header_ustar* h = NULL;
         int i=0;
 	int count = 0;
+	char* dir_name = r->fd[fd].file_name;
         for(i=0; i<32 && headers[i]!=NULL; i++)
         {
                 //kprintf("%s ",headers[i]->name);

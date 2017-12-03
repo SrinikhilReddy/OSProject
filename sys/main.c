@@ -31,21 +31,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   init_ia32e_paging((uint64_t)0, max);
 	
 	init_tarfs();
-	//char *list[100];
-	struct file_t* ft = open_tarfs("usr/kavya/../k.txt", 0);
-	kprintf("\n READ: %s", ft->file_name);
-	char buf[10];
-	ssize_t s = read_tarfs(ft, buf, 5);
-	kprintf("\nBUF: %s", buf);
-	kprintf("\nSIZE: %d", s);
-	/*readdir_tarfs("usr",list);
-	int i=0;
-	kprintf("READDIR");
-	while(*(list+i))
-	{
-		kprintf("\n%d : %s", i, list[i]);
-		i++;
-	}*/
 
   init_idt();
 //  create_process("bin/ls");
@@ -62,8 +47,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  switchtor3(); 
 //   create_process("bin/sbush");  
 //  switchtor3();
-    init_proc();
-   create_process("bin/sbush");  
+  //  init_proc();
+   //create_process("bin/sbush");  
   while(1);
 }
 

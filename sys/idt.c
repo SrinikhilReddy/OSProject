@@ -2,6 +2,7 @@
 #include <sys/kprintf.h>
 #include <sys/mem.h>
 #include <sys/process.h>
+#include <sys/file.h>
 
 static struct idt idt_table[256];
 static struct idt_ptr pr;
@@ -292,6 +293,12 @@ uint64_t isr128(registers_t* k){
 	}
 	else if(cval == 59){
 		execvpe((char *)y->rbx,(char **)y->rcx);
+	}
+	else if(cval == 0){
+		ret = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);			
+	}
+	else if(cval == 2){
+		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
 	}
 	yield();
 	outportb(0x20,0x20);

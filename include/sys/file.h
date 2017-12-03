@@ -42,9 +42,9 @@ typedef struct {
 //extern int register_filesystem(struct file_system *);
 //extern int unregister_filesystem(struct file_system *);
 
-struct file_t* open_tarfs(char* file_path, int flags);
-ssize_t read_tarfs(struct file_t* f, char* buf, int count);
+int open_tarfs(char* file_path, int flags);
+ssize_t read_tarfs(int fd, char* buf, int count);
 uint64_t octal_to_binary(const char* octal);
-void readdir_tarfs(char* dir_name, char* list[100]);
+void readdir_tarfs(int fd, char* list[100]);
 
 #endif
