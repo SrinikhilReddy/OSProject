@@ -56,7 +56,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  kprintf("Switching to next task\n");
  // yield();
 //  kprintf("Returned to main task\n");
-//  switchtor3(); 
+//  switchtor3();
+    init_proc();
    create_process("bin/sbush");  
   while(1);
 }

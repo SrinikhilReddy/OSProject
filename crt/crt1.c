@@ -21,7 +21,7 @@ void _start(void) {
   }
   //while(env[k-1]!=NULL);
  // pushenvs(env);
-  int i = main(0,NULL,NULL);
+  int i = main(*(adr+2),argv,env);
   // call main() and exit() here
   exit(i);
 }

@@ -96,4 +96,5 @@ void addToQ(task_struct* q);
 int get_fd(struct task_struct*);
 task_struct* r;
 struct task_struct q[MAX];
+void init_proc();
 #endif
