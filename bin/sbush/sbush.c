@@ -53,7 +53,7 @@ int main(int argc,char* argv[],char* env[]){
 		puts("4433\n");
 		puts("--------");
 		puts("End of thread.. BYE BYE\n");
-
+		puts("++++++++++++++++++\n");
 	}
 //	while(1);
 }

@@ -162,6 +162,7 @@ int fork(){
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
+	r = &q[r->pid];
 	if(r == p){
 		new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
 		return new->pid;
