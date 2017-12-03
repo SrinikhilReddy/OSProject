@@ -2,34 +2,40 @@
 #include<sys/gdt.h>
 #include<sys/mem.h>
 #include<sys/kprintf.h>
-//struct task_struct q[MAX];//running;
 int np = 0;
+void init_proc(){
+	for(int i=0;i<MAX;i++){
+		q[i].state = READY;
+	}
+}
 void addToQ(task_struct* a){
-	
-	a->next = r->next;
-	r->next = a;
-	
 	np++;
 }
-
-/**void yield(){
-        if(np<2){
-                return;
-        }
-        else{
-		task_struct *l = r;
-		r = r->next;
-	
+void removefromQ(task_struct* e){
+	for(int i=0;i<MAX;i++){
+		if(q[i].ppid == e->pid){
+				q[i].state = ZOMBIE;
+				q[i].ppid = -1;
+		}
 	}
-}*/
-
+}
 void yield(){
 	if(np<2){
 		return;
 	}
 	else{
 		task_struct *last = r;
-		r = r->next;
+		int i = (last->pid+1)%MAX;
+			/*
+			Code to check for the next running process to schedule from the process array in a circular manner
+		*/
+		while(i!= last->pid){         
+			if(q[i].state == RUNNING){
+				break;
+			}
+			i = (i+1)%MAX;
+		}
+        r = (task_struct *)&q[i];
 //		kprintf("switch enter");
 		set_tss_rsp((uint64_t*)&(r->kstack[511]));
 //		__asm__ volatile("pushq %%rax ;pushq %%rcx ;pushq %%rdx ;pushq %%rsi ;pushq %%rdi ;pushq %%r8 ;pushq %%r9 ;pushq %%r10;pushq %%r11;":::);
@@ -42,8 +48,11 @@ void yield(){
 //		__asm__ volatile("pushq %0;"::"r"(r->regs.rip):"memory");
 //		__asm__ volatile("retq");
 		__asm__ __volatile__ ("movq $1f, %0":"=g"(last->regs.rip)::);
-		__asm__ __volatile__ ("pushq %0;retq;"::"r"(r->regs.rip):);
+		__asm__ __volatile__ ("pushq %0;"::"r"(r->regs.rip):);
+		__asm__ volatile("retq");
 		__asm__ __volatile__ ("1:\t");	
 
 	}
 }
+
+

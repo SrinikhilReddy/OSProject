@@ -281,8 +281,21 @@ isr_31:
 	iretq
 isr_128:
 	cli
-	push
-	movq %rsp,%r15
+	pushq %rbx
+	pushq %rcx
+	pushq %rdx
+	pushq %rsi
+	pushq %rdi
+	pushq %rbp
+	pushq %r8
+	pushq %r9
+	pushq %r10
+	pushq %r11
+	pushq %r12
+	pushq %r13
+	pushq %r14
+	pushq %r15
+	movq %rsp,%rdi
 	callq isr128
 	popq %r15
 	popq %r14
@@ -298,6 +311,5 @@ isr_128:
 	popq %rdx
 	popq %rcx 
 	popq %rbx 
-	popq %r13
 	sti	
 	iretq

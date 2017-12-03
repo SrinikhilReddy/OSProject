@@ -7,117 +7,153 @@
 #include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
-struct posix_header_ustar *headers[32];
+struct posix_header_ustar *headers[100];
 static int fc = 0;
 unsigned int getsize(const char *in)
 {
 
-	unsigned int size = 0;
-	unsigned int j;
-	unsigned int count = 1;
+        unsigned int size = 0;
+        unsigned int j;
+        unsigned int count = 1;
 
-	for (j = 11; j > 0; j--, count *= 8)
-		size += ((in[j - 1] - '0') * count);
+        for (j = 11; j > 0; j--, count *= 8)
+                size += ((in[j - 1] - '0') * count);
 
-	return size;
+        return size;
 
 }
 
 void read_elf(uint64_t add){
-	struct Elf64_Ehdr* elf_hdr = (struct Elf64_Ehdr*)add;
-	uint64_t phdr;
-	if(elf_hdr->e_phoff > 0){
-		phdr = add + (elf_hdr->e_phoff);
-		struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
-		if(phdr1 != NULL){
-			kprintf("Whatever\n");
-		}
-		kprintf("%d\n",(phdr1->p_type));
-	}
+        struct Elf64_Ehdr* elf_hdr = (struct Elf64_Ehdr*)add;
+        uint64_t phdr;
+        if(elf_hdr->e_phoff > 0){
+                phdr = add + (elf_hdr->e_phoff);
+                struct Elf64_Phdr* phdr1 = (struct Elf64_Phdr*)phdr;
+                if(phdr1 != NULL){
+                        kprintf("Whatever\n");
+                }
+                kprintf("%d\n",(phdr1->p_type));
+        }
 }
 uint64_t get_file_address(char* filename){
-	for(int i=0;i<fc;i++){
-		struct posix_header_ustar *f = headers[i];
-		if(strcmp(filename,f->name) == 0){
-			return (uint64_t)headers[i];//((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
-		}
-	}
-	return -1;
+        for(int i=0;i<fc;i++){
+                struct posix_header_ustar *f = headers[i];
+                if(strcmp(filename,f->name) == 0){
+                        return (uint64_t)headers[i];//((uint64_t)&_binary_tarfs_start + (sizeof(struct posix_header_ustar)*i));
+                }
+        }
+        return -1;
 }
 void init_tarfs()
 {
-	struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
-//	int i = 0;
-	char* address = &_binary_tarfs_start;
-	while(address< &_binary_tarfs_end){	
-		unsigned int size = getsize(header->size);
-		headers[fc++] = header;
-		kprintf("\n %s", headers[fc-1]->name);
-/*		if(size!=0){
-			read_elf((uint64_t)(header+1));
-		}
-*/		address += ((size / 512) + 1) * 512;
+        struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
+//      int i = 0;
+        char* address = &_binary_tarfs_start;
+        while(address< &_binary_tarfs_end){
+                unsigned int size = getsize(header->size);
+                headers[fc++] = header;
+                kprintf("\n %s", headers[fc-1]->name);
+                if(size!=0){
+                //      read_elf((uint64_t)(header+1));
+                }
+                address += ((size / 512) + 1) * 512;
 
-		if (size % 512)
-			address += 512;
+                if (size % 512)
+                        address += 512;
 
-		header = (struct posix_header_ustar *)address;
-	}
+                header = (struct posix_header_ustar *)address;
+        }
 }
 
 struct file_t* open_tarfs(char* file_path, int flags)
 {
 
-	struct file_t *f;
-	struct posix_header_ustar* h = NULL;
-	int i=0;
-	for(i=0; i<32 && headers[i]!=NULL; i++)
-	{
-		kprintf("%s ",headers[i]->name);
-		if(strcmp(headers[i]->name,file_path)==0)
-		{
-			//kprintf("MATCHED %s ",headers[i]->name);
-			h = headers[i];
-			break;
-		}
-	}
-	f = (file_t*) kmalloc(sizeof(struct file_t));
-	if(!f)
-	{
-		return NULL;
-	}
-	f->offset = (off_t)headers[i+1];
-	f->flags = flags;
-	f->size = (uint64_t)(octal_to_binary((char*)h->size));
-	f->address = (uint64_t)h;
-	kprintf("\nF->OFFSET%d ",f->offset);
-	kprintf("\nF->SIZE%d ",f->size);
-	kprintf("\nFile Address: [%p]\n",f->address);
-	return f;
+        struct file_t *f;
+        struct posix_header_ustar* h = NULL;
+        char *abs_path = (char*)kmalloc(100);
+        *(abs_path+0) = '\0';
+        int a=0;
+        int i=0;
+        while(*(file_path+i+1))
+        {
+                if(*(file_path+i)=='.' && *(file_path+i+1)=='.')
+                {
+                        a--;
+                        *(abs_path+a)='\0';
+                        while(*(abs_path+a)!='/')
+                        {
+                                *(abs_path+a)='\0';
+                                a--;
+                        }
+                        *(abs_path+a)='\0';
+                        i++;
+                }
+                else
+                {
+                        *(abs_path+a) = *(file_path+i);
+                        a++;
+                }
+                i++;
+        }
+        *(abs_path+a) = *(file_path+i);
+        *(abs_path+a+1) = '\0';
+        kprintf("ABS: %s :PATH", abs_path);
+        if(*file_path!='/')
+        {
+		file_path = abs_path;
+                //file_path = strcat(r->curr_dir, abs_path);
+        }
+        else
+        {
+                file_path = abs_path+1;
+        }
+        for(i=0; i<32 && headers[i]!=NULL; i++)
+        {
+                //kprintf("%s ",headers[i]->name);
+                if(strcmp(headers[i]->name,file_path)==0)
+                {
+                        //kprintf("MATCHED %s ",headers[i]->name);
+                        h = headers[i];
+                        break;
+                }
+        }
+        f = (file_t*) kmalloc(sizeof(struct file_t));
+        if(!f)
+        {
+                return NULL;
+        }
+        f->offset = (off_t)headers[i+1];
+        f->flags = flags;
+        f->size = (uint64_t)(octal_to_binary((char*)h->size));
+        f->address = (uint64_t)h;
+        //kprintf("\nF->OFFSET%d ",f->offset);
+        //kprintf("\nF->SIZE%d ",f->size);
+        //kprintf("\nFile Address: [%p]\n",f->address);
+        return f;
 }
 
 ssize_t read_tarfs(struct file_t *f, char* buf, int count)
 {
-	if(count==0)
+        if(count==0)
         {
                 return 0;
         }
- 	//size_t read;
-	struct posix_header_ustar *header;
-      	header = (struct posix_header_ustar*) f->address;
-	char* start_address = (char *) (header+512);
-	kprintf("\nSTART ADDRESS%p", start_address);
-	//char* temp = buf;
-	int i=0;
-	if(f->size<count)
-	{
-		count = f->size;
-	}
-	for(i=0; i<count; i++)
-	{
+        //size_t read;
+        struct posix_header_ustar *header;
+        header = (struct posix_header_ustar*) f->address;
+        char* start_address = (char *) (header+1);
+        //kprintf("\nSTART ADDRESS%p", start_address);
+        //char* temp = buf;
+        int i=0;
+        if(f->size<count)
+        {
+                count = f->size;
+        }
+        for(i=0; i<count; i++)
+        {
 		buf[i] = *(start_address+i);
 	}
-	kprintf("\n%s", buf);
+	//kprintf("\n%s", buf);
 	return count;
 }
 

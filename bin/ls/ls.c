@@ -12,6 +12,7 @@ int direccall(int fd,char* buff,int size){
 }
 int main(int argc, char *argv[])
 {
+	puts("-----------From Execve-----------\n");
 	/*int fd, nread;
 	char buf[BUF_SIZE];
 	struct dirent_n *d;

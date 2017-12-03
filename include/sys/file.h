@@ -8,6 +8,7 @@
 } file_system;*/
 
 typedef struct file_t {
+	int fd;
 	char file_name[100];
 	off_t offset;
 	uint64_t flags; 
