@@ -276,16 +276,19 @@ void isr31(){
 	outportb(0x20,0x20);
 }
 typedef struct registers_t{
-///	uint64_t rbp,rdi,rsi,rdx,rcx,rbx,rax;
 	uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rbp, rdi, rsi, rdx, rcx, rbx;
 }registers_t;
-uint64_t isr128(registers_t* k){
+
+uint64_t isr128(){
 	uint64_t cval;
 	 uint64_t as,ret = 0;
 	__asm__ volatile("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
 	__asm__ volatile("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
 	registers_t *y = (registers_t *)as;
-	if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
+   // if(cval == 0 && y->rbx == 0){
+      //  read_input((char *)y->rcx);
+    //}
+	 if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
 		kprintf("%s",y->rcx);
 	}
 	else if(cval == 57){		//This is an execvpe call		
@@ -303,6 +306,12 @@ uint64_t isr128(registers_t* k){
 	else if(cval == 78){
 		readdir_tarfs((int) y->rbx, (char **) y->rcx);
 	}
+    else if(cval == 60){
+        exit();
+    }
+    else if(cval == 247){
+        ret = (uint64_t)waitpid((int)y->rbx);
+    }
 	yield();
 	outportb(0x20,0x20);
 	return ret;

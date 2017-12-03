@@ -275,7 +275,7 @@ int execvpe(char* file, char *argv[]){
 }
 
 void exit(){
-    kprintf("Exit called for %d",r->pid);
+    kprintf("Exit called for %d\n",r->pid);
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
         if(q[i].ppid == r->pid){
@@ -283,7 +283,7 @@ void exit(){
         }
     }
     if(q[r->ppid].state ==  WAIT){
-        kprintf("Waking up %d, my pid ",r->ppid,r->pid);
+        kprintf("Waking up %d, my pid %d \n",r->ppid,r->pid);
         q[r->ppid].state =  RUNNING;
     }
 }
@@ -315,10 +315,11 @@ int waitpid(int pid){
         return i;
     }
     r->state = WAIT;
-    yield();
-    if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+    while(1){
+        yield();
+        if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
         removeProcess(i);
-        return i;
+            return i;
+        }
     }
-    return -1;
 }

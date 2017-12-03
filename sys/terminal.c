@@ -103,7 +103,7 @@ void write_terminal()
 					*(buf+j)='\0';
 				}
 				i = 0;
-				clrscr();
+				//clrscr();
 				outportb(0x20, 0x20);
 				return;
 			}

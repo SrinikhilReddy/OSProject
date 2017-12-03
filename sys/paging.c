@@ -450,7 +450,7 @@ void dealloc_pml4(uint64_t pm4){
                             p1 = (uint64_t*)((uint64_t) 0xffffffff80000000 + (uint64_t) p1);
                             for (int l = 0; l < 512; ++l) {
                                 if(p1[l]&1){
-                                    memset(&p1[l],0,4096);
+//                                    memset(&p1[l],0,4096);
                                     free(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
                                 }
                             }

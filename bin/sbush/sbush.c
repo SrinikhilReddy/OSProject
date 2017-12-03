@@ -54,9 +54,22 @@ int main(int argc,char* argv[],char* env[]){
 		puts("4433\n");
 		puts("--------");
 		int*q = &c;
-		waitpid(c,q);
+		 waitpid(c,q);
+		int e = fork();
+		if(e > 0){
+			int *z=&e;
+			waitpid(e,z);
+			puts("------CHild 2-----");
+		}
+		else{
+			puts("-----Inside child 2-----");
+			switc();	
+		}
+	//	int*q = &c;
+	//	waitpid(c,q);
 		puts("Child exited\n");
 		puts("++++++++++++++++++\n");
 	}
-//	while(1);
+	
+	while(1);
 }
