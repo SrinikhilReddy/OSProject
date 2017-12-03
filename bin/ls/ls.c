@@ -31,10 +31,11 @@ int main(int argc, char *argv[])
 //		for (int i = 0; i < nread;) 
 //		{
 			puts(&buf[0]);
+            break;
 //		}
 
 	} 
 	puts("\n");
-
+	puts("=========================");
 	return 0;
 }
