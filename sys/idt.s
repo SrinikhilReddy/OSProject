@@ -36,7 +36,7 @@
 .global isr_128
 
 .extern timer_handler
-.extern kb
+.extern write_terminal
 .extern isr0
 .extern isr1
 .extern isr2
@@ -114,7 +114,7 @@ timer:
 	iretq
 kb1:
 	push
-	callq kb
+	callq write_terminal
 	pop
 	iretq
 isr_0:

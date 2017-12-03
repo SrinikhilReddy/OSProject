@@ -300,6 +300,9 @@ uint64_t isr128(registers_t* k){
 	else if(cval == 2){
 		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
 	}
+	else if(cval == 78){
+		readdir_tarfs((int) y->rbx, (char **) y->rcx);
+	}
 	yield();
 	outportb(0x20,0x20);
 	return ret;
