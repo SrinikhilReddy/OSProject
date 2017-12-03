@@ -135,6 +135,7 @@ void copytask(task_struct* c){
 	}
 }
 int fork(){
+
     int pid = newPID();
 	new = (task_struct *) &q[pid];
 	new->pid = pid;
