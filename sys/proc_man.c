@@ -6,6 +6,7 @@ int np = 0;
 void init_proc(){
 	for(int i=0;i<MAX;i++){
 		q[i].state = READY;
+		q[i].fd_c = 0;
 	}
 }
 void addToQ(task_struct* a){

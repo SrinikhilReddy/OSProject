@@ -29,6 +29,21 @@ void *memcpy(void *dst,void *src, uint64_t count)
 	}
 	return 0;
 }
+void in(){
+    while(1){
+        wait();
+    }
+}
+void init_p(){
+    int pid = newPID();
+    q[pid].pid = pid;
+    q[pid].state = RUNNING;
+    q[pid].regs.rip = (uint64_t)&in;
+    q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
+    uint64_t pcr3;
+    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+    q[pid].pml4e = pcr3;
+}
 void create_process(char* filename){
 	//Load elf headers using the filename
 	uint64_t f_a = get_file_address(filename) +512;
@@ -40,7 +55,7 @@ void create_process(char* filename){
 	int pid = newPID();
 	task_struct* ts = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
 	strcpy(ts->name,filename);
-	ts->ppid = -1;
+	ts->ppid = 0;
 	ts->pid = pid;
 	ts->vm = NULL;
 	ts->state = RUNNING;
@@ -135,6 +150,7 @@ void copytask(task_struct* c){
 	}
 }
 int fork(){
+
     int pid = newPID();
 	new = (task_struct *) &q[pid];
 	new->pid = pid;
@@ -162,7 +178,7 @@ int fork(){
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
-	r = &q[r->pid];
+//	r = &q[r->pid];
 	if(r == p){
 		new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
 		return new->pid;
@@ -259,25 +275,50 @@ int execvpe(char* file, char *argv[]){
 }
 
 void exit(){
+    kprintf("Exit called for %d",r->pid);
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
         if(q[i].ppid == r->pid){
-            q[i].ppid = r->ppid;
+            q[i].ppid = 0;
         }
     }
     if(q[r->ppid].state ==  WAIT){
+        kprintf("Waking up %d, my pid ",r->ppid,r->pid);
         q[r->ppid].state =  RUNNING;
     }
 }
 void removeProcess(int i){
 
+    dealloc_pml4(q[i].pml4e);
 }
-void wait(){
+int wait(){
     for (int i = 0; i < MAX; ++i) {
         if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
             removeProcess(i);
+            return i;
         }
     }
     r->state = WAIT;
     yield();
+    for (int i = 0; i < MAX; ++i) {
+        if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+            removeProcess(i);
+            return i;
+        }
+    }
+    return -1;
+}
+int waitpid(int pid){
+    int i = pid;
+    if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+        removeProcess(i);
+        return i;
+    }
+    r->state = WAIT;
+    yield();
+    if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
+        removeProcess(i);
+        return i;
+    }
+    return -1;
 }

@@ -2,11 +2,12 @@
 #include<sys/defs.h>
 #include<stdio.h>
 #include<stdlib.h>
+#include<unistd.h>
 uint64_t a = 8990;
 //char k[40];
-int fork(){
+/*int fork(){
 	_syscall(pid_t,fork);
-}
+}*/
 int call(uint64_t k){
 	_syscall3(int,write,int,1,int*,&k,int,1);
 }
@@ -52,7 +53,9 @@ int main(int argc,char* argv[],char* env[]){
 		puts("dddd\n");
 		puts("4433\n");
 		puts("--------");
-		puts("End of thread.. BYE BYE\n");
+		int*q = &c;
+		waitpid(c,q);
+		puts("Child exited\n");
 		puts("++++++++++++++++++\n");
 	}
 //	while(1);

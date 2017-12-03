@@ -25,11 +25,7 @@ typedef struct vm_area_struct {
 	struct mm_struct *vm_mm;
 	struct vm_area_struct *next;
 }vma;
-/*typedef struct file_descriptor{
-	int d;
-	char* filename;
-	int r_offset;
-}fd;*/
+
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }reg;
@@ -97,4 +93,8 @@ int get_fd(struct task_struct*);
 task_struct* r;
 struct task_struct q[MAX];
 void init_proc();
+void exit();
+void init_p();
+int wait();
+int waitpid(int pid);
 #endif
