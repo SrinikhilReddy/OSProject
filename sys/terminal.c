@@ -1,6 +1,6 @@
 #include <sys/kprintf.h>
 #include <sys/defs.h>
-#include<sys/process.h>
+#include <sys/process.h>
 #include <sys/idt.h>
 #include <sys/terminal.h>
 
@@ -71,6 +71,9 @@ static int caps=0;
 static int ctrl=0;
 static int i=0;
 static uint8_t inb(uint64_t port);
+int no_lines;
+char buf[4096];
+
 void write_terminal()
 {
 	char key_pressed;
@@ -160,6 +163,32 @@ void clrscr()
         		p_reg+=2;
 		}
         }
+}
+void wake_process(){
+    for(int i=0;i<MAX;++i){
+        if(q[i].state == SLEEPING){
+            q[i].state = RUNNING;
+            //      yield();
+            return;
+        }
+    }
+}
+void read_input(char* b){
+    while(1){
+        if(no_lines>0){
+            for(int i = getoffset();i<4096;i++){
+                if( buf[i] == '\n'){
+                    setoffset(i+1);
+                    r->state = RUNNING;
+                    return;
+                }
+                *(b+i) = buf[i];
+            }
+        } else{
+            r->state = SLEEPING;
+        }
+        yield();
+    }
 }
 int getoffset(){
     return offset;

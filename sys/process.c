@@ -40,9 +40,7 @@ void idle(){
 
     while(1) {
         __asm__ volatile("sti");
-        for (int i = 0; i < 200; i++) {
-
-        }
+        __asm__ volatile("hlt");
         __asm__ volatile("cli");
         yield();
     }
@@ -343,33 +341,6 @@ int waitpid(int pid){
         removeProcess(i);
             return i;
         }
-    }
-}
-void wake_process(){
-    for(int i=0;i<MAX;++i){
-        if(q[i].state == SLEEPING){
-            q[i].state = RUNNING;
-            yield();
-            return;
-        }
-    }
-}
-void read_input(char* b){
-    while(1){
-    if(no_lines>0){
-        for(int i = getoffset();i<4096;i++){
-            if( buf[i] == '\n'){
-                setoffset(i+1);
-                r->state = RUNNING;
-                return;
-            }
-            *(b+i) = buf[i];
-        }
-    } else{
-        r->state = SLEEPING;
-
-    }
-        yield();
     }
 }
 

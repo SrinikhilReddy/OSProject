@@ -97,6 +97,4 @@ void exit();
 void init_p();
 int wait();
 int waitpid(int pid);
-void wake_process();
-void read_input(char* b);
 #endif

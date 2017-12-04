@@ -3,6 +3,7 @@
 #include <sys/mem.h>
 #include <sys/process.h>
 #include <sys/file.h>
+#include <sys/terminal.h>
 
 static struct idt idt_table[256];
 static struct idt_ptr pr;
@@ -321,4 +322,3 @@ void outportb(uint16_t port,uint8_t data){
 			:
 			:"dN"(port),"a"(data));
 }
-
