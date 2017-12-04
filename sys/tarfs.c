@@ -68,7 +68,7 @@ void init_tarfs()
 int open_tarfs(char* file_path, int flags)
 {
         //struct file_t *f;
-//        struct posix_header_ustar* h = NULL;
+        struct posix_header_ustar* h = (struct posix_header_ustar*) kmalloc(sizeof(struct posix_header_ustar*));
         char *abs_path = (char*)kmalloc(100);
         *(abs_path+0) = '\0';
         int a=0;
@@ -112,17 +112,19 @@ int open_tarfs(char* file_path, int flags)
                 if(strcmp(headers[i]->name,file_path)==0)
                 {
                         //kprintf("MATCHED %s ",headers[i]->name);
-                       // h = &headers[i];
+                        h = headers[i];
                         break;
                 }
         }
        // f = (file_t*) kmalloc(sizeof(struct file_t));	
 	int fdc = r->fd_c + 3;
 	r->fd_c++;
-        r->fd[fdc].offset = (off_t)headers[i+1];
+	strcpy(&(r->fd[fdc].file_name[0]), h->name);
+        //r->fd[fdc].offset = (off_t)headers[i+1];
         r->fd[fdc].flags = flags;
+	r->fd[fdc].entry = 0;
        // r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(headers[i]->size)));
-        r->fd[fdc].address = (uint64_t)&headers[i];
+        r->fd[fdc].address = (uint64_t)&h[i];
 	r->fd[fdc].fd = fdc;	
         //kprintf("\nF->OFFSET%d ",f->offset);
         //kprintf("\nF->SIZE%d ",f->size);
@@ -157,9 +159,9 @@ ssize_t read_tarfs(int fd, char* buf, int count)
 	return count;
 }
 
-void readdir_tarfs(int fd, char* list[100])
+int readdir_tarfs(int fd, char* buf)
 {
-        //struct posix_header_ustar* h = NULL;
+        int ret = 0;
         int i=0;
 	int count = 0;
 	char* dir_name = r->fd[fd].file_name;
@@ -170,11 +172,22 @@ void readdir_tarfs(int fd, char* list[100])
                 if(index>0)
                 {
 			//kprintf("MATCHED %s ",headers[i]->name);
-			*(list+count) = substring(headers[i]->name,index);
-			kprintf("\n %d : %s", i, *(list+count));
+			if(count==0)
+			{
+				r->fd[fd].entry++;
+			}
+			else if(count==r->fd[fd].entry)
+			{
+				strcpy(buf,substring(headers[i]->name,index));
+				kprintf("\n%s", buf);
+				r->fd[fd].entry++;
+				ret = 1;
+				break;
+			}
 			count++;
 		}
         }
+	return ret;
 }
 
 uint64_t octal_to_binary(const char* octal)
@@ -203,13 +216,13 @@ uint64_t octal_to_binary(const char* octal)
 int starts_with(char* string1, char* string2)
 {
 	int count = 0;
-	while(*string1==*string2)
+	while(*string1==*string2 && *string1!='\0')
 	{
 		count++;
 		string1++;
 		string2++;
 	}
-	return count;
+	return count-1;
 }
 
 char* substring(char* string, int index)

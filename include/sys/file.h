@@ -7,10 +7,18 @@
 
 } file_system;*/
 
+struct dirent {
+           long           d_ino;
+           off_t          d_off;
+           unsigned short d_reclen;
+           char*          d_name;
+};
+
 typedef struct file_t {
 	int fd;
-	char file_name[100];
+	char file_name[50];
 	off_t offset;
+	int entry;
 	uint64_t flags; 
 	uint64_t inode_num;
 	uint64_t size;
@@ -39,12 +47,9 @@ typedef struct {
 	char file_name[100];
 } dentry;
 
-//extern int register_filesystem(struct file_system *);
-//extern int unregister_filesystem(struct file_system *);
-
 int open_tarfs(char* file_path, int flags);
 ssize_t read_tarfs(int fd, char* buf, int count);
 uint64_t octal_to_binary(const char* octal);
-void readdir_tarfs(int fd, char* list[100]);
+int readdir_tarfs(int fd, char* buf);
 
 #endif

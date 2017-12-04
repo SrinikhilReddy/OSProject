@@ -304,7 +304,7 @@ uint64_t isr128(){
 		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
 	}
 	else if(cval == 78){
-		readdir_tarfs((int) y->rbx, (char **) y->rcx);
+		ret = readdir_tarfs((int) y->rbx, (char *) y->rcx);
 	}
     else if(cval == 60){
         exit();
