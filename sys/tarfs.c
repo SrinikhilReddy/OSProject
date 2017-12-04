@@ -174,12 +174,15 @@ int readdir_tarfs(int fd, char* buf)
 			//kprintf("MATCHED %s ",headers[i]->name);
 			if(count==0)
 			{
-				r->fd[fd].entry++;
+				if(r->fd[fd].entry==0)
+				{
+					r->fd[fd].entry++;
+				}
 			}
 			else if(count==r->fd[fd].entry)
 			{
 				strcpy(buf,substring(headers[i]->name,index));
-				kprintf("\n%s", buf);
+				//kprintf("\n%sEND", buf);
 				r->fd[fd].entry++;
 				ret = 1;
 				break;

@@ -29,9 +29,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   }
 
   init_ia32e_paging((uint64_t)0, max);
-	 init_proc();
+//	 init_proc();
 	init_tarfs();
-	r = &q[0];
+	init_idt();
+	/*r = &q[0];
 	r->state = RUNNING;
 	char buf[100];
 	int fd = open_tarfs("bin/", 0);
@@ -39,7 +40,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	kprintf("%d: %s", fd1, buf);
 	fd1 = readdir_tarfs(fd,&buf[0]);
 	kprintf("%d,:,%s", fd1, buf);
-	while(1);
+	while(1);*/
 	/*fd1 = readdir_tarfs(fd,&buf[0]); 
 	kprintf("%d,:,%s", fd1, buf);
 	fd1 = readdir_tarfs(fd,&buf[0]);
@@ -58,8 +59,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 //  switchtor3(); 
 //   create_process("bin/sbush");  
 //  switchtor3();
-  //  init_p();
-  // create_process("bin/sbush");  
+  init_proc();
+  init_p();
+  create_process("bin/sbush");  
   while(1);
 }
 
