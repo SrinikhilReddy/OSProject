@@ -2,14 +2,14 @@
 #include <sys/defs.h>
 #include <stdio.h>
 #include "getchar.c"
+int readcall1(char* s){
+    _syscall3(int, read, int, stdin,char* ,s, int, 4096);
+}
 char* gets(char *string)
 {
-	int n;
        char *s=string;
-       while(((n=getchar())!='\n')&&(n!=EOF))
-           {
-                   *s++=n;
-          }
-          *s='\n';
-          return string;
+     readcall1(s);
+      return string;
 }
+
+

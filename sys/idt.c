@@ -171,7 +171,9 @@ void isr12(){
 }
 void isr13(){
 	kprintf("This is an exception");
+	while(1);
 	outportb(0x20,0x20);
+
 }
 void isr14(){
 	uint64_t bb;
@@ -188,7 +190,6 @@ void isr14(){
 		outportb(0x20,0x20);
 	}
 	else if( (r->vm->vm_start > bb)  && (r->vm->vm_end < bb)){   //Auto Growing stack
-		kprintf("--------i- iAutoGrowing Stack ---- %p\n",bb);
 		uint64_t k;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		uint64_t n_s = r->vm->vm_start - 4096;
@@ -292,11 +293,16 @@ uint64_t isr128(){
     else if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
 		kprintf("%s",y->rcx);
 	}
-	else if(cval == 57){		//This is an execvpe call		
+	else if(cval == 57){
 		ret = (uint64_t)fork();
+        if((uint64_t)r->kstack[14] == 9999){
+            ret = 0;
+            __asm__ volatile("popq %%rax":::"%rax");
+            __asm__ volatile("popq %%rax":::"%rax");
+        }
 	}
 	else if(cval == 59){
-		execvpe((char *)y->rbx,(char **)y->rcx);
+		ret = execvpe((char *)y->rbx,(char **)y->rcx);
 	}
 	else if(cval == 0){
 		ret = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);			

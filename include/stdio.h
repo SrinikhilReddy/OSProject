@@ -9,10 +9,10 @@ struct dirent_n {
            unsigned short d_reclen;
            char           d_name[];
 };  
-typedef struct file
+/*typedef struct file
 {
         int fd;
-}FILE;  
+}FILE;  */
 
 enum flag
 {
@@ -28,10 +28,10 @@ int puts(const char *s);
 int printf(const char *format, ...);
 off_t lseek(int fd, off_t offset, int p);
 char *gets(char *s);
-char fgetc(FILE* fp);
+char fgetc(int fp);
 int getchar();
-char* fgets(char* s, int n,FILE *f);
-FILE* fopen(char *name, char *mode);
+char* fgets(char* s, int n,int fd);
+int fopen(char *name, char *mode);
 int open(const char *path,int flags);
 int close(int fd);
 int dup2(int fd1, int fd2);

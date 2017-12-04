@@ -8,7 +8,7 @@ int readstring(int fd,char* buf,int size){
 }
 int main(int argc, char* argv[], char* envp[])
 {
-	FILE *fp ;
+	int fp ;
 	fp=fopen(argv[1],"r");
 	/*	while(fgets(line,255,fp)!=NULL)
 		{   
@@ -17,14 +17,14 @@ int main(int argc, char* argv[], char* envp[])
 		return 0;
 	 */	
 	int i=0;
-	i = readstring(fp->fd,buf,4096);
+	i = readstring(fp,buf,4096);
 	while(i>0)
 	{
 		puts(buf);
-	 	lseek(fp->fd,i,SEEK_CUR);		
+	 	lseek(fp,i,SEEK_CUR);		
 	//	putchar(65+l);
-		i=readstring(fp->fd,buf,4096);
+		i=readstring(fp,buf,4096);
 	}
-	close(fp->fd);
+	close(fp);
 }
 

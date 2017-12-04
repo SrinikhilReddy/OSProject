@@ -4,7 +4,7 @@ int close(int fd)
 {
 	_syscall1(int, close, int, fd);
 }
-int fclose(FILE* fp)
+int fclose(int fd)
 {
-	return 	close(fp->fd);
+	return 	close(fd);
 }

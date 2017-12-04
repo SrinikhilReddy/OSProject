@@ -2,19 +2,16 @@
 #include <sys/defs.h>
 #include <stdio.h>
 int open(const char *path,int flags);
-FILE filepointer;
-FILE *fopen(char *name, char *mode)
+//FILE filepointer;
+int fopen(char *name, char *mode)
 {
-   // FILE fp;
-    FILE *f;
+
     int flag;
     if(*mode == 'r'){
         flag = O_RDONLY;
     }   
-    filepointer.fd = open(name,flag);
- //   putchar(fp.fd);
-    f = &filepointer;
-    return f;   
+    int fd = open(name,flag);
+    return fd;   
 }
 int open(const char *path,int flags)
 {

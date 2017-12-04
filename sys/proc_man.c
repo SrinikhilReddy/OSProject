@@ -21,10 +21,6 @@ void removefromQ(task_struct* e){
 	}
 }
 void yield(){
-	if(np<2){
-		return;
-	}
-	else{
 		task_struct *last = r;
 		int i = (last->pid+1)%MAX;
 			/*
@@ -53,7 +49,7 @@ void yield(){
 		__asm__ volatile("retq");
 		__asm__ __volatile__ ("1:\t");	
 
-	}
 }
+
 
 

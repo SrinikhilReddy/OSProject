@@ -7,7 +7,7 @@
 #include <sys/tarfs.h>
 #include <sys/process.h>
 #include <sys/mem.h>
-struct posix_header_ustar *headers[100];
+static struct posix_header_ustar *headers[200];
 static int fc = 0;
 unsigned int getsize(const char *in)
 {
@@ -47,15 +47,10 @@ uint64_t get_file_address(char* filename){
 void init_tarfs()
 {
         struct posix_header_ustar *header = (struct posix_header_ustar *)&_binary_tarfs_start;
-//      int i = 0;
         char* address = &_binary_tarfs_start;
         while(address< &_binary_tarfs_end){
                 unsigned int size = getsize(header->size);
                 headers[fc++] = header;
-                kprintf("\n %s", headers[fc-1]->name);
-                if(size!=0){
-                //      read_elf((uint64_t)(header+1));
-                }
                 address += ((size / 512) + 1) * 512;
 
                 if (size % 512)

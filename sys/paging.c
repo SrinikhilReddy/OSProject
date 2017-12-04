@@ -400,7 +400,6 @@ void copytables(task_struct* p, task_struct* c){
 	c4[511] = p4[511];
 	for(int i =0;i<511;i++){
 		if(p4[i] & 1){
-			kprintf("----******%d******------",i);
 			uint64_t* c3 = (uint64_t *)allocate_page_for_process();
 			c4[i] = ((uint64_t)((uint64_t)c3 -((uint64_t)0xffffffff80000000)) & 0xFFFFFFFFFFFFF000) | 7;
 			uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
@@ -421,9 +420,6 @@ void copytables(task_struct* p, task_struct* c){
 								if(p1[l]&1){
 									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);//& 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
 									c1[l] = p1[l];
-									if(i == 32){
-										kprintf("\n*****%p\n",p1[l]);
-									}
 								}
 							}
 						}	

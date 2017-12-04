@@ -8,8 +8,8 @@
 #include<sys/elf64.h>
 #include <sys/terminal.h>
 
-task_struct* p;
-task_struct* new;
+static task_struct* p;
+static task_struct* new;
 int newPID(){
 	for(int i =0;i<MAX;i++){
 		if(q[i].state == READY){
@@ -94,7 +94,10 @@ void create_process(char* filename){
 			vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
 			vm->vm_start = ep->p_vaddr;
 			vm->vm_end = ep->p_vaddr+ep->p_memsz;
-
+            uint64_t k = vm->vm_start;
+            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
+                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
+            }
 			if(ts->vm == NULL){
 				vm->next = NULL;
 				ts->vm = vm;
@@ -103,19 +106,18 @@ void create_process(char* filename){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			for(uint64_t k = vm->vm_start;k<( vm->vm_end);k+=4096){ 
+			for(;k<( vm->vm_end);k+=4096){
 				uint64_t yy = allocate_page();
 				init_pages_for_process(k,yy, pml4);
 			}
-
 			uint64_t pcr3;
 			__asm__ __volatile__ ("movq %%cr3,%0;" :"=r"(pcr3)::);
 			//                      *(pml4+511) = ((uint64_t)pdpte & 0xFFFFFFFFFFFFF000) | 7;
-			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);			
+			uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 			memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-			memset((void*)vm->vm_start + (uint64_t)(ep->p_filesz), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
+			memset((void*)(vm->vm_start + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}
@@ -151,7 +153,6 @@ void copytask(task_struct* c){
 	strcpy(c->name,r->name);
 
 	copytables(r,c);
-
 	vma* a = r->vm;
 	vma* p = NULL;
 	c->vm = NULL;
@@ -188,24 +189,19 @@ int fork(){
 	r->child_count+=1;
 	r->child = new;
 	addToQ(new);
-	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);   
+	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);
+    new->kstack[14] = 9999;
 	__asm__ __volatile__(
-			"movq $2f, %0;"
-			"2:\t"
-			:"=g"(new->regs.rip)::"memory"
+            "movq 8(%%rsp),%%rax;movq %%rax, %0;"
+			:"=g"(new->regs.rip)::"memory","%rax"
 			);
 	__asm__ __volatile__(
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
-//	r = &q[r->pid];
-	if(r == p){
-		new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
-		return new->pid;
-	}
-	else{
-		return 0;
-	}
+
+    new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
+    return new->pid;
 }
 
 int execvpe(char* file, char *argv[]){
@@ -213,9 +209,8 @@ int execvpe(char* file, char *argv[]){
 	strcpy(ts->name,file);
 	char args[10][80] ;
 	uint64_t f_a = get_file_address(file) +512;
-	if(f_a < 0){
-		kprintf("No such file\n");
-		return 0;
+	if(f_a < 512){
+		return -1;
 	}
 	int argc = 0;
 	strcpy(args[argc++],ts->name);
@@ -236,7 +231,10 @@ int execvpe(char* file, char *argv[]){
 			vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
 			vm->vm_start = ep->p_vaddr;
 			vm->vm_end = ep->p_vaddr+ep->p_memsz;
-
+            uint64_t k = vm->vm_start;
+            if((((uint64_t)(ep->p_vaddr))% ((uint64_t)0x1000)) != 0){
+                k = (uint64_t)((uint64_t)ep->p_vaddr & (uint64_t)0xFFFFFFFFFFFFF000);
+            }
 			if(ts->vm == NULL){
 				vm->next = NULL;
 				ts->vm = vm;
@@ -245,7 +243,7 @@ int execvpe(char* file, char *argv[]){
 				vm->next = ts->vm;
 				ts->vm = vm;
 			}
-			for(uint64_t k = vm->vm_start;k<( vm->vm_end);k+=4096){ 
+			for(;k<( vm->vm_end);k+=4096){
 				uint64_t yy = allocate_page();
 				init_pages_for_process(k,yy, pml4);
 			}
@@ -255,7 +253,7 @@ int execvpe(char* file, char *argv[]){
 			uint64_t* pl =( uint64_t* )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
 			memcpy((void*)vm->vm_start,(void*)(eh + ep->p_offset), (uint64_t)(ep->p_filesz));
-			memset((void*)vm->vm_start + (uint64_t)(ep->p_filesz), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
+			memset((void*)(vm->vm_start + (uint64_t)(ep->p_filesz)), 0, (uint64_t)(ep->p_memsz) - (uint64_t)(ep->p_filesz));
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}
@@ -295,7 +293,6 @@ int execvpe(char* file, char *argv[]){
 }
 
 void exit(){
-    kprintf("Exit called for %d\n",r->pid);
     r->state = ZOMBIE;
     for (int i = 0; i < MAX; ++i) {
         if(q[i].ppid == r->pid){
@@ -303,7 +300,6 @@ void exit(){
         }
     }
     if(q[r->ppid].state ==  WAIT){
-        kprintf("Waking up %d, my pid %d \n",r->ppid,r->pid);
         q[r->ppid].state =  RUNNING;
     }
 }
