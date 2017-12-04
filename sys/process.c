@@ -302,6 +302,7 @@ void exit(){
     if(q[r->ppid].state ==  WAIT){
         q[r->ppid].state =  RUNNING;
     }
+    yield();
 }
 void removeProcess(int i){
 

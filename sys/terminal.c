@@ -92,14 +92,18 @@ void write_terminal()
 			}
 			if(c==14)//Backspace
 			{
-				*(buf+i-1) = '\0';
-				i--;
-			}
+                if(offset != i) {
+                    *(buf + i - 1) = '\0';
+                    i--;
+                    backspace();
+                }
+            }
 			else if(c==28)
 			{
 				kprintf("\n");
                 buf[i] = '\n';
                 no_lines++;
+                i++;
                 wake_process();
 				outportb(0x20, 0x20);
 				return;
@@ -176,13 +180,16 @@ void wake_process(){
 void read_input(char* b){
     while(1){
         if(no_lines>0){
-            for(int i = getoffset();i<4096;i++){
+            int j=0;
+            for(int i = getoffset();i<4096;i++,j++){
                 if( buf[i] == '\n'){
                     setoffset(i+1);
+                    no_lines--;
                     r->state = RUNNING;
                     return;
                 }
-                *(b+i) = buf[i];
+                *(b+j) = buf[i];
+                buf[i] = '\0';
             }
         } else{
             r->state = SLEEPING;

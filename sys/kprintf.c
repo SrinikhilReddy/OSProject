@@ -26,6 +26,16 @@ void scroll(){
 	}
 	p_reg = (char*)(0xffffffff800b8000)+(160*23);
 }
+void backspace(){
+    if(h_offset == 0){
+        return;
+    }
+    h_offset--;
+    p_reg-=2;
+    put_to_screen(' ');
+    h_offset--;
+    p_reg-=2;
+}
 void put_to_screen(char a){
 	if(a == '\n'){
 		p_reg =(char*)(0xffffffff800b8000);
