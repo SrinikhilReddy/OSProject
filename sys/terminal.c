@@ -1,6 +1,6 @@
 #include <sys/kprintf.h>
 #include <sys/defs.h>
-#include <syscall.h>
+#include<sys/process.h>
 #include <sys/idt.h>
 #include <sys/terminal.h>
 
@@ -66,8 +66,7 @@ static char code_map[58][2] =
        {   0,0   } ,
        { ' ',' ' } ,
    };
-
-char buf[4096];
+static int offset = 0;
 static int caps=0;
 static int ctrl=0;
 static int i=0;
@@ -96,14 +95,9 @@ void write_terminal()
 			else if(c==28)
 			{
 				kprintf("\n");
-				//_syscall3(int,write,int,stdout,int*,buf,int,i+1);
-				//syscall for write
-				for(int j=0; j<=i; j++)
-				{
-					*(buf+j)='\0';
-				}
-				i = 0;
-				//clrscr();
+                buf[i] = '\n';
+                no_lines++;
+                wake_process();
 				outportb(0x20, 0x20);
 				return;
 			}
@@ -167,3 +161,10 @@ void clrscr()
 		}
         }
 }
+int getoffset(){
+    return offset;
+}
+void setoffset(int i){
+    offset = i;
+}
+

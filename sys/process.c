@@ -6,6 +6,8 @@
 #include<sys/string.h>
 #include<sys/tarfs.h>
 #include<sys/elf64.h>
+#include <sys/terminal.h>
+
 task_struct* p;
 task_struct* new;
 int newPID(){
@@ -34,6 +36,18 @@ void in(){
         wait();
     }
 }
+void idle(){
+
+    while(1) {
+        __asm__ volatile("sti");
+        for (int i = 0; i < 200; i++) {
+
+        }
+        __asm__ volatile("cli");
+        yield();
+    }
+
+}
 void init_p(){
     int pid = newPID();
     q[pid].pid = pid;
@@ -41,6 +55,14 @@ void init_p(){
     q[pid].regs.rip = (uint64_t)&in;
     q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
     uint64_t pcr3;
+    __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
+    q[pid].pml4e = pcr3;
+
+    pid = newPID();
+    q[pid].pid = pid;
+    q[pid].state = RUNNING;
+    q[pid].regs.rip = (uint64_t)&idle;
+    q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
     q[pid].pml4e = pcr3;
 }
@@ -323,3 +345,31 @@ int waitpid(int pid){
         }
     }
 }
+void wake_process(){
+    for(int i=0;i<MAX;++i){
+        if(q[i].state == SLEEPING){
+            q[i].state = RUNNING;
+            yield();
+            return;
+        }
+    }
+}
+void read_input(char* b){
+    while(1){
+    if(no_lines>0){
+        for(int i = getoffset();i<4096;i++){
+            if( buf[i] == '\n'){
+                setoffset(i+1);
+                r->state = RUNNING;
+                return;
+            }
+            *(b+i) = buf[i];
+        }
+    } else{
+        r->state = SLEEPING;
+
+    }
+        yield();
+    }
+}
+

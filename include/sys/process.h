@@ -71,7 +71,7 @@ typedef struct task_struct {
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
 	char* curr_dir;
-	struct file_t fd[25];	
+	struct file_t fd[25];
 	int fd_c;
 	
 	struct Register regs;
@@ -97,4 +97,6 @@ void exit();
 void init_p();
 int wait();
 int waitpid(int pid);
+void wake_process();
+void read_input(char* b);
 #endif

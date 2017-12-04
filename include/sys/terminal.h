@@ -3,6 +3,9 @@
 
 void write_terminal();
 void clrscr();
-
+static int no_lines;
+char buf[4096];
+int getoffset();
+void setoffset(int i);
 #endif
 
