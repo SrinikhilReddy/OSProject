@@ -16,24 +16,26 @@ int main(int argc, char *argv[])
 	int fd;// nread;
 	char buf[BUF_SIZE];
 
-	fd = open("bin/", O_RDONLY | O_DIRECTORY);
+	fd = open("usr/", O_RDONLY | O_DIRECTORY);
 	if (fd == -1)
 		puts("Invalid argument passed");
 
 	for ( ; ; ) {
-		 direccall(fd,&buf[0],BUF_SIZE);
-/*		if (nread == -1)
+		int l = direccall(fd,&buf[0],BUF_SIZE);
+		puts(&buf[0]);
+		puts("\n");		
+		if (l == -1)
 			puts("Error. Check arguments passed");
 
-		if (nread == 0)
+		if (l == 0)
 			break;
-*/
+
 //		for (int i = 0; i < nread;) 
 //		{
-			puts(&buf[0]);
-            break;
+	//		puts(&buf[0]);
+        //    break;
 //		}
-
+	//	puts("\n");
 	} 
 	puts("\n");
 	puts("=========================");

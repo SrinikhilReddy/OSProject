@@ -93,6 +93,7 @@ void execCommand(){
         forkandExec(command,args);
     }
 }
+
 void forkandExec(char* cmd,char* ag[]){
     pid_t pid;
     if ( (pid = fork()) == 0) {
@@ -227,4 +228,4 @@ void setenvs(){
     {
         envpe[j] = getallenv(j);
     }
-}
+

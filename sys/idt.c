@@ -303,10 +303,10 @@ uint64_t isr128(){
 	__asm__ volatile("movq %%rax,%0;":"=g"(cval)::"memory","r15","rax");
 	__asm__ volatile("movq %%rdi,%0;":"=g"(as)::"memory","rdi","rax");
 	registers_t *y = (registers_t *)as;
-    if(cval == 0 && y->rbx == 0){
-        read_input((char *)y->rcx);
-    }
-    else if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
+    	if(cval == 0 && y->rbx == 0){
+        	read_input((char *)y->rcx);
+    	}
+    	else if(cval == 1 && y->rbx == 1){ //This is a write syscall to stdout
 		kprintf("%s",y->rcx);
 	}
 	else if(cval == 57){
@@ -329,16 +329,23 @@ uint64_t isr128(){
 	else if(cval == 78){
 		ret = readdir_tarfs((int) y->rbx, (char *) y->rcx);
 	}
-    else if(cval == 60){
-        exit();
-    }
-    else if(cval == 247){
-        ret = (uint64_t)waitpid((int)y->rbx);
-    }
+    	else if(cval == 60){
+      	 	exit();
+    	}
+    	else if(cval == 247){
+        	ret = (uint64_t)waitpid((int)y->rbx);
+    	}
+	else if(cval == 39){
+		ret = getpid();
+	}
+	else if(cval == 110){
+		ret = getppid();
+	}
 	yield();
 	outportb(0x20,0x20);
 	return ret;
 }
+
 void outportb(uint16_t port,uint8_t data){
 	__asm__ volatile("outb %1,%0"
 			:

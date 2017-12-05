@@ -177,7 +177,7 @@ int readdir_tarfs(int fd, char* buf)
 			else if(count==r->fd[fd].entry)
 			{
 				strcpy(buf,substring(headers[i]->name,index));
-				//kprintf("\n%sEND", buf);
+				kprintf("\n%sEND", buf);
 				r->fd[fd].entry++;
 				ret = 1;
 				break;

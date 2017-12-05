@@ -341,3 +341,10 @@ int waitpid(int pid){
     }
 }
 
+pid_t getpid(void){
+	return r->pid;
+}
+
+pid_t getppid(void){
+	return r->ppid;
+} 
