@@ -66,6 +66,19 @@ void init_p(){
     __asm__ volatile ("movq %%cr3,%0;" :"=r"(pcr3)::);
     q[pid].pml4e = pcr3;
 }
+
+void ps()
+{
+	kprintf("ID\tName\tState\n");
+	for(int i=0; i<MAX; i++)
+	{
+		kprintf("%s\t",q[i].pid);
+		kprintf("%s\t",q[i].name);
+		kprintf("%s/t",q[i].state);
+		kprintf("\n");
+	}
+}
+
 void create_process(char* filename){
 	//Load elf headers using the filename
 	uint64_t f_a = get_file_address(filename) +512;
