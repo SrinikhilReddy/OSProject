@@ -68,15 +68,23 @@ void init_tarfs()
 	return &d;  
 }*/
 
-int open_tarfs(char* file_path, int flags)
+int open_tarfs(char* path, int flags)
 {
-        //struct file_t *f;
-        struct posix_header_ustar* h = (struct posix_header_ustar*) kmalloc(sizeof(struct posix_header_ustar*));
-        char pa[100];
+        char file_path[50];
+        if( (*path) != '/') {
+
+            strcpy(file_path, &(r->curr_dir[1]));
+            strcat(file_path, path);
+        }
+        else{
+            strcpy(file_path,path+1);
+        }
+    struct posix_header_ustar* h;
+    char pa[100];
         char *abs_path = &pa[0];
         *(abs_path) = '\0';
         int a=0;
-        int flag = 0;
+        int flag = -1;
         int i=0;
         while(*(file_path+i) != '\0')
         {
@@ -101,20 +109,11 @@ int open_tarfs(char* file_path, int flags)
         }
         *(abs_path+a) = *(file_path+i);
         *(abs_path+a+1) = '\0';
-        //kprintf("ABS: %s :PATH", abs_path);
-        if(*file_path!='/')
-        {
-		file_path = abs_path;
-                //file_path = strcat(r->curr_dir, abs_path);
-        }
-        else
-        {
-                file_path = abs_path+1;
-        }
+
         for(i=0; i<32 && headers[i]!=NULL; i++)
         {
                 //kprintf("%s ",headers[i]->name);
-                if(strcmp(headers[i]->name,file_path)==0)
+                if(strcmp(headers[i]->name,abs_path)==0)
                 {
                         //kprintf("MATCHED %s ",headers[i]->name);
                         h = headers[i];
@@ -122,23 +121,18 @@ int open_tarfs(char* file_path, int flags)
                         break;
                 }
         }
-        if(flag == 0){
+        if(flag == -1){
             return  -1;
         }
-       // f = (file_t*) kmalloc(sizeof(struct file_t));	
-	int fdc = r->fd_c + 3;
-	r->fd_c++;
-	strcpy(&(r->fd[fdc].file_name[0]), h->name);
-        //r->fd[fdc].offset = (off_t)headers[i+1];
+	    int fdc = r->fd_c + 3;
+	    r->fd_c++;
+	    strcpy(&(r->fd[fdc].file_name[0]), h->name);
         r->fd[fdc].flags = flags;
-	r->fd[fdc].entry = 0;
+	    r->fd[fdc].entry = 0;
     	r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
     	r->fd[fdc].address = (uint64_t)headers[flag];
-	r->fd[fdc].fd = fdc;	
-        //kprintf("\nF->OFFSET%d ",f->offset);
-        //kprintf("\nF->SIZE%d ",f->size);
-        //kprintf("\nFile Address: [%p]\n",f->address);
-    return fdc;
+	    r->fd[fdc].fd = fdc;
+        return fdc;
 }
 
 ssize_t read_tarfs(int fd, char* buf, int count)

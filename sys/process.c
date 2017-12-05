@@ -220,8 +220,16 @@ int fork(){
     return new->pid;
 }
 
-int execvpe(char* file, char *argv[]){
+int execvpe(char* path, char *argv[]){
 	task_struct* ts = r;
+    char file[50];
+    if( (*path) != '/') {
+        strcpy(file, &(r->curr_dir[1]));
+        strcat(file, path);
+    }
+    else{
+        strcpy(file,path+1);
+    }
 	strcpy(ts->name,file);
 	char args[10][80] ;
 	uint64_t f_a = get_file_address(file) +512;

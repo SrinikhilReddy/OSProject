@@ -20,14 +20,14 @@ void timer_handler(){
 			reg-=2;			
 		}
 		count = 0;
-        for(int i=0;i<MAX;i++){
+        /*for(int i=0;i<MAX;i++){
             if(q[i].state == SUSPENDED && q[i].time >0){
                 q[i].time--;
             }
             if(q[i].time == 0){
                 q[i].state = RUNNING;
             }
-        }
+        }*/
 	}
 	outportb(0x20,0x20);
 }
