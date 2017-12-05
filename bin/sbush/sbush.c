@@ -34,12 +34,10 @@ int main(int argc, char *argv[], char *envp[]) {
     setenvs();
     if(argc==1){
         while(1){
-            strcpy(prompt,"sbush");
             puts(prompt);
             puts(">");
             readInput();
             if(input[0] == '\0'){
-                puts("continuing");
                 continue;
             }
            if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){

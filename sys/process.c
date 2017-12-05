@@ -213,7 +213,7 @@ int execvpe(char* file, char *argv[]){
 		return -1;
 	}
 	int argc = 0;
-	strcpy(args[argc++],ts->name);
+//	strcpy(args[argc++],ts->name);
 	while(argv[argc]){
 		strcpy(args[argc],argv[argc]);
 		argc++;
@@ -268,7 +268,6 @@ int execvpe(char* file, char *argv[]){
 	vm->next = ts->vm;
 	ts->vm = vm;
 	uint64_t* temp[argc];
-//	strcpy(temp1[argc++], filename);
 	for(int i=argc-1;i>=0;i--){
 		int l = strlen(args[i])+1;
 		ts->rsp = ts->rsp-l;
