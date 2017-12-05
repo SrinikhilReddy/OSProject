@@ -60,6 +60,14 @@ void init_tarfs()
         }
 }
 
+struct DIR* opendir_tarfs(char* path)
+{
+	int f = open_tarfs(path, 0);
+	struct DIR *d = (struct DIR*) kmalloc(sizeof(struct DIR*));
+	d->fd = f;	
+	return d;  
+}
+
 int open_tarfs(char* file_path, int flags)
 {
         //struct file_t *f;
@@ -123,8 +131,8 @@ int open_tarfs(char* file_path, int flags)
         //r->fd[fdc].offset = (off_t)headers[i+1];
         r->fd[fdc].flags = flags;
 	r->fd[fdc].entry = 0;
-    r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    r->fd[fdc].address = (uint64_t)headers[flag];
+    	r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    	r->fd[fdc].address = (uint64_t)headers[flag];
 	r->fd[fdc].fd = fdc;	
         //kprintf("\nF->OFFSET%d ",f->offset);
         //kprintf("\nF->SIZE%d ",f->size);
@@ -191,6 +199,21 @@ int readdir_tarfs(int fd, char* buf)
 		}
         }
 	return ret;
+}
+
+int closedir_tarfs(DIR *d)
+{
+	return close_tarfs(d->fd);
+}
+
+int close_tarfs(int fp)
+{
+	struct file_t ft = r->fd[fp];
+	ft.file_name[0] = '\0';
+	ft.offset = 0;
+	ft.size = 0;
+	//.address = NULL;
+	return ft.fd;  
 }
 
 uint64_t octal_to_binary(const char* octal)

@@ -10,12 +10,12 @@ struct dirent1 {
            char*          d_name;
 };
 
-struct DIR {
+typedef struct{
 	uint64_t fd;
 	size_t size;
 	char* buf;
 	struct dirent *next;
-};
+}DIR;
 
 struct dir_stream {
 	int dd;
@@ -25,7 +25,7 @@ struct dir_stream {
 	char buf[2048];	
 };
 
-typedef struct DIR DIR;
+//typedef struct DIR DIR;
 
 uint64_t open_dir(char* name);
 uint64_t read_dir(DIR* dir);
