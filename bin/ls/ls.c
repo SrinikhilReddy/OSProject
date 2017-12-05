@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	puts("-----------From Execve-----------\n");
 	int fd;// nread;
 	char buf[BUF_SIZE];
-
+	puts(argv[1]);
 	fd = open("bin/", O_RDONLY | O_DIRECTORY);
 	if (fd == -1)
 		puts("Invalid argument passed");

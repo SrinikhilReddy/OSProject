@@ -157,17 +157,6 @@ static inline uint8_t inb(uint64_t port)
                         );
         return r;
 }
-
-void clrscr()
-{
-	char *p_reg = (char*) 0xffffffff800b8000;
-        for(int i=0;i<25;i++){
-		for(int j=0; j<80; j++){
-			*p_reg = '\0';
-        		p_reg+=2;
-		}
-        }
-}
 void wake_process(){
     for(int i=0;i<MAX;++i){
         if(q[i].state == SLEEPING){

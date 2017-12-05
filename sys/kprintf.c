@@ -10,6 +10,15 @@ void print_int(int i);
 void put_to_screen(char a);
 void scroll();
 
+void clrscr()
+{
+    for(int i=0;i<24;i++){
+        for(int j=0; j<80; j++){
+            *p_reg = '\0';
+            p_reg+=2;
+        }
+    }
+}
 void scroll(){
 	char* p  = (char*)0xffffffff800b8000;
 	for(int i=0;i<24;i++){
