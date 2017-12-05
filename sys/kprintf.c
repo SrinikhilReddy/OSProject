@@ -12,12 +12,15 @@ void scroll();
 
 void clrscr()
 {
-    for(int i=0;i<24;i++){
+    p_reg = (char*) 0xffffffff800b8000;
+    for(int i=0;i<25;i++){
         for(int j=0; j<80; j++){
-            *p_reg = '\0';
+            *p_reg = ' ';
             p_reg+=2;
         }
     }
+    p_reg = (char*) 0xffffffff800b8000;
+    h_offset=0;v_offset=0;
 }
 void scroll(){
 	char* p  = (char*)0xffffffff800b8000;

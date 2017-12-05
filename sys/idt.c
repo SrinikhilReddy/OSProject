@@ -196,6 +196,7 @@ void isr14(){
     if(flag == 0){
 
             kprintf("Segmentation Fault: Address:%p \n",bb);
+            exit();
             while(1);
             outportb(0x20,0x20);
     }
