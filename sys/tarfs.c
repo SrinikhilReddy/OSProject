@@ -72,23 +72,24 @@ int open_tarfs(char* file_path, int flags)
 {
         //struct file_t *f;
         struct posix_header_ustar* h = (struct posix_header_ustar*) kmalloc(sizeof(struct posix_header_ustar*));
-        char *abs_path = (char*)kmalloc(100);
-        *(abs_path+0) = '\0';
+        char pa[100];
+        char *abs_path = &pa[0];
+        *(abs_path) = '\0';
         int a=0;
         int flag = 0;
         int i=0;
-        while(*(file_path+i+1))
+        while(*(file_path+i) != '\0')
         {
-                if(*(file_path+i)=='.' && *(file_path+i+1)=='.')
+                if( ((*(file_path+i))=='.') && ( (*(file_path+i+1))=='.'))
                 {
                         a--;
                         *(abs_path+a)='\0';
-                        while(*(abs_path+a)!='/')
+                        while( (*(abs_path+a)!='/') && a>=0)
                         {
                                 *(abs_path+a)='\0';
                                 a--;
                         }
-                        *(abs_path+a)='\0';
+                        //*(abs_path+a)='\0';
                         i++;
                 }
                 else
