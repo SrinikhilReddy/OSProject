@@ -60,13 +60,13 @@ void init_tarfs()
         }
 }
 
-struct DIR* opendir_tarfs(char* path)
+/*struct DIR* opendir_tarfs(char* path)
 {
 	int f = open_tarfs(path, 0);
-	struct DIR *d = (struct DIR*) kmalloc(sizeof(struct DIR*));
-	d->fd = f;	
-	return d;  
-}
+	struct DIR d ; //(struct DIR*) kmalloc(sizeof(struct DIR*));
+	d.fd = f;	
+	return &d;  
+}*/
 
 int open_tarfs(char* file_path, int flags)
 {

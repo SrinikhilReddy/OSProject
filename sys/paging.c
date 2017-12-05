@@ -19,12 +19,14 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 	freelist* last = NULL;
 	physfree = physfree + sizeof(pagelist);
 	for(uint64_t ptr=sbase;ptr<(sbase+slim);ptr+=4096){
+        count = ((uint64_t)ptr)/4096;
 		if(ptr>physfree && ptr+4096<(sbase+slim)){
 			if(head == NULL){
 				pagelist[count].address = ptr;
 				pagelist[count].next = head;
 				pagelist[count].free = 1;
-				head = &pagelist[count];
+                pagelist[count].ref_count = 1;
+                head = &pagelist[count];
 				last = head;	
 				count++;   				
 			}
@@ -32,7 +34,8 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 				pagelist[count].address = ptr;
 				pagelist[count].next = NULL;
 				pagelist[count].free = 1;
-				last->next = &pagelist[count];
+                pagelist[count].ref_count = 1;
+                last->next = &pagelist[count];
 				last = &pagelist[count];
 				count++;
 			}	
@@ -40,19 +43,27 @@ void mem_map(smap_t* sm, uint64_t physbase, uint64_t physfree){
 		else{
 			pagelist[count].address = ptr;
 			pagelist[count].next = NULL;
-			pagelist[count].free = 0;
+            pagelist[count].ref_count = 1;
+            pagelist[count].free = 0;
 			count++;
 		}
 	}	
 }
 void free(uint64_t add){
-    for (int i = 0; i < count; ++i) {
+        int i = ((uint64_t)add)/4096;
+        if(pagelist[i].address == add && (pagelist[i].ref_count >1)){
+            pagelist[i].ref_count--;
+            return;
+        }
         if(pagelist[i].address == add){
             pagelist[i].free = 1;
             pagelist[i].next = head;
             head = &pagelist[i];
         }
-    }
+
+}
+void increfcount(uint64_t add){
+    pagelist[add/4096].ref_count+=1;
 }
 void switchtokern(){
 __asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - 0xffffffff80000000):);
@@ -418,8 +429,10 @@ void copytables(task_struct* p, task_struct* c){
 							p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 							for(int l=0;l<512;l++){
 								if(p1[l]&1){
+                                    increfcount(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
 									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);
 									c1[l] = p1[l];
+
 								}
 							}
 						}	
@@ -447,7 +460,7 @@ void dealloc_pml4(uint64_t pm4){
                             for (int l = 0; l < 512; ++l) {
                                 if(p1[l]&1){
 //                                    memset(&p1[l],0,4096);
-                                 //   free(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
+                                    free(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
                                 }
                                 p1[l]=0;
                             }
