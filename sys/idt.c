@@ -341,6 +341,12 @@ uint64_t isr128(){
 	else if(cval == 110){
 		ret = getppid();
 	}
+    else if(cval == 7){
+            clrscr();
+    }
+    else if(cval == 62){
+       ret = kill((int)y->rbx);
+    }
 	yield();
 	outportb(0x20,0x20);
 	return ret;

@@ -5,7 +5,7 @@
 #define __NR_stat				4
 #define __NR_fstat				5
 #define __NR_lstat				6
-#define __NR_poll				7
+#define __NR_clrscr				7
 
 #define __NR_lseek				8
 #define __NR_mmap				9

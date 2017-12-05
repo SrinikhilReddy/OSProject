@@ -3,5 +3,5 @@
 
 void kprintf(const char *fmt, ...);
 void backspace();
-
+void clrscr();
 #endif

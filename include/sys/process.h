@@ -99,5 +99,5 @@ int wait();
 int waitpid(int pid);
 pid_t getpid(void);
 pid_t getppid(void);
-
+int kill(int pid);
 #endif

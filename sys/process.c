@@ -49,6 +49,7 @@ void idle(){
 void init_p(){
     int pid = newPID();
     q[pid].pid = pid;
+    strcpy(q[pid].name,"init");
     q[pid].state = RUNNING;
     q[pid].regs.rip = (uint64_t)&in;
     q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
@@ -58,6 +59,7 @@ void init_p(){
 
     pid = newPID();
     q[pid].pid = pid;
+    strcpy(q[pid].name,"idle");
     q[pid].state = RUNNING;
     q[pid].regs.rip = (uint64_t)&idle;
     q[pid].regs.rsp = (uint64_t)(&(q[pid].kstack[511]));
@@ -67,7 +69,7 @@ void init_p(){
 void create_process(char* filename){
 	//Load elf headers using the filename
 	uint64_t f_a = get_file_address(filename) +512;
-	if(f_a < 0){
+	if(f_a < 512){
 		kprintf("No such file\n");
 		return;
 	}
@@ -323,6 +325,18 @@ int wait(){
         }
     }
     return -1;
+}
+int kill(int pid){
+    q[pid].state = ZOMBIE;
+    for (int i = 0; i < MAX; ++i) {
+        if(q[i].ppid == pid){
+            q[i].ppid = 0;
+        }
+    }
+    if(q[q[pid].ppid].state == WAIT){
+        q[q[pid].ppid].state = RUNNING;
+    }
+    return 1;
 }
 int waitpid(int pid){
     int i = pid;

@@ -34,5 +34,6 @@ char* fgets(char* s, int n,int fd);
 int fopen(char *name, char *mode);
 int open(const char *path,int flags);
 int close(int fd);
+void clrscr();
 int dup2(int fd1, int fd2);
 #endif

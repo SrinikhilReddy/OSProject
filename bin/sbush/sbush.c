@@ -32,6 +32,7 @@ int main(int argc, char *argv[], char *envp[]) {
     initargs();
     strcpy(prompt,"sbush");
     setenvs();
+    clrscr();
     if(argc==1){
         while(1){
             puts(prompt);
@@ -40,7 +41,7 @@ int main(int argc, char *argv[], char *envp[]) {
             if(input[0] == '\0'){
                 continue;
             }
-           if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
+            if((strcmp(in,"exit") == 0) || (strcmp(in,"quit") == 0)){
                 return 0;
             }
             parseInput();
@@ -87,11 +88,13 @@ void execCommand(){
     else if(strcmp(command,"export") == 0){
         setvar(args);
     }
+    else if(strcmp(command,"clear") == 0){
+        clrscr();
+    }
     else{
         forkandExec(command,args);
     }
 }
-
 void forkandExec(char* cmd,char* ag[]){
     pid_t pid;
     if ( (pid = fork()) == 0) {
@@ -113,8 +116,8 @@ void forkandExec(char* cmd,char* ag[]){
     }
 }
 void readInput(){
-   in = &input[0];
-   gets(in);
+    in = &input[0];
+    gets(in);
 }
 
 void parseInput(){
@@ -226,4 +229,4 @@ void setenvs(){
     {
         envpe[j] = getallenv(j);
     }
-
+}

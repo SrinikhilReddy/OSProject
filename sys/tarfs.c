@@ -67,6 +67,7 @@ int open_tarfs(char* file_path, int flags)
         char *abs_path = (char*)kmalloc(100);
         *(abs_path+0) = '\0';
         int a=0;
+        int flag = 0;
         int i=0;
         while(*(file_path+i+1))
         {
@@ -108,8 +109,12 @@ int open_tarfs(char* file_path, int flags)
                 {
                         //kprintf("MATCHED %s ",headers[i]->name);
                         h = headers[i];
+                        flag = i;
                         break;
                 }
+        }
+        if(flag == 0){
+            return  -1;
         }
        // f = (file_t*) kmalloc(sizeof(struct file_t));	
 	int fdc = r->fd_c + 3;
@@ -118,13 +123,13 @@ int open_tarfs(char* file_path, int flags)
         //r->fd[fdc].offset = (off_t)headers[i+1];
         r->fd[fdc].flags = flags;
 	r->fd[fdc].entry = 0;
-       // r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(headers[i]->size)));
-        r->fd[fdc].address = (uint64_t)&h[i];
+    r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    r->fd[fdc].address = (uint64_t)headers[flag];
 	r->fd[fdc].fd = fdc;	
         //kprintf("\nF->OFFSET%d ",f->offset);
         //kprintf("\nF->SIZE%d ",f->size);
         //kprintf("\nFile Address: [%p]\n",f->address);
-        return fdc;
+    return fdc;
 }
 
 ssize_t read_tarfs(int fd, char* buf, int count)
@@ -134,7 +139,7 @@ ssize_t read_tarfs(int fd, char* buf, int count)
                 return 0;
         }
 	
-	struct file_t* f = (struct file_t*) &(r->fd[fd]);
+	 struct file_t* f = (struct file_t*) &(r->fd[fd]);
         //size_t read;
         struct posix_header_ustar *header;
         header = (struct posix_header_ustar*) f->address;
@@ -142,15 +147,15 @@ ssize_t read_tarfs(int fd, char* buf, int count)
         //kprintf("\nSTART ADDRESS%p", start_address);
         //char* temp = buf;
         int i=0;
-        if(f->size<count)
+        if((f->size)<count)
         {
                 count = f->size;
         }
         for(i=0; i<count; i++)
         {
-		buf[i] = *(start_address+i);
-	}
-	//kprintf("\n%s", buf);
+		    buf[i] = *(start_address+i);
+	    }
+        buf[count] = '\0';
 	return count;
 }
 
