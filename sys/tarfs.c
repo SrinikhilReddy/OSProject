@@ -60,13 +60,6 @@ void init_tarfs()
         }
 }
 
-/*struct DIR* opendir_tarfs(char* path)
-{
-	int f = open_tarfs(path, 0);
-	struct DIR d ; //(struct DIR*) kmalloc(sizeof(struct DIR*));
-	d.fd = f;	
-	return &d;  
-}*/
 void setTruePath(char* abs_path){
     char file_path[50];
     if( (*abs_path) != '/') {
@@ -122,6 +115,19 @@ int isfileexists(char* path){
         return  -1;
     }
     return flag;
+}
+int isValidDirectory(char* path){
+    struct posix_header_ustar* h;
+    int n = isfileexists(path);
+    if(n < 0){
+        return -1;
+    }
+    h = headers[n];
+    int l = strlen(h->name);
+    if(h->name[l-1] == '/'){
+        return 0;
+    }
+    return -1;
 }
 int open_tarfs(char* path, int flags)
 {

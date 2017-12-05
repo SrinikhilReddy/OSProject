@@ -27,4 +27,5 @@ void init_tarfs();
 uint64_t get_file_address(char* filename);
 int isfileexists(char* path);
 void setTruePath(char* abs_path);
+int isValidDirectory(char* path);
 #endif

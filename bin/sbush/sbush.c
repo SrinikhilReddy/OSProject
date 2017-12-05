@@ -20,9 +20,11 @@ void setenvs();
 
 static int isBackground = 0;
 static char input[1025]={'\0'};
+static char pwd[100];
 static char com[1025]={'\0'};
 static char arg[1000][1000]={'\0'};
-static char prompt[1000]={'\0'};
+static char prompt[100]={'\0'};
+static char prompt1[100]={'\0'};
 static char *in = &input[0] ;
 static char *args[1000] ;
 static char *command = &com[0];
@@ -31,12 +33,16 @@ static char *envpe[100];
 int main(int argc, char *argv[], char *envp[]) {
     initargs();
     strcpy(prompt,"sbush");
+    getcwd(pwd,-1);
+    strcpy(prompt1,prompt);
+    strcat(prompt1,":");
+    strcat(prompt1,pwd);
+    strcat(prompt1,"$");
     setenvs();
     clrscr();
     if(argc==1){
         while(1){
-            puts(prompt);
-            puts(">");
+            puts(prompt1);
             readInput();
             if(input[0] == '\0'){
                 continue;
@@ -84,12 +90,22 @@ int main(int argc, char *argv[], char *envp[]) {
 void execCommand(){
     if(strcmp(command,"cd") == 0){
         chdir_1(args);
+        getcwd(pwd,-1);
+        strcpy(prompt1,prompt);
+        strcat(prompt1,":");
+        strcat(prompt1,pwd);
+        strcat(prompt1,"$");
     }
     else if(strcmp(command,"export") == 0){
         setvar(args);
     }
     else if(strcmp(command,"clear") == 0){
         clrscr();
+    }
+    else if(strcmp(command,"pwd") == 0){
+        getcwd(pwd,-1);
+        puts(pwd);
+        puts("\n");
     }
     else{
         forkandExec(command,args);
@@ -141,11 +157,13 @@ int getInputArgCounts(){
 }
 void chdir_1(char **args){
     if(args[1] == NULL){
-        puts("No argument passed");
+        puts("No argument passed\n");
         return;
     }
     if(chdir(args[1])!=0){
-        puts("Invalid CD usage. Check path and argument passed");
+        puts("-sbush: cd: ");
+        puts(args[1]);
+        puts(": No such directory. \n");
     }
 }
 

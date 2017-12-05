@@ -2,23 +2,6 @@
 #define _FILE_H
 #include<sys/defs.h>
 
-/*typedef struct {
-
-
-} file_system;*/
-
-/*typedef struct {
-        int fd;
-        dirent d;
-} DIR;*/
-
-typedef struct {
-           long           d_ino;
-           off_t          d_off;
-           unsigned short d_reclen;
-           char*          d_name;
-}dirent;
-
 typedef struct file_t {
 	int fd;
 	char file_name[50];
@@ -47,12 +30,7 @@ typedef struct {
 	uint64_t block_count;
 } inode;
 
-typedef struct {
-	struct inode *inode;
-	char file_name[100];
-} dentry;
-
-struct DIR* opendir_tarfs(char*);
+int opendir_tarfs(char*);
 int open_tarfs(char* file_path, int flags);
 ssize_t read_tarfs(int fd, char* buf, int count);
 uint64_t octal_to_binary(const char* octal);

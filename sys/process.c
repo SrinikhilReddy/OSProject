@@ -407,7 +407,7 @@ unsigned int sleep(unsigned int seconds){
     return 0;
 }
 int chdir(char* path){
-    if((isfileexists(path)) > -1){
+    if((isValidDirectory(path)) > -1){
         char k[100];
         strcpy(k,path);
         setTruePath(k);
@@ -418,4 +418,15 @@ int chdir(char* path){
         return 0;
     }
     return  -1;
+}
+void getcwd(char *buf, int size){
+
+    strcpy(buf,r->curr_dir);
+    int l = strlen(buf);
+    if(l == 1){
+        return;
+    }
+    else{
+        buf[l-1] = '\0';
+    }
 }
