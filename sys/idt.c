@@ -4,7 +4,7 @@
 #include <sys/process.h>
 #include <sys/file.h>
 #include <sys/terminal.h>
-
+uint16_t PIT_reload_value = 1193;
 static struct idt idt_table[256];
 static struct idt_ptr pr;
 
@@ -60,6 +60,12 @@ void set_value(uint16_t intNum,uint64_t handler)
 	}
 	idt_table[intNum].zero_2 = 0;
 }
+void init_timer(){
+    uint8_t lobyte = (uint8_t)(PIT_reload_value & 0xFF);
+    uint8_t hibyte = (uint8_t)((PIT_reload_value >> 8) & 0xFF);
+    outportb(0x40, lobyte);
+    outportb(0x40, hibyte);
+}
 
 static inline uint8_t inportb(uint64_t port)
 {
@@ -72,6 +78,7 @@ static inline uint8_t inportb(uint64_t port)
         return r;
 }
 void init_idt(){
+  //  init_timer();
 //	set_value(0,(uint64_t)&isr_0);
 	set_value(0 ,(uint64_t)&isr_0 );
 set_value(1 ,(uint64_t)&isr_1);
@@ -350,7 +357,10 @@ uint64_t isr128(){
     }
     else if(cval == 35){
             ret = sleep((int)y->rbx);
-        }
+    }
+    else if(cval == 80){
+            ret = chdir((char*)y->rbx);
+    }
 	yield();
 	outportb(0x20,0x20);
 	return ret;

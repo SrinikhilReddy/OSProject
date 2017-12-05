@@ -101,6 +101,7 @@ int waitpid(int pid);
 pid_t getpid(void);
 pid_t getppid(void);
 int kill(int pid);
+int chdir(char* path);
 unsigned int sleep(unsigned int seconds);
 
 #endif

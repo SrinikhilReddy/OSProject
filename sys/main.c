@@ -28,41 +28,14 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
 
-  init_ia32e_paging((uint64_t)0, max);
-//	 init_proc();
+    init_ia32e_paging((uint64_t)0, max);
 	init_tarfs();
 	init_idt();
-	/*r = &q[0];
-	r->state = RUNNING;
-	char buf[100];
-	int fd = open_tarfs("bin/", 0);
-	int fd1 = readdir_tarfs(fd,&buf[0]);
-	kprintf("%d: %s", fd1, buf);
-	fd1 = readdir_tarfs(fd,&buf[0]);
-	kprintf("%d,:,%s", fd1, buf);
-	while(1);*/
-	/*fd1 = readdir_tarfs(fd,&buf[0]); 
-	kprintf("%d,:,%s", fd1, buf);
-	fd1 = readdir_tarfs(fd,&buf[0]);
-	kprintf("%d,:,%s", fd1, buf);*/
-//  create_process("bin/ls");
-//  __asm__ volatile("sti");
-//  checkAllBuses();
-//  kprintf("physfree %p\n", (uint64_t)physfree);
-//  kprintf("physbase %p\n", (uint64_t)physbase);
- // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
-//  init_task();
-//  kprintf("Switching to next task\n");
- // yield();
-//  kprintf("Returned to main task\n");
-//  switchtor3(); 
-//   create_process("bin/sbush");  
-//  switchtor3();
-  init_proc();
-  init_p();
-  create_process("bin/sbush");  
-  while(1);
+    init_proc();
+    init_p();
+    create_process("bin/sbush");
+    while(1);
 }
 
 void boot(void)

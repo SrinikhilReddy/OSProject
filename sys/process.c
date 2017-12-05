@@ -393,3 +393,16 @@ unsigned int sleep(unsigned int seconds){
     yield();
     return 0;
 }
+int chdir(char* path){
+    if((isfileexists(path)) > -1){
+        char k[100];
+        strcpy(k,path);
+        setTruePath(k);
+        char l[100];
+        l[0] = '/';
+        strcat(l,k);
+        strcpy(r->curr_dir,l);
+        return 0;
+    }
+    return  -1;
+}

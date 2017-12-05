@@ -25,4 +25,6 @@ struct posix_header_ustar {
 };
 void init_tarfs();
 uint64_t get_file_address(char* filename);
+int isfileexists(char* path);
+void setTruePath(char* abs_path);
 #endif
