@@ -118,15 +118,15 @@ void printpml4(uint64_t* p4){
                 }   
         }   
 }
-uint64_t* getPTE(uint64_t v){ 
+uint64_t* getPTE(uint64_t v){
         uint64_t* p4 = (uint64_t*)(r->pml4e + 0xffffffff80000000);
         int id4 = (v >> 39 ) & 0x1FF;
-    	uint64_t* p3 = (uint64_t*)(p4[id4] + 0xffffffff80000000);
+    	uint64_t* p3 = (uint64_t*)((p4[id4]&0xFFFFFFFFFFFFF000) + 0xffffffff80000000);
     	int id3 = (v >> 30 ) & 0x1FF;
-    	uint64_t* p2 = (uint64_t*)(p3[id3] + 0xffffffff80000000);
+    	uint64_t* p2 = (uint64_t*)((p3[id3]&0xFFFFFFFFFFFFF000) + 0xffffffff80000000);
     	int id2 = (v >> 21 ) & 0x1FF;
-    	return (uint64_t*)(p2[id2] + 0xffffffff80000000);
-
+        uint64_t* p1 = (uint64_t*)((p2[id2]&0xFFFFFFFFFFFFF000) + 0xffffffff80000000);
+        return p1;
 }
 
 void map(uint64_t vaddr_s, uint64_t phy){
@@ -389,9 +389,9 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 //	k_cr3 = (uint64_t)pml4e;
 }
-void deletepagetables(uint64_t* pml4e){
+void deletepagetables(uint64_t* p4){
 	for(int i=0;i<511;i++){
-		pml4e[i] = 0;
+		p4[i] = 0;
 	}
 }	
 void copytables(task_struct* p, task_struct* c){
@@ -418,7 +418,7 @@ void copytables(task_struct* p, task_struct* c){
 							p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
 							for(int l=0;l<512;l++){
 								if(p1[l]&1){
-									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);//& 0xFFFFFFFFFFFFFFDF & 0xFFFFFFFFFFFFFFBF) ;
+									p1[l] = (p1[l] & 0xFFFFFFFFFFFFFFFD) | (0x0000000000000200);
 									c1[l] = p1[l];
 								}
 							}
@@ -449,6 +449,7 @@ void dealloc_pml4(uint64_t pm4){
 //                                    memset(&p1[l],0,4096);
                                     free(((uint64_t)p1[l] & 0xFFFFFFFFFFFFF000));
                                 }
+                                p1[l]=0;
                             }
 
                         }
@@ -457,5 +458,6 @@ void dealloc_pml4(uint64_t pm4){
                 }
             }
         }
+        p4[i]=0;
     }
 }

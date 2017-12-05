@@ -34,8 +34,9 @@ int main(int argc, char *argv[], char *envp[]) {
     setenvs();
     if(argc==1){
         while(1){
-            fputs(prompt,stdout);
-            fputs(">",stdout);
+            strcpy(prompt,"sbush");
+            puts(prompt);
+            puts(">");
             readInput();
             if(input[0] == '\0'){
                 puts("continuing");
@@ -47,9 +48,9 @@ int main(int argc, char *argv[], char *envp[]) {
             parseInput();
             //execCommand();
 
-           // clearInput();
-           // clearCommand();
-            //clearArguments();
+            clearInput();
+            clearCommand();
+            clearArguments();
         }
     }else{
         int fp;
@@ -113,6 +114,7 @@ void forkandExec(char* cmd,char* ag[]){
     }
 }
 void readInput(){
+   in = &input[0];
    gets(in);
 }
 
@@ -152,7 +154,9 @@ void initargs(){
     }
 }
 void clearInput(){
-        input[0] = '\0';
+    for(int i =0;i<1025;i++) {
+        input[i] = '\0';
+    }
 }
 
 void clearCommand(){

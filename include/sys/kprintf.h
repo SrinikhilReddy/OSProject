@@ -2,5 +2,6 @@
 #define __KPRINTF_H
 
 void kprintf(const char *fmt, ...);
+void backspace();
 
 #endif

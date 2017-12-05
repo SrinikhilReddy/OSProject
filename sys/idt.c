@@ -176,17 +176,38 @@ void isr13(){
 
 }
 void isr14(){
+
 	uint64_t bb;
+    int flag = 0;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
-	if( bb & 0x0000000000000200){
-		uint64_t k ;//= getPTE(bb); 
-		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
+    vma* vm = r->vm;
+    if(((vm->vm_start+4096) > bb) && (vm->vm_end < bb)){
+        flag =1;
+    }
+    if(flag == 0) {
+        while (vm != NULL) {
+            if ((vm->vm_start < bb) && (vm->vm_end > bb)) {
+                flag = 1;
+                break;
+            }
+            vm = vm->next;
+        }
+    }
+    if(flag == 0){
+
+            kprintf("Segmentation Fault: Address:%p \n",bb);
+            while(1);
+            outportb(0x20,0x20);
+    }
+    uint64_t* k = getPTE(bb);
+    if( k[(bb>>12)&0x1FF] & 0x0000000000000200){
+        __asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
 		//TODO: Free the old page
 		uint64_t p_n = allocate_page();
-		memcpy((uint64_t*)(0xffffffff80000000 + p_n),(uint64_t *)(bb&0xFFFFFFFFFFFFF000),4096);
+		memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
 		switchtokern();
 		init_pages_for_process(bb,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
-		__asm__ volatile("movq %0,%%cr3;"::"r"(k):);
+        __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 		outportb(0x20,0x20);
 	}
 	else if( (r->vm->vm_start > bb)  && (r->vm->vm_end < bb)){   //Auto Growing stack
@@ -201,12 +222,7 @@ void isr14(){
 //		while(1);
 		outportb(0x20,0x20);
 	}
-	else{
-		kprintf("Page Fault!!!!!!");
-		kprintf("%p",bb);
-		while(1);
-		outportb(0x20,0x20);
-	}
+
 
 }
 void isr15(){
