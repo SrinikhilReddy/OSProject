@@ -413,6 +413,7 @@ int chdir(char* path){
         setTruePath(k);
         char l[100];
         l[0] = '/';
+        l[1] = '\0';
         strcat(l,k);
         strcpy(r->curr_dir,l);
         return 0;

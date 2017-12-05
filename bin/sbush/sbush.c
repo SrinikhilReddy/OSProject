@@ -203,10 +203,10 @@ void setvar(char *args[]){
     if(strcmp("PS1",a[0])==0){
         strcpy(prompt,a[1]);
     }
-    if(strcmp("PATH",a[0])==0){
+   /* if(strcmp("PATH",a[0])==0){
         setenv("PATH", a[1], 1);
         setenvs();
-    }
+    }*/
 }
 void setStringTokens(char* str, char delimiter, char* strs[]){
     int i=0,j=0,k=0;

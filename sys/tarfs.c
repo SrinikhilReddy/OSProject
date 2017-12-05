@@ -32,7 +32,6 @@ void read_elf(uint64_t add){
                 if(phdr1 != NULL){
                         kprintf("Whatever\n");
                 }
-                kprintf("%d\n",(phdr1->p_type));
         }
 }
 uint64_t get_file_address(char* filename){
@@ -125,14 +124,33 @@ int isValidDirectory(char* path){
     h = headers[n];
     int l = strlen(h->name);
     if(h->name[l-1] == '/'){
-        return 0;
+        return n;
     }
     return -1;
+}
+int open_dir(char* path){
+    struct posix_header_ustar* h;
+    int file_no = isValidDirectory(path);
+    if(file_no == -1){
+        return  -1;
+    }
+    h = headers[file_no];
+    int fdc = r->fd_c + 3;
+    r->fd_c++;
+    strcpy(&(r->fd[fdc].file_name[0]), h->name);
+    r->fd[fdc].entry = 0;
+    r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    r->fd[fdc].address = (uint64_t)headers[file_no];
+    r->fd[fdc].fd = fdc;
+    return fdc;
 }
 int open_tarfs(char* path, int flags)
 {
         struct posix_header_ustar* h;
         int file_no = isfileexists(path);
+        if(file_no == -1){
+            return  -1;
+        }
         h = headers[file_no];
 	    int fdc = r->fd_c + 3;
 	    r->fd_c++;
@@ -195,7 +213,6 @@ int readdir_tarfs(int fd, char* buf)
 			else if(count==r->fd[fd].entry)
 			{
 				strcpy(buf,substring(headers[i]->name,index));
-				kprintf("\n%sEND", buf);
 				r->fd[fd].entry++;
 				ret = 1;
 				break;
@@ -204,11 +221,6 @@ int readdir_tarfs(int fd, char* buf)
 		}
         }
 	return ret;
-}
-
-int closedir_tarfs(DIR *d)
-{
-	return close_tarfs(d->fd);
 }
 
 int close_tarfs(int fp)

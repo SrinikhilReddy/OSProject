@@ -30,12 +30,11 @@ typedef struct {
 	uint64_t block_count;
 } inode;
 
-int opendir_tarfs(char*);
+int open_dir(char* path);
 int open_tarfs(char* file_path, int flags);
 ssize_t read_tarfs(int fd, char* buf, int count);
 uint64_t octal_to_binary(const char* octal);
 int readdir_tarfs(int fd, char* buf);
-//int closedir_tarfs(DIR*);
 int close_tarfs(int fp);
 
 #endif

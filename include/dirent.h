@@ -3,22 +3,17 @@
 
 #define NAME_MAX 255
 
-#include "stdlib.h"
+struct dirent {
+    char d_name[NAME_MAX+1];
+};
 
-/*typedef struct{
-	unsigned long  d_ino;   
-	unsigned long  d_off;    
-	unsigned short d_reclen;
-	char d_name[NAME_MAX+1];
-}dirent;
+typedef struct DIR{
+    struct dirent d_ent;
+    int fd;
+}DIR;
 
-typedef struct {
-	int fd;
-	dirent d;
-} DIR;*/
-
-DIR *opendir(const char *name);
-struct dirent *readdir(void *dirp);
+DIR* opendir(const char *name);
+struct dirent *readdir(DIR *dirp);
 int closedir(DIR *dirp);
 
 #endif

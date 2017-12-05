@@ -334,9 +334,12 @@ uint64_t isr128(){
 	else if(cval == 2){
 		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
 	}
-	else if(cval == 78){
+    else if(cval == 16){
+        ret =  open_dir((char *)y->rbx);
+    }
+   else if(cval == 78){
 		ret = readdir_tarfs((int) y->rbx, (char *) y->rcx);
-	}
+   }
     	else if(cval == 60){
       	 	exit();
     	}

@@ -16,7 +16,7 @@
 #define __NR_rt_sigprocmask			14
 #define __NR_rt_sigreturn			15
 
-#define __NR_ioctl				16
+#define __NR_opendir			16
 #define __NR_pread64				17
 #define __NR_pwrite64				18
 #define __NR_readv				19
