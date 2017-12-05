@@ -73,13 +73,16 @@ void create_process(char* filename){
 		kprintf("No such file\n");
 		return;
 	}
-
+    char a[50];
+    strcpy(a,filename);
 	int pid = newPID();
 	task_struct* ts = (task_struct *) &q[pid];//(task_struct *) kmalloc(sizeof(struct task_struct));
 	strcpy(ts->name,filename);
-	ts->ppid = 0;
+    strcpy(ts->curr_dir,"/");
+    ts->ppid = 0;
 	ts->pid = pid;
 	ts->vm = NULL;
+
 	ts->state = RUNNING;
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a); //512 - to offset tar info
 	int no_ph = eh->e_phnum;
@@ -136,10 +139,21 @@ void create_process(char* filename){
 	ts->vm = vm;
 	set_tss_rsp(&(ts->kstack[511]));
 
+    uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
+    __asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+
+    int len = strlen(a)+1;
+    ts->rsp = ts->rsp - len;
+    memcpy(ts->rsp,a,len);
+
+    (ts->rsp)-=1;
+    *(ts->rsp) = (uint64_t)((ts->rsp)+1);
+
+    (ts->rsp)-=1;
+    *(ts->rsp) = 0x1;
+
 	r = ts;
-	addToQ(ts);
-	uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
-	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pl));
+
 
 	__asm__ volatile("pushq $0x23;pushq %0;pushf;pushq $0x2B;"::"r"(ts->rsp):"%rax","%rsp");
 	__asm__ ("pushq %0"::"r"(ts->regs.rip):"memory");
@@ -153,8 +167,9 @@ void copytask(task_struct* c){
 	c->pml4e = (uint64_t)((uint64_t)allocate_page_for_process() - (uint64_t)0xffffffff80000000);
 
 	strcpy(c->name,r->name);
+    strcpy(c->curr_dir,r->curr_dir);
 
-	copytables(r,c);
+    copytables(r,c);
 	vma* a = r->vm;
 	vma* p = NULL;
 	c->vm = NULL;
@@ -190,7 +205,6 @@ int fork(){
 
 	r->child_count+=1;
 	r->child = new;
-	addToQ(new);
 	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);
     new->kstack[14] = 9999;
 	__asm__ __volatile__(

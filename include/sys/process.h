@@ -41,7 +41,7 @@ typedef struct mm_struct {
 }mm;
 
 typedef struct task_struct {
-	char name[128];
+	char name[50];
 	uint64_t kstack[512];
 	uint64_t *ustack;
 	
@@ -70,7 +70,7 @@ typedef struct task_struct {
 
 	struct mm_struct *mm;
 	struct vm_area_struct *vm;
-	char* curr_dir;
+	char curr_dir[50];
 	struct file_t fd[25];
 	int fd_c;
 	

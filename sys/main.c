@@ -46,7 +46,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 	fd1 = readdir_tarfs(fd,&buf[0]);
 	kprintf("%d,:,%s", fd1, buf);*/
 //  create_process("bin/ls");
-  __asm__ volatile("sti");
+//  __asm__ volatile("sti");
 //  checkAllBuses();
 //  kprintf("physfree %p\n", (uint64_t)physfree);
 //  kprintf("physbase %p\n", (uint64_t)physbase);
