@@ -16,15 +16,14 @@ int main(int argc, char* argv[], char* envp[])
 		}   
 		return 0;
 	 */	
-	int i=0;
-	i = readstring(fp,buf,4096);
-	while(i>0)
-	{
+	readstring(fp,buf,4096);
+	//while(i>0)
+	//{
 		puts(buf);
-	 	lseek(fp,i,SEEK_CUR);		
+	 	//lseek(fp,i,SEEK_CUR);		
 	//	putchar(65+l);
-		i=readstring(fp,buf,4096);
-	}
+		//i=readstring(fp,buf,4096);
+	//}
 	close(fp);
 }
 
