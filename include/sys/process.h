@@ -44,14 +44,15 @@ typedef struct task_struct {
 	char name[50];
 	uint64_t kstack[512];
 	uint64_t *ustack;
-	
+	int time;
 	enum {
 		RUNNING,
 		SLEEPING,
 		ZOMBIE,
 		IDLE,
 		READY,
-		WAIT
+		WAIT,
+        SUSPENDED
 	} state;
 	uint64_t pid;
 	uint64_t ppid;
@@ -100,4 +101,6 @@ int waitpid(int pid);
 pid_t getpid(void);
 pid_t getppid(void);
 int kill(int pid);
+unsigned int sleep(unsigned int seconds);
+
 #endif

@@ -374,4 +374,14 @@ pid_t getpid(void){
 
 pid_t getppid(void){
 	return r->ppid;
-} 
+}
+
+unsigned int sleep(unsigned int seconds){
+    if(seconds <= 0){
+        return 0;
+    }
+    r->time = seconds;
+    r->state = SUSPENDED;
+    yield();
+    return 0;
+}

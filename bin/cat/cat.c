@@ -17,7 +17,7 @@ int main(int argc, char* argv[], char* envp[])
         puts(": No such file\n");
         return -1;
     }
-    puts("\n");
+//    puts("\n");
     readstring(fp,buf,4096);
 	puts(buf);
 	//close(fp);

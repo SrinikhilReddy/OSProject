@@ -37,7 +37,7 @@
 #define __NR_dup				32
 #define __NR_dup2				33
 #define __NR_pause				34
-#define __NR_nanosleep				35
+#define __NR_sleep				35
 #define __NR_getitimer				36
 #define __NR_alarm				37
 #define __NR_setitimer				38

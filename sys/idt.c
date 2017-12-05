@@ -348,6 +348,9 @@ uint64_t isr128(){
     else if(cval == 62){
        ret = kill((int)y->rbx);
     }
+    else if(cval == 35){
+            ret = sleep((int)y->rbx);
+        }
 	yield();
 	outportb(0x20,0x20);
 	return ret;
