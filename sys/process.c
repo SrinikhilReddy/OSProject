@@ -69,12 +69,12 @@ void init_p(){
 
 void ps()
 {
-	kprintf("ID\tName\tState\n");
+	kprintf("ID    Name    State\n");
 	for(int i=0; i<MAX; i++)
 	{
-		kprintf("%s\t",q[i].pid);
-		kprintf("%s\t",q[i].name);
-		kprintf("%s/t",q[i].state);
+		kprintf("%s  ",q[i].pid);
+		kprintf("%s  ",q[i].name);
+		kprintf("%s  ",q[i].state);
 		kprintf("\n");
 	}
 }
