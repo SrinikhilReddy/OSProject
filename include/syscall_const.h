@@ -347,3 +347,4 @@
 #define __NR_pwritev				296
 #define __NR_rt_tgsigqueueinfo			297
 #define __NR_perf_event_open			298
+#define __NR_ps 				299
