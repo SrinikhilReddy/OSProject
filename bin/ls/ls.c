@@ -5,7 +5,7 @@
 #include <unistd.h>
 #define BUF_SIZE 1024
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], char* envp[])
 {
     char dir[50];
     DIR* dp;

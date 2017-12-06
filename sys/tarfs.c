@@ -198,11 +198,9 @@ int readdir_tarfs(int fd, char* buf)
 	char* dir_name = r->fd[fd].file_name;
         for(i=0; i<32 && headers[i]!=NULL; i++)
         {
-                //kprintf("%s ",headers[i]->name);
 		int index = starts_with(headers[i]->name,dir_name);
                 if(index>0)
                 {
-			//kprintf("MATCHED %s ",headers[i]->name);
 			if(count==0)
 			{
 				if(r->fd[fd].entry==0)
