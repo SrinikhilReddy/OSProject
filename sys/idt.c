@@ -367,6 +367,9 @@ uint64_t isr128(){
     else if(cval == 80){
             ret = chdir((char*)y->rbx);
     }
+	else if(cval == 299){
+		ps();
+	}
 	yield();
 	outportb(0x20,0x20);
 	return ret;
