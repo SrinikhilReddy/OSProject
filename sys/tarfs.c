@@ -130,6 +130,35 @@ int isValidDirectory(char* path){
 }
 int open_dir(char* path){
     struct posix_header_ustar* h;
+    if(strcmp(path,"/")==0)
+    {
+	int i=0;
+	for(i=0; i<32 && headers[i]!=NULL; i++)
+    	{
+		int c=0;
+		int j=0;
+        	while(*(headers[i]->name+j))
+        	{
+			if(*(headers[i]->name+j)=='/')
+			{	
+				c++;
+			}
+			j++;
+        	}
+		if(c==1)
+		{
+			h = headers[i];
+    			int fdc1 = r->fd_c + 3;
+    			r->fd_c++;
+    			strcpy(&(r->fd[fdc1].file_name[0]), h->name);
+    			r->fd[fdc1].entry = 0;
+    			r->fd[fdc1].size = (uint64_t)(octal_to_binary((char*)(h->size)));
+    			r->fd[fdc1].address = (uint64_t)headers[i];
+    			r->fd[fdc1].fd = fdc1;
+    			return fdc1;
+		}
+    	}
+    }
     int file_no = isValidDirectory(path);
     if(file_no == -1){
         return  -1;
