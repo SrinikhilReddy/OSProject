@@ -101,7 +101,7 @@ void create_process(char* filename){
 	int no_ph = eh->e_phnum;
 	uint64_t* pml4 = (uint64_t *)allocate_page_for_process();
 	memset(pml4,0,4096);
-	ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)0xffffffff80000000); 
+	ts->pml4e =( uint64_t )((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
 	ts->regs.rip = eh->e_entry;
 	for(int i=no_ph;i>0;i--){
 		//               ep = ep + (i-1);
@@ -178,7 +178,7 @@ void copytask(task_struct* c){
 	c->ppid = r->pid;
 
 	c->pml4e = (uint64_t)((uint64_t)allocate_page_for_process() - (uint64_t)0xffffffff80000000);
-
+    memset((uint64_t*)(c->pml4e+(0xffffffff80000000)),0,4096);
 	strcpy(c->name,r->name);
     strcpy(c->curr_dir,r->curr_dir);
 
@@ -259,7 +259,7 @@ int execvpe(char* path, char *argv[]){
 	int no_ph = eh->e_phnum;
 	ts->regs.rip = eh->e_entry;
 	uint64_t* pml4 = (uint64_t *)(ts->pml4e + 0xffffffff80000000);
-	deletepagetables((uint64_t *)(ts->pml4e + 0xffffffff80000000));
+    dealloc_pml4((ts->pml4e));
 	for(int i=no_ph;i>0;i--){
 		Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
 		ep = ep + (i-1);
@@ -341,25 +341,27 @@ void exit(){
     yield();
 }
 void removeProcess(int i){
-
     dealloc_pml4(q[i].pml4e);
 }
 int wait(){
-    for (int i = 0; i < MAX; ++i) {
-        if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
-            removeProcess(i);
-            return i;
+    while(1) {
+        for (int i = 0; i < MAX; ++i) {
+            if ((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)) {
+                removeProcess(i);
+                q[i].state = READY;
+                return i;
+            }
+        }
+        r->state = WAIT;
+        yield();
+        for (int i = 0; i < MAX; ++i) {
+            if ((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)) {
+                removeProcess(i);
+                q[i].state = READY;
+                return i;
+            }
         }
     }
-    r->state = WAIT;
-    yield();
-    for (int i = 0; i < MAX; ++i) {
-        if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
-            removeProcess(i);
-            return i;
-        }
-    }
-    return -1;
 }
 int kill(int pid){
     q[pid].state = ZOMBIE;
@@ -377,13 +379,15 @@ int waitpid(int pid){
     int i = pid;
     if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
         removeProcess(i);
+        q[i].state = READY;
         return i;
     }
     r->state = WAIT;
     while(1){
         yield();
         if((q[i].ppid == r->pid) && (q[i].state == ZOMBIE)){
-        removeProcess(i);
+            removeProcess(i);
+            q[i].state = READY;
             return i;
         }
     }
