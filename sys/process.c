@@ -141,8 +141,14 @@ void create_process(char* filename){
 		}
 	}
 
+    vma* vm2 = (vma *)kmalloc(sizeof(struct vm_area_struct));
+    vm2->vm_start = 0x4B0FFFFF0000;
+    vm2->vm_end = 0x4B0FFFFF0000;
+    vm2->next = ts->vm;
+    ts->vm = vm2;
 
-	uint64_t s_add = allocate_page();
+
+    uint64_t s_add = allocate_page();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
@@ -151,6 +157,8 @@ void create_process(char* filename){
 	vm->vm_end = (uint64_t)0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
+
+
 	set_tss_rsp(&(ts->kstack[511]));
 
     uint64_t* pl =( uint64_t*)((uint64_t)pml4 - (uint64_t)0xffffffff80000000);
@@ -261,6 +269,7 @@ int execvpe(char* path, char *argv[]){
 	ts->regs.rip = eh->e_entry;
 	uint64_t* pml4 = (uint64_t *)(ts->pml4e + 0xffffffff80000000);
     dealloc_pml4((ts->pml4e));
+
 	for(int i=no_ph;i>0;i--){
 		Elf64_Phdr* ep = (Elf64_Phdr*)(f_a + (eh->e_phoff));
 		ep = ep + (i-1);
@@ -450,4 +459,17 @@ void getcwd(char *buf, int size){
     else{
         buf[l-1] = '\0';
     }
+}
+void* malloc(int no_of_bytes){
+    vma* vm = r->vm;
+    while(vm->next){
+        vm = vm->next;
+    }
+    uint64_t ret = vm->vm_end;
+    for(int i =0;i<((no_of_bytes/4096))+1;i++){
+        uint64_t s_add = allocate_page();
+        init_pages_for_process(vm->vm_end,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
+        vm->vm_end = vm->vm_end + 4096;
+    }
+    return (uint64_t*)ret;
 }

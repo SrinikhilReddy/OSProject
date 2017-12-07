@@ -16,6 +16,7 @@ void clrscr()
     for(int i=0;i<25;i++){
         for(int j=0; j<80; j++){
             *p_reg = ' ';
+            *(p_reg-1) = 0x07;
             p_reg+=2;
         }
     }

@@ -237,7 +237,8 @@ void isr14(){
 //		while(1);
 	}
     else{
-        kprintf("You are screwed");
+        kprintf("Segmentation Fault: Address:%p \n",bb);
+        exit();
         while(1);
     }
 
@@ -379,7 +380,9 @@ uint64_t isr128(){
     }
 	else if(cval == 299){
 		ps();
-	}
+	}else if(cval == 9){
+            ret = (uint64_t) malloc((int)y->rbx);
+        }
 	// yield();
 	outportb(0x20,0x20);
 	return ret;

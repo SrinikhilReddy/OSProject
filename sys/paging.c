@@ -82,15 +82,6 @@ uint64_t allocate_page(){
 	head = head->next;
 	return temp->address;
 }
-/**
-  Should return a pml4e address after creating a 4 level page level for a user process.
-Plan:
-Create an address space for a user process
-
- **/
-/*uint64_t newpage_u_proc(){
-
-  }*/
 uint64_t kmalloc(int size){
 	int no_pages = (size/4096)+1;
 	uint64_t add = allocate_page_for_process();
@@ -225,9 +216,7 @@ uint64_t allocate_page_for_process(){
 uint64_t getPhysical(uint64_t vr){
 	return (uint64_t) *((uint64_t *)(*(uint64_t *)( *((uint64_t *)(pml4e[(vr>>39) & 0x1FF])+ ((vr>>30)&0x1FF)) + ((vr>>21)&0x1FF)) + ((vr>>12)&0x1FF)));
 }
-//void vmtophy(uint64_t* pml4, uint64_t vs){
-	
-//}
+
 void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 	pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
 	int id1 = (vaddr_s >> 39 ) & 0x1FF;
@@ -304,51 +293,6 @@ void init_pages_for_process(uint64_t vaddr_s, uint64_t phy, uint64_t* pml4){
 		}
 	}
 }
-/*
-   uint64_t init_pages_for_process(uint64_t vaddr_s, uint64_t vaddr_e, uint64_t* pml4){
-   uint64_t *pdpt,*pd,*pt;
-   uint64_t idx1,idx2,idx3,idx4;
-
-   pdpt = (uint64_t *)allocate_page_for_process();
-   pd = (uint64_t *)allocate_page_for_process();
-   pt = (uint64_t *)allocate_page_for_process();
-
-   idx1 = (vaddr_s >> 39 ) & 0x1FF;
-   idx2 = (vaddr_s >> 30 ) & 0x1FF;
-   idx3 = (vaddr_s >> 21 ) & 0x1FF;
-   idx4 = (vaddr_s >> 12 ) & 0x1FF;
-
-   pml4[idx1] = (((uint64_t)pdpt-(uint64_t)0xffffffff80000000) & 0xFFFFFFFFFFFFF000) | 7;
-
-   pml4[511] = (pml4e[511] & 0xFFFFFFFFFFFFF000) | 7;
-
-   pdpt[idx2] = (((uint64_t)pd -(uint64_t)0xffffffff80000000) & 0xFFFFFFFFFFFFF000) | 7;
-   pd[idx3] = (((uint64_t)pt-(uint64_t)0xffffffff80000000) & (0xFFFFFFFFFFFFF000)) | 7;
-
-//      for(;phy_start<phy_end;phy_start+=4096){
-
-for(;vaddr_s<vaddr_e;){
-uint64_t phy = allocate_page();
-idx1 = (vaddr_s >> 39 ) & 0x1FF;
-idx2 = (vaddr_s >> 30 ) & 0x1FF;
-idx3 = (vaddr_s >> 21 ) & 0x1FF;
-idx4 = (vaddr_s >> 12 ) & 0x1FF;
-
-if(idx4!=0){
-pt[idx4] = (phy & 0xFFFFFFFFFFFFF000) | 7;
-}
-else{
-pt = ((uint64_t*)allocate_page_for_process());
-pd[idx3] = (((uint64_t)pt-(uint64_t)0xffffffff80000000) & (0xFFFFFFFFFFFFF000)) | 7;
-pt[idx4] = (phy & 0xFFFFFFFFFFFFF000) | 7;
-}
-//map(vaddr_s,phy);
-vaddr_s += 4096;
-}	 
-return (uint64_t)pml4;
-}
- */
-
 
 void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 
@@ -410,11 +354,6 @@ void init_ia32e_paging(uint64_t physbase, uint64_t physfree){
 	__asm__ volatile("movq %0,%%cr3"::"r"(k_cr3));	
 //	k_cr3 = (uint64_t)pml4e;
 }
-void deletepagetables(uint64_t* p4){
-	for(int i=0;i<511;i++){
-		p4[i] = 0;
-	}
-}	
 void copytables(task_struct* p, task_struct* c){
 	uint64_t* p4 = (uint64_t *)(p->pml4e + 0xffffffff80000000);
 	uint64_t* c4 =(uint64_t *) (c->pml4e + 0xffffffff80000000);

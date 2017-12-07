@@ -1,7 +1,7 @@
 #ifndef _PROCESS_H
 #define _PROCESS_H
 
-#define MAX 100
+#define MAX 1100
 #define STACK_S = 0x100FFFFF0000;
 
 /**
@@ -86,5 +86,5 @@ void getcwd(char *buf, int size);
 int chdir(char* path);
 unsigned int sleep(unsigned int seconds);
 void ps();
-
+void* malloc(int no_of_bytes);
 #endif

@@ -2,7 +2,6 @@
 #include <sys/defs.h>
 #include <sys/elf64.h>
 #include <sys/file.h>
-#include <stdlib.h>
 #include <sys/string.h>
 #include <sys/tarfs.h>
 #include <sys/process.h>
@@ -132,32 +131,11 @@ int open_dir(char* path){
     struct posix_header_ustar* h;
     if(strcmp(path,"/")==0)
     {
-	int i=0;
-	for(i=0; i<32 && headers[i]!=NULL; i++)
-    	{
-		int c=0;
-		int j=0;
-        	while(*(headers[i]->name+j))
-        	{
-			if(*(headers[i]->name+j)=='/')
-			{	
-				c++;
-			}
-			j++;
-        	}
-		if(c==1)
-		{
-			h = headers[i];
-    			int fdc1 = r->fd_c + 3;
-    			r->fd_c++;
-    			strcpy(&(r->fd[fdc1].file_name[0]), h->name);
-    			r->fd[fdc1].entry = 0;
-    			r->fd[fdc1].size = (uint64_t)(octal_to_binary((char*)(h->size)));
-    			r->fd[fdc1].address = (uint64_t)headers[i];
-    			r->fd[fdc1].fd = fdc1;
-    			return fdc1;
-		}
-    	}
+	    int fdc = r->fd_c+3;
+        r->fd_c++;
+        r->fd[fdc].entry = 0;
+        strcpy(&(r->fd[fdc].file_name[0]),"/");
+        return fdc;
     }
     int file_no = isValidDirectory(path);
     if(file_no == -1){
@@ -221,32 +199,32 @@ ssize_t read_tarfs(int fd, char* buf, int count)
 
 int readdir_tarfs(int fd, char* buf)
 {
-        int ret = 0;
-        int i=0;
-	int count = 0;
-	char* dir_name = r->fd[fd].file_name;
-        for(i=0; i<32 && headers[i]!=NULL; i++)
-        {
-		int index = starts_with(headers[i]->name,dir_name);
-                if(index>0)
+    int ret = 0;
+    int i=0;
+    int count = 0;
+    char* dir_name = r->fd[fd].file_name;
+    for(i=0; i<32 && headers[i]!=NULL; i++)
+    {
+        int index = starts_with(headers[i]->name,dir_name);
+        int k = strcmp(dir_name,"/");
+        if((index>0) || k==0) {
+            if(count==0)
+            {
+                if(r->fd[fd].entry==0)
                 {
-			if(count==0)
-			{
-				if(r->fd[fd].entry==0)
-				{
-					r->fd[fd].entry++;
-				}
-			}
-			else if(count==r->fd[fd].entry)
-			{
-				strcpy(buf,substring(headers[i]->name,index));
-				r->fd[fd].entry++;
-				ret = 1;
-				break;
-			}
-			count++;
-		}
+                    r->fd[fd].entry++;
+                }
+            }
+            else if(count==r->fd[fd].entry)
+            {
+                strcpy(buf,substring(headers[i]->name,index));
+                r->fd[fd].entry++;
+                ret = 1;
+                break;
+            }
+            count++;
         }
+    }
 	return ret;
 }
 
@@ -257,7 +235,7 @@ int close_tarfs(int fp)
 	ft.offset = 0;
 	ft.size = 0;
 	//.address = NULL;
-	return ft.fd;  
+	return ft.fd;
 }
 
 uint64_t octal_to_binary(const char* octal)
