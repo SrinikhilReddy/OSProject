@@ -29,11 +29,11 @@ int printf(const char* str,...)
 			char* a = (char*) va_arg(list,char *);
 			puts(a);
 		}
-		else if(strcmp(s[i],"%c")==0)
+		/*else if(strcmp(s[i],"%c")==0)
 		{
 			char* a = (char*) va_arg(list,int);
 			puts(a);
-		}
+		}*/
 		else if(strcmp(s[i],"%x")==0)
 		{
 			print_hex(va_arg(list,int));
@@ -56,6 +56,7 @@ int printf(const char* str,...)
 
 void print_int(int num)
 {
+	char nums[10] = "0123456789";
 	char buf[100];
 	char* p = buf;
 	int temp = num;
@@ -67,7 +68,7 @@ void print_int(int num)
 	*p = '\0';
 	do
 	{
-		*--p = num%10;
+		*--p =  nums[num%10];
 		num = num/10;
 	}while(num);
 	puts(buf);
@@ -120,12 +121,15 @@ void string_split(const char* str, char s[100][100])
         if(*str=='%')
         {
             str++;
-            strcpy(s[i],temp);
-            i++;
-            for(int k=0; k<=j; k++)
-            {
-                temp[k]='\0';
-            }
+	    if(strcmp(temp,"\0")!=0)
+	    {
+		strcpy(s[i],temp);
+            	i++;
+            	for(int k=0; k<=j; k++)
+            	{
+                	temp[k]='\0';
+            	}
+	    }
             temp[0] = '%';
             temp[1] = *str;
             strcpy(s[i],temp);
@@ -135,7 +139,10 @@ void string_split(const char* str, char s[100][100])
             j=0;        }
         else if(*str=='\n' || *str=='\t')
         {
-            strcpy(s[i],temp);
+	    if(strcmp(temp,"\0")!=0)
+	    {
+            	strcpy(s[i],temp);
+	    }
             i++;
             for(int k=0; k<=j; k++)
             {
