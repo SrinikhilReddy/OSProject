@@ -250,16 +250,10 @@ int fork(){
 int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char file[50];
-    int argc = 0;
+    int argc = 0, envl = 0;
     uint64_t f_a = 0 ;
     char args[10][80];
-/*    if( (*path) != '/') {
-        strcpy(file, &(r->curr_dir[1]));
-        strcat(file, path);
-    }
-    else{
-        strcpy(file,path+1);
-    }*/
+    char envs[40][80];
     if(path[0] == '.' && path[1] == '/'){
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path+2);
@@ -288,6 +282,10 @@ int execvpe(char* path, char *argv[],char* env[]){
             strcpy(args[argc], argv[argc]);
             argc++;
         }
+    }
+    while (env[envl]) {
+        strcpy(envs[envl], env[envl]);
+        argc++;
     }
     if (f_a < 512) {
         return -1;
@@ -350,6 +348,13 @@ int execvpe(char* path, char *argv[],char* env[]){
 	vm->next = ts->vm;
 	ts->vm = vm;
 
+    uint64_t* temp1[envl];
+    for(int i=envl-1;i>=0;i--){
+        int l = strlen(envs[i])+1;
+        ts->rsp = ts->rsp-l;
+        memcpy(ts->rsp,envs[i],l);
+        temp1[i] = ts->rsp;
+    }
 
 	uint64_t* temp[argc];
 	for(int i=argc-1;i>=0;i--){
@@ -361,7 +366,10 @@ int execvpe(char* path, char *argv[],char* env[]){
 
     ts->rsp -= 1;
     *(ts->rsp) = 0;
-
+    for(int i=envl-1;i>=0;i--){
+        (ts->rsp)-=1;
+        *(ts->rsp) = (uint64_t)temp1[i];
+    }
 
     ts->rsp -= 1;
     *(ts->rsp) = 0;

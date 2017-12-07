@@ -47,8 +47,8 @@ int main(int argc, char *argv[], char *envp[]) {
     strcat(prompt1,pwd);
     strcat(prompt1,"$");
     setenvs();
-    clrscr();
     if(argc==1){
+        clrscr();
         while(1){
             puts(prompt1);
             readInput();
