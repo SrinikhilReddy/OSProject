@@ -10,6 +10,10 @@ int readstring(int fd,char* buf,int size){
 int main(int argc, char* argv[], char* envp[])
 {
 	int fp ;
+    if(argc <2){
+        puts("No file name given\n");
+        return -1;
+    }
     fp=fopen(argv[1],"r");
     if(fp < 0){
         puts("cat: ");

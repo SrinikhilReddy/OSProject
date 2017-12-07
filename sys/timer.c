@@ -10,7 +10,7 @@ void timer_handler(){
 	outportb(0x20,0x20);
 	count++;
 	if(count == 18){
-//       yield();
+       yield();
 		sec++;
 		int temp = sec;
 		char *reg = (char*)0xffffffff800B8F9E;
@@ -29,7 +29,5 @@ void timer_handler(){
                 q[i].state = RUNNING;
             }
         }
-      //  kprintf("=======================\n");
 	}
-	//outportb(0x20,0x20);
 }

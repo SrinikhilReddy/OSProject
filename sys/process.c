@@ -230,7 +230,7 @@ int fork(){
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
-    
+
     new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
     return new->pid;
 }
@@ -238,13 +238,15 @@ int fork(){
 int execvpe(char* path, char *argv[]){
 	task_struct* ts = r;
     char file[50];
-    if( (*path) != '/') {
+/*    if( (*path) != '/') {
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path);
     }
     else{
         strcpy(file,path+1);
-    }
+    }*/
+    strcpy(file,"bin/");
+    strcat(file,path);
 	strcpy(ts->name,file);
 	char args[10][80] ;
 	uint64_t f_a = get_file_address(file) +512;
@@ -252,7 +254,6 @@ int execvpe(char* path, char *argv[]){
 		return -1;
 	}
 	int argc = 0;
-//	strcpy(args[argc++],ts->name);
 	while(argv[argc]){
 		strcpy(args[argc],argv[argc]);
 		argc++;
@@ -413,10 +414,20 @@ unsigned int sleep(unsigned int seconds){
     return 0;
 }
 int chdir(char* path){
+   /* if(strcmp("../",path) == 0){
+        char t[100];
+        getcwd(t,-1);
+        strcat(t,"/");
+        strcat(t,path);
+        path = &t[1];
+
+    }*/
     if((isValidDirectory(path)) > -1){
+        kprintf("---- %s\n",path);
         char k[100];
         strcpy(k,path);
         setTruePath(k);
+        kprintf("---- %s\n",k);
         char l[100];
         l[0] = '/';
         l[1] = '\0';
