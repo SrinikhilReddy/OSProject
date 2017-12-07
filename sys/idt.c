@@ -188,7 +188,7 @@ void isr14(){
     int flag = 0;
 	__asm__ volatile("movq %%cr2,%0;":"=g"(bb)::);
     vma* vm = r->vm;
-    if(((vm->vm_start+4096) > bb) && (vm->vm_end < bb)){
+    if(((vm->vm_start + 4096) > bb) && (vm->vm_end < bb)){
         flag =1;
     }
     if(flag == 0) {
@@ -201,7 +201,9 @@ void isr14(){
         }
     }
     if(flag == 0){
-            kprintf("Segmentation Fault: Address:%p \n",bb);
+       // kprintf("New allocated stack at %p - range %p,%p \n",bb,r->vm->vm_start+4096,r->vm->vm_end);
+
+        kprintf("Segmentation Fault: Address:%p \n",bb);
             exit();
             while(1);
     }
@@ -226,13 +228,13 @@ void isr14(){
         __asm__ volatile("movq %0,%%cr3;"::"r"(k1):);
 	}
 	else if( (r->vm->vm_start > bb)  && (r->vm->vm_end < bb)){   //Auto Growing stack
-		uint64_t k;
+        uint64_t k;
 		__asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
-		uint64_t n_s = r->vm->vm_start - 4096;
+		//uint64_t n_s = r->vm->vm_start - 4096;
 		uint64_t p_n = allocate_page();
 		switchtokern();
-		init_pages_for_process(n_s,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));	
-		r->vm->vm_start = n_s;
+		init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
+	//	r->vm->vm_start = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 //		while(1);
 	}

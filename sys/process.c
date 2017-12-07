@@ -304,14 +304,21 @@ int execvpe(char* path, char *argv[]){
 			__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));
 		}
 	}
-	
-	uint64_t s_add = allocate_page();
+
+    vma* vm2 = (vma *)kmalloc(sizeof(struct vm_area_struct));
+    vm2->vm_start = 0x4B0FFFFF0000;
+    vm2->vm_end = 0x4B0FFFFF0000;
+    vm2->next = ts->vm;
+    ts->vm = vm2;
+
+    
+    uint64_t s_add = allocate_page();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
 	ts->rsp = (uint64_t *)((uint64_t)ts->ustack + (510 * 8));
 	vma* vm = (vma *)kmalloc(sizeof(struct vm_area_struct));
 	vm->vm_start = 0x100FFFFF0000;
-	vm->vm_end = 0x100FFFFF0000+(512*8) - 1;
+	vm->vm_end = 0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
 	uint64_t* temp[argc];
