@@ -342,7 +342,14 @@ void exit(){
     yield();
 }
 void removeProcess(int i){
+    vma* vm = q[i].vm;
+    while(vm){
+        uint64_t k = (uint64_t)vm;
+        vm = vm->next;
+        free(k-0xffffffff80000000);
+    }
     dealloc_pml4(q[i].pml4e);
+    free(q[i].pml4e);
 }
 int wait(){
     while(1) {

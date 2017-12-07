@@ -104,34 +104,32 @@ uint64_t kmalloc(int size){
 }
 void printpml4(uint64_t* p4){
         for(int i = 0;i<511;i++){
-                if( (p4[i]&1)){
-                        kprintf("PML4 id:%d val:%p \n",i,(p4[i] & 0xFFFFFFFFFFFFF000));
-                        uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
-			p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
-                        for(int j=0;j<512;j++){
-                                if( (p3[j]&1)){
-                                         kprintf("P3 id:%d val:%p \n",j,(p3[j] & 0xFFFFFFFFFFFFF000));
-                                         uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
-				                                         p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
-
-                                          for(int k=0;k<512;k++){
-                                                 if( (p2[k]&1)){
-                                                    kprintf("P2 id:%d val:%p \n",k,(p2[k] & 0xFFFFFFFFFFFFF000));
-                                                    uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
-		                                    p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
-                                                    for (int l = 0; l < 512; ++l)
-                                                    {
-                                                       if ((p1[l]&1))
-                                                       {
-                                                            kprintf("P1 id:%d val:%p \n",l,(p1[l] ));//& 0xFFFFFFFFFFFFF000));
-                                                       }
-                                                    }
-
-                                                 }
-                                          }
-                                }   
-                        }   
-                }   
+            if( (p4[i]&1)){
+                kprintf("PML4 id:%d val:%p \n",i,(p4[i] & 0xFFFFFFFFFFFFF000));
+                uint64_t* p3 = (uint64_t *)(p4[i] & 0xFFFFFFFFFFFFF000);
+                p3 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p3);
+                for(int j=0;j<512;j++){
+                    if( (p3[j]&1)){
+                        kprintf("P3 id:%d val:%p \n",j,(p3[j] & 0xFFFFFFFFFFFFF000));
+                        uint64_t* p2 = (uint64_t *)(p3[j] & 0xFFFFFFFFFFFFF000);
+                        p2 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p2);
+                        for(int k=0;k<512;k++){
+                            if( (p2[k]&1)){
+                                kprintf("P2 id:%d val:%p \n",k,(p2[k] & 0xFFFFFFFFFFFFF000));
+                                uint64_t* p1 = (uint64_t *)(p2[k] & 0xFFFFFFFFFFFFF000);
+                                p1 = (uint64_t *)((uint64_t)0xffffffff80000000 + (uint64_t)p1);
+                                for (int l = 0; l < 512; ++l)
+                                {
+                                    if ((p1[l]&1))
+                                    {
+                                        kprintf("P1 id:%d val:%p \n",l,(p1[l] ));//& 0xFFFFFFFFFFFFF000));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }   
 }
 uint64_t* getPTE(uint64_t v){
@@ -479,13 +477,18 @@ void dealloc_pml4(uint64_t pm4){
                                 }
                                 p1[l] = 0;
                             }
+                            free(p2[k] & 0xFFFFFFFFFFFFF000);
                         }
                         p2[k]=0;
+
                     }
+                    free(p3[j] & 0xFFFFFFFFFFFFF000);
                 }
                 p3[j]=0;
             }
+            free(p4[i] & 0xFFFFFFFFFFFFF000);
         }
         p4[i]=0;
     }
+  //  free(pm4);
 }
