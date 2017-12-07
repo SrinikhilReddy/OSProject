@@ -80,6 +80,25 @@ static inline uint8_t inportb(uint64_t port)
 void init_idt(){
   //  init_timer();
 //	set_value(0,(uint64_t)&isr_0);
+    outportb(0x20, 0x11);
+    outportb(0xA0, 0x11);
+
+    /* ICW2 - remap offset address of IDT */
+    outportb(0x21, 0x20); // Master PIC vector offset
+    outportb(0xA1, 0x28); // Slave PIC vector offset
+
+    /* ICW3 - Setup cascading */
+    outportb(0x21, 0x04); // informs Master PIC about Slave PIC cascaded at ICW2
+    outportb(0xA1, 0x02); // cascade identity of Slave PIC
+
+    /* ICW4 - environment info */
+    outportb(0x21, 0x01);
+    outportb(0xA1, 0x01);
+
+    /* mask interrupts */
+    outportb(0x21, 0x0);
+    outportb(0xA1, 0x0);
+
 	set_value(0 ,(uint64_t)&isr_0 );
 set_value(1 ,(uint64_t)&isr_1);
 set_value(2 ,(uint64_t)&isr_2);
@@ -380,7 +399,7 @@ uint64_t isr128(){
 	else if(cval == 299){
 		ps();
 	}
-	yield();
+	// yield();
 	outportb(0x20,0x20);
 	return ret;
 }

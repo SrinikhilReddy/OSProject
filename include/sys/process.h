@@ -21,24 +21,12 @@ typedef struct vm_area_struct {
 	
 	uint64_t vm_file;
 	uint64_t offset;
-
-	struct mm_struct *vm_mm;
-	struct vm_area_struct *next;
+    struct vm_area_struct *next;
 }vma;
 
 typedef struct Register{
 	uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp, rip, rflags, cr3;
 }reg;
-
-typedef struct mm_struct {
-	struct vma_area_struct *mmap, *mmap_active;
-	uint64_t arg_start, arg_end;
-	uint64_t env_start, env_end;
-	uint64_t pml4_t;
-	uint64_t start_brk, end_brk;
-	uint64_t start_code, end_code;
-	uint64_t start_data, end_data; 
-}mm;
 
 typedef struct task_struct {
 	char name[50];
@@ -69,7 +57,6 @@ typedef struct task_struct {
 	struct task_struct *child;
 	int child_count;
 
-	struct mm_struct *mm;
 	struct vm_area_struct *vm;
 	char curr_dir[50];
 	struct file_t fd[25];

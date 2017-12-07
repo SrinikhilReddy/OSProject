@@ -10,7 +10,7 @@ void timer_handler(){
 	outportb(0x20,0x20);
 	count++;
 	if(count == 18){
-//        yield();
+//       yield();
 		sec++;
 		int temp = sec;
 		char *reg = (char*)0xffffffff800B8F9E;
@@ -21,14 +21,14 @@ void timer_handler(){
 			reg-=2;			
 		}
 		count = 0;
-       /* for(int i=0;i<MAX;i++){
+        for(int i=0;i<MAX;i++){
             if(q[i].state == SUSPENDED && q[i].time >0){
                 q[i].time--;
             }
-            if(q[i].time == 0){
+            if(q[i].time == 0 && q[i].state == SUSPENDED){
                 q[i].state = RUNNING;
             }
-        }*/
+        }
       //  kprintf("=======================\n");
 	}
 	//outportb(0x20,0x20);

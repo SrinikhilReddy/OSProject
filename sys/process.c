@@ -69,13 +69,13 @@ void init_p(){
 
 void ps()
 {
-	kprintf("ID    Name    State\n");
+	kprintf("ID    Name\n");
 	for(int i=0; i<MAX; i++)
 	{
         if(q[i].state == RUNNING || q[i].state == SLEEPING || q[i].state == SUSPENDED) {
-            kprintf("%s  ", q[i].pid);
+            kprintf("%d  ", q[i].pid);
             kprintf("%s  ", q[i].name);
-            kprintf("%s  ", q[i].state);
+           // kprintf("%s  ", q[i].state);
             kprintf("\n");
         }
 	}
@@ -230,7 +230,7 @@ int fork(){
 			"movq %%rsp, %0;"
 			:"=g"(s_add)::"memory"
 			);
-
+    
     new->regs.rsp = (uint64_t) ((uint64_t)&(new->kstack[511]) -(uint64_t)((uint64_t)&(r->kstack[511]) - (uint64_t)s_add));
     return new->pid;
 }
