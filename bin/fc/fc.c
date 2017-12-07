@@ -1,6 +1,7 @@
 #include <sys/defs.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 void fn(int n){
     if(n == 0){

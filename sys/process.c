@@ -311,7 +311,7 @@ int execvpe(char* path, char *argv[]){
     vm2->next = ts->vm;
     ts->vm = vm2;
 
-    
+
     uint64_t s_add = allocate_page();
 	init_pages_for_process(0x100FFFFF0000,s_add,pml4);
 	ts->ustack = (uint64_t*)0x100FFFFF0000;
@@ -468,14 +468,13 @@ void getcwd(char *buf, int size){
     }
 }
 void* malloc(int no_of_bytes){
-    vma* vm = r->vm;
-    while(vm->next){
-        vm = vm->next;
-    }
+    vma* vm = r->vm->next;
+
     uint64_t ret = vm->vm_end;
     for(int i =0;i<((no_of_bytes/4096))+1;i++){
         uint64_t s_add = allocate_page();
         init_pages_for_process(vm->vm_end,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
+        kprintf("New allocated address at %p - range %p,%p \n",s_add,vm->vm_start,vm->vm_end);
         vm->vm_end = vm->vm_end + 4096;
     }
     return (uint64_t*)ret;

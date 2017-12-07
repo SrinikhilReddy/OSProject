@@ -7,7 +7,7 @@ int main(int argc, char *argv[], char *envp[]);
 void exit(int status);
 
 void *malloc(size_t size);
-//void free(void *ptr);
+void free(void *ptr);
 
 void pushenvs(char* envp[]);
 char* getallenv(int i);

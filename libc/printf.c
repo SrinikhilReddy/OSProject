@@ -75,7 +75,7 @@ void print_int(int num)
 }
 
 void print_pointer(unsigned long i){
-	char a[32];
+	    char a[100];
         int l=0;
         while(i!=0){
                 int k = i%16;
@@ -86,14 +86,16 @@ void print_pointer(unsigned long i){
                         a[l++] = 'A'+(k-10);
                 }   
                 i = i/16;
-        }   
-        for(int k=l-1;k>=0;k--){
-		char* t = &a[k];
+        }
+        a[l]='\0';
+     /*   for(int k=l-1;k>=0;k--){
+		        char* t = &a[k];
                 puts(t);    
-        }   	
+        }*/
+        puts(a);
 }
 void print_hex(int i){
-	char a[11];
+	char a[100];
 	int l=0;
 	while(i!=0){
 		int k = i%16;
