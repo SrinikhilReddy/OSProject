@@ -10,17 +10,6 @@ void init_proc(){
 		q[i].time = 0;
 	}
 }
-void addToQ(task_struct* a){
-	np++;
-}
-void removefromQ(task_struct* e){
-	for(int i=0;i<MAX;i++){
-		if(q[i].ppid == e->pid){
-				q[i].state = ZOMBIE;
-				q[i].ppid = -1;
-		}
-	}
-}
 void yield(){
 		task_struct *last = r;
 		int i = (last->pid+1)%MAX;

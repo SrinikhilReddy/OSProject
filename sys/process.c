@@ -218,7 +218,6 @@ int fork(){
 	__asm__ volatile ("movq %0, %%cr3;" :: "r"(pcr3));	
 
 	r->child_count+=1;
-	r->child = new;
 	memcpy(&(new->kstack[0]),&(r->kstack[0]),512*8);
     new->kstack[14] = 9999;
 	__asm__ __volatile__(
@@ -422,11 +421,9 @@ int chdir(char* path){
 
     }*/
     if((isValidDirectory(path)) > -1){
-        kprintf("---- %s\n",path);
         char k[100];
         strcpy(k,path);
         setTruePath(k);
-        kprintf("---- %s\n",k);
         char l[100];
         l[0] = '/';
         l[1] = '\0';

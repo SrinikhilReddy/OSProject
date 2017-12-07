@@ -49,12 +49,6 @@ typedef struct task_struct {
 
 	uint64_t pml4e;
 
-	struct task_struct *prev;
-	struct task_struct *next;
-
-	struct task_struct *parent;
-	
-	struct task_struct *child;
 	int child_count;
 
 	struct vm_area_struct *vm;
