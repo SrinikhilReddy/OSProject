@@ -23,7 +23,9 @@ int open(const char *path,int flags)
 	_syscall2(int, open, char*, path, int, flags);
 	return 0;
 }
-
+int close(int fd){
+    _syscall1(int,close,int,fd);
+}
 int open_dir(const char *path)
 {
     _syscall1(int, opendir, char*, path);
@@ -49,4 +51,7 @@ struct dirent *readdir(DIR *dirp){
         return NULL;
     }
     return &d[dirp->fd];
+}
+int closedir(DIR *dirp){
+    return close(dirp->fd);
 }

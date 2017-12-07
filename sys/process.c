@@ -168,6 +168,12 @@ void create_process(char* filename){
     ts->rsp = ts->rsp - len;
     memcpy(ts->rsp,a,len);
 
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+    
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
     (ts->rsp)-=1;
     *(ts->rsp) = (uint64_t)((ts->rsp)+1);
 
@@ -321,6 +327,8 @@ int execvpe(char* path, char *argv[]){
 	vm->vm_end = 0x100FFEFF0000;
 	vm->next = ts->vm;
 	ts->vm = vm;
+
+
 	uint64_t* temp[argc];
 	for(int i=argc-1;i>=0;i--){
 		int l = strlen(args[i])+1;
@@ -328,7 +336,15 @@ int execvpe(char* path, char *argv[]){
 		memcpy(ts->rsp,args[i],l);
 		temp[i] = ts->rsp;
 	}
-	for(int i=argc-1;i>=0;i--){
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
+
+    ts->rsp -= 1;
+    *(ts->rsp) = 0;
+
+    for(int i=argc-1;i>=0;i--){
 		(ts->rsp)-=1;
 		*(ts->rsp) = (uint64_t)temp[i];
 	}
@@ -474,7 +490,6 @@ void* malloc(int no_of_bytes){
     for(int i =0;i<((no_of_bytes/4096))+1;i++){
         uint64_t s_add = allocate_page();
         init_pages_for_process(vm->vm_end,s_add,(uint64_t *)(r->pml4e+0xffffffff80000000));
-        kprintf("New allocated address at %p - range %p,%p \n",s_add,vm->vm_start,vm->vm_end);
         vm->vm_end = vm->vm_end + 4096;
     }
     return (uint64_t*)ret;

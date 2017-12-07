@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-char env_var[1000][1000];
-int env_length=0;
-char temp[50];
+static char env_var[1000][1000];
+static int env_length=0;
+static char temp[50];
+
 char* getvar(char* name);
 char* getallenv(int i){
 	return &env_var[i][0];

@@ -24,6 +24,6 @@ int main(int argc, char* argv[], char* envp[])
 //    puts("\n");
     readstring(fp,buf,4096);
 	puts(buf);
-	//close(fp);
+	close(fp);
 }
 

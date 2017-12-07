@@ -5,6 +5,7 @@
 typedef struct file_t {
 	int fd;
 	char file_name[50];
+    int aval;
 	off_t offset;
 	int entry;
 	uint64_t flags; 

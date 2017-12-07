@@ -38,5 +38,6 @@ int main(int argc, char *argv[], char* envp[])
         puts("     ");
     }
     puts("\n");
+    close(dp->fd);
     return 0;
 }

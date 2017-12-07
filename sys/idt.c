@@ -346,8 +346,10 @@ uint64_t isr128(){
 	}
 	else if(cval == 2){
 		ret = open_tarfs((char*) y->rbx, (int) y->rcx);
-	}
-    else if(cval == 16){
+	}else if(cval == 3) {
+            ret = close_tarfs((int)y->rbx);
+    }
+   else if(cval == 16){
         ret =  open_dir((char *)y->rbx);
     }
    else if(cval == 78){

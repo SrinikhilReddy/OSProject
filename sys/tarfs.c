@@ -146,6 +146,7 @@ int open_dir(char* path){
     r->fd_c++;
     strcpy(&(r->fd[fdc].file_name[0]), h->name);
     r->fd[fdc].entry = 0;
+    r->fd[fdc].aval = 1;
     r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
     r->fd[fdc].address = (uint64_t)headers[file_no];
     r->fd[fdc].fd = fdc;
@@ -164,6 +165,7 @@ int open_tarfs(char* path, int flags)
 	    strcpy(&(r->fd[fdc].file_name[0]), h->name);
         r->fd[fdc].flags = flags;
 	    r->fd[fdc].entry = 0;
+        r->fd[fdc].aval = 1;
     	r->fd[fdc].size = (uint64_t)(octal_to_binary((char*)(h->size)));
     	r->fd[fdc].address = (uint64_t)headers[file_no];
 	    r->fd[fdc].fd = fdc;
@@ -172,6 +174,9 @@ int open_tarfs(char* path, int flags)
 
 ssize_t read_tarfs(int fd, char* buf, int count)
 {
+        if(r->fd[fd].aval == 0){
+            return  -1;
+        }
         if(count==0)
         {
                 return 0;
@@ -234,6 +239,7 @@ int close_tarfs(int fp)
 	ft.file_name[0] = '\0';
 	ft.offset = 0;
 	ft.size = 0;
+    ft.aval = 0;
 	//.address = NULL;
 	return ft.fd;
 }
