@@ -28,5 +28,5 @@ int mkdir(const char *pathname, mode_t mode);
 
 // OPTIONAL: implement for ``signals and pipes (+10 pts)''
 int pipe(int pipefd[2]);
-
+void ps();
 #endif

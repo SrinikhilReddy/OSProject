@@ -201,22 +201,29 @@ void isr14(){
         }
     }
     if(flag == 0){
-
             kprintf("Segmentation Fault: Address:%p \n",bb);
             exit();
             while(1);
-            outportb(0x20,0x20);
     }
     uint64_t* k = getPTE(bb);
-    if( k[(bb>>12)&0x1FF] & 0x0000000000000200){
-        __asm__ volatile("movq %%cr3,%0;":"=g"(k)::);
-		//TODO: Free the old page
-		uint64_t p_n = allocate_page();
-		memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
-		switchtokern();
-		init_pages_for_process(bb,p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
-        __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
-		outportb(0x20,0x20);
+    if( k[(bb>>12)&0x1FF] & 0x0000000000000200){     //COW
+        uint64_t k1;
+        __asm__ volatile("movq %%cr3,%0;":"=g"(k1)::);
+        uint64_t  add = (k[(bb>>12)&0x1FF] & 0xFFFFFFFFFFFFF000);
+        int i = getrefcount(add);
+        if(i == 2){
+            uint64_t p_n = allocate_page();
+            memcpy((void*)(0xffffffff80000000 + p_n),(void *)(bb&0xFFFFFFFFFFFFF000),4096);
+            switchtokern();
+            init_pages_for_process((bb&0xFFFFFFFFFFFFF000),p_n,(uint64_t *)(r->pml4e + 0xffffffff80000000));
+            free(add);
+        } else if(i == 1){
+            k[(bb>>12)&0x1FF] = (k[(bb>>12)&0x1FF] | 0x2) & 0xFFFFFFFFFFFFFDFF;
+        } else{
+            kprintf("Should never be here\n");
+            while(1);
+        }
+        __asm__ volatile("movq %0,%%cr3;"::"r"(k1):);
 	}
 	else if( (r->vm->vm_start > bb)  && (r->vm->vm_end < bb)){   //Auto Growing stack
 		uint64_t k;
@@ -228,9 +235,11 @@ void isr14(){
 		r->vm->vm_start = n_s;
 		 __asm__ volatile("movq %0,%%cr3;"::"r"(k):);
 //		while(1);
-		outportb(0x20,0x20);
 	}
-
+    else{
+        kprintf("You are screwed");
+        while(1);
+    }
 
 }
 void isr15(){
@@ -321,6 +330,7 @@ uint64_t isr128(){
 		ret = (uint64_t)fork();
         if((uint64_t)r->kstack[14] == 9999){
             ret = 0;
+            r->kstack[14] = 0;
             __asm__ volatile("popq %%rax":::"%rax");
             __asm__ volatile("popq %%rax":::"%rax");
         }

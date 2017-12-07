@@ -25,5 +25,7 @@ void printpml4(uint64_t* pml4);
 void copytables(task_struct* a,task_struct* b);
 uint64_t* getPTE(uint64_t v);
 void switchtokern();
+int getrefcount(uint64_t add);
+void free(uint64_t add);
 void dealloc_pml4(uint64_t pm4);
 #endif

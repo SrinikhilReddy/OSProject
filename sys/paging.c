@@ -62,6 +62,9 @@ void free(uint64_t add){
         }
 
 }
+int getrefcount(uint64_t add){
+    return pagelist[add/4096].ref_count;
+}
 void increfcount(uint64_t add){
     pagelist[add/4096].ref_count+=1;
 }
@@ -71,7 +74,8 @@ __asm__ volatile("movq %0,%%cr3;"::"r"((uint64_t)k_cr3));// - 0xffffffff80000000
 uint64_t allocate_page(){
 	freelist* temp = head;
 	if(temp == NULL){
-		kprintf("Trouble Land\\\\\\/n");
+		kprintf("Trouble Land - Out of memory\n");
+        while(1);
 	}
 	temp->free=0;
     temp->ref_count = 1;

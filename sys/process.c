@@ -72,10 +72,12 @@ void ps()
 	kprintf("ID    Name    State\n");
 	for(int i=0; i<MAX; i++)
 	{
-		kprintf("%s  ",q[i].pid);
-		kprintf("%s  ",q[i].name);
-		kprintf("%s  ",q[i].state);
-		kprintf("\n");
+        if(q[i].state == RUNNING || q[i].state == SLEEPING || q[i].state == SUSPENDED) {
+            kprintf("%s  ", q[i].pid);
+            kprintf("%s  ", q[i].name);
+            kprintf("%s  ", q[i].state);
+            kprintf("\n");
+        }
 	}
 }
 

@@ -132,7 +132,7 @@ void print_pointer(unsigned long i){
                 i = i/16;
         }   
         for(int k=l-1;k>=0;k--){
-                put_to_screen(a[k]);    
+                put_to_screen(a[k]);
         }   	
 }
 void print_hex(int i){
