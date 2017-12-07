@@ -64,7 +64,7 @@ void init_task();
 void create_task(task_struct*,uint64_t main, uint64_t flags, uint64_t pagedir);
 void yield();
 void switchtor3();
-int execvpe(char* file, char *argv[]);
+int execvpe(char* file, char *argv[],char* env[]);
 void *memcpy(void *dst,void *src, uint64_t count);
 int get_pid();
 int get_ppid();

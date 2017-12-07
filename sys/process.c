@@ -170,7 +170,7 @@ void create_process(char* filename){
 
     ts->rsp -= 1;
     *(ts->rsp) = 0;
-    
+
     ts->rsp -= 1;
     *(ts->rsp) = 0;
 
@@ -247,9 +247,12 @@ int fork(){
     return new->pid;
 }
 
-int execvpe(char* path, char *argv[]){
+int execvpe(char* path, char *argv[],char* env[]){
 	task_struct* ts = r;
     char file[50];
+    int argc = 0;
+    uint64_t f_a = 0 ;
+    char args[10][80];
 /*    if( (*path) != '/') {
         strcpy(file, &(r->curr_dir[1]));
         strcat(file, path);
@@ -257,19 +260,38 @@ int execvpe(char* path, char *argv[]){
     else{
         strcpy(file,path+1);
     }*/
-    strcpy(file,"bin/");
-    strcat(file,path);
-	strcpy(ts->name,file);
-	char args[10][80] ;
-	uint64_t f_a = get_file_address(file) +512;
-	if(f_a < 512){
-		return -1;
-	}
-	int argc = 0;
-	while(argv[argc]){
-		strcpy(args[argc],argv[argc]);
-		argc++;
-	}
+    if(path[0] == '.' && path[1] == '/'){
+        strcpy(file, &(r->curr_dir[1]));
+        strcat(file, path+2);
+        uint64_t y = get_file_address(file)+512;
+        if(y<512){
+            return -1;
+        }
+        if( *((char *)y) == '!' && *((char *)y+1) == '#') {
+            f_a = get_file_address("bin/sbush") + 512;
+            strcpy(args[argc++], argv[0]);
+            strcpy(args[argc++], path+2);
+        }
+    }
+    else {
+        strcpy(file, "bin/");
+        strcat(file, path);
+        strcpy(ts->name, file);
+
+
+        f_a = get_file_address(file) + 512;
+        if (f_a < 512) {
+            return -1;
+        }
+
+        while (argv[argc]) {
+            strcpy(args[argc], argv[argc]);
+            argc++;
+        }
+    }
+    if (f_a < 512) {
+        return -1;
+    }
 	Elf64_Ehdr* eh = (Elf64_Ehdr*)(f_a);
 	int no_ph = eh->e_phnum;
 	ts->regs.rip = eh->e_entry;

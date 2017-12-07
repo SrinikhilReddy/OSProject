@@ -339,7 +339,7 @@ uint64_t isr128(){
         }
 	}
 	else if(cval == 59){
-		ret = execvpe((char *)y->rbx,(char **)y->rcx);
+		ret = execvpe((char *)y->rbx,(char **)y->rcx,(char **) y->rdx);
 	}
 	else if(cval == 0){
 		ret = read_tarfs((int) y->rbx, (char*) y->rcx, (int) y->rdx);			

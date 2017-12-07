@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <syscall.h>
 #include <sys/wait.h>
 void readInput();
 void parseInput();
@@ -29,6 +30,13 @@ static char *in = &input[0] ;
 static char *args[1000] ;
 static char *command = &com[0];
 static char *envpe[100];
+
+static char cm1[20][100];
+static char *cm[20];
+int readstring(int fd,char* buf,int size){
+    _syscall3(int,read,int,fd,char*,buf,int,size);
+    return 0;
+}
 
 int main(int argc, char *argv[], char *envp[]) {
     initargs();
@@ -64,24 +72,30 @@ int main(int argc, char *argv[], char *envp[]) {
             puts("File not found, Exiting!");
             return 0;
         }
-        int c=1,i=0;
-        while(c!=EOF){
-            c = fgetc(fp);
-            while(c!='\n' && c!=EOF){
-                in[i++]=(char) c;
-                //lseek(fd,1,SEEK_CUR);
-                c = fgetc(fp);
+        char buf[4096];
+        readstring(fp,buf,4096);
+        int c = 0,l =0;
+        for(int i=0;i<20;i++){
+            cm[i] = &cm1[i][0];
+        }
+        int len = strlen(buf);
+        in = &input[0];
+        for(int i =0;i<len;i++){
+            if(*(buf+i) =='\n'){
+                cm[c][l++] = '\0';
+                c++;
+                l =0;
+                continue;
             }
-            if(i>0){
+            cm[c][l++] = *(buf+i);
+        }
+        for(int k =1;k<c;k++){
+                strcpy(in,cm[k]);
                 parseInput();
-                i=0;
+            //    i=0;
                 clearInput();
                 clearCommand();
                 clearArguments();
-            }
-            else{
-                return 0;
-            }
         }
     }
     return 0;
