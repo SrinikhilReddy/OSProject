@@ -262,6 +262,24 @@ int execvpe(char* path, char *argv[],char* env[]){
             return -1;
         }
         if( *((char *)y) == '!' && *((char *)y+1) == '#') {
+            char ex[50];
+            int q= 0;
+            y+=2;
+            while( (*(char *) y) != '\n'){
+                if( (*(char *) y) != ' ') {
+                    ex[q++] = *(char *) y;
+                }
+                y = y+1;
+            }
+            ex[q++]='\0';
+            if(strlen(ex) == 0){
+                strcpy(ex,"bin/sbush");
+            }
+            f_a = get_file_address(ex) + 512;
+            strcpy(args[argc++], argv[0]);
+            strcpy(args[argc++], path+2);
+        }
+        else {
             f_a = get_file_address("bin/sbush") + 512;
             strcpy(args[argc++], argv[0]);
             strcpy(args[argc++], path+2);
@@ -481,14 +499,15 @@ unsigned int sleep(unsigned int seconds){
     return 0;
 }
 int chdir(char* path){
-   /* if(strcmp("../",path) == 0){
-        char t[100];
-        getcwd(t,-1);
-        strcat(t,"/");
-        strcat(t,path);
-        path = &t[1];
-
-    }*/
+    if(strcmp("../",path) == 0){
+        char k[100];
+        strcpy(k,path);
+        setTruePath(k);
+        if(strcmp(k,"")==0){
+            strcpy(r->curr_dir,"/");
+            return 0;
+        }
+    }
     if((isValidDirectory(path)) > -1){
         char k[100];
         strcpy(k,path);

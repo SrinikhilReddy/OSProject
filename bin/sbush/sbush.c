@@ -89,7 +89,7 @@ int main(int argc, char *argv[], char *envp[]) {
             }
             cm[c][l++] = *(buf+i);
         }
-        for(int k =1;k<c;k++){
+        for(int k =0;k<c;k++){
                 strcpy(in,cm[k]);
                 parseInput();
             //    i=0;

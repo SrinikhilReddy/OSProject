@@ -1,3 +1,51 @@
+Project Submission : CSE 506
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+Points : 60 (Cooperative,preemptive scheduling)
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+Binaries Implemented:
+echo
+ls
+cat
+echo
+kill
+ps
+sleep
+fc ( Code to test for memory usage by spawing a million forks)
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+Shell : sbush
+--------------------------------------------------------------------------------------------------------
+Builtins:
+clear
+cd
+pwd
+
+--------------------------------------------------------------------------------------------------------
+Other functionalites :
+* Runs scripts using ./ command.
+* Run scripts using !# (shebang)
+    Ex:
+    !# bin/<yourshell>
+    ls
+    pwd
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+References Used:
+1. http://www.brokenthorn.com/Resources/
+2. http://duartes.org/gustavo/blog/post/how-the-kernel-manages-your-memory/
+3. http://venkateshabbarapu.blogspot.com/2012/10/process-in-linux-kernel.html
+4. https://notes.shichao.io/apue/ch8/#fork-function
+5. http://forum.osdev.org/
+6. http://www.inf.udec.cl/~leo/Malloc_tutorial.pdf
+7. https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
+
+
+
+
+
+
 * The provided Makefile:
   1) builds a kernel
   2) copies it into rootfs/boot/kernel/kernel
