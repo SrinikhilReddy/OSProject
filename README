@@ -1,8 +1,6 @@
 A preemptive,multi-scheduling Kernel Developed for X86-64 architecture:
 
-Project Submission : CSE 506
-
-Points : 60 (Cooperative,preemptive scheduling)
+(Cooperative,preemptive scheduling)
 
 Binaries Implemented:
 echo
